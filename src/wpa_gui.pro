@@ -10,26 +10,26 @@ DEFINES += CONFIG_CTRL_IFACE
 win32 {
   LIBS += -lws2_32 -static
   DEFINES += CONFIG_NATIVE_WINDOWS CONFIG_CTRL_IFACE_NAMED_PIPE
-  SOURCES += ../../src/utils/os_win32.c
+  SOURCES += ../wpa_supplicant/src/utils/os_win32.c
 } else:win32-g++ {
   # cross compilation to win32
   LIBS += -lws2_32 -static -mwindows
   DEFINES += CONFIG_NATIVE_WINDOWS CONFIG_CTRL_IFACE_NAMED_PIPE
-  SOURCES += ../../src/utils/os_win32.c
+  SOURCES += ../wpa_supplicant/src/utils/os_win32.c
   RESOURCES += icons_png.qrc
 } else:win32-x-g++ {
   # cross compilation to win32
   LIBS += -lws2_32 -static -mwindows
   DEFINES += CONFIG_NATIVE_WINDOWS CONFIG_CTRL_IFACE_NAMED_PIPE
   DEFINES += _X86_
-  SOURCES += ../../src/utils/os_win32.c
+  SOURCES += ../wpa_supplicant/src/utils/os_win32.c
   RESOURCES += icons_png.qrc
 } else {
   DEFINES += CONFIG_CTRL_IFACE_UNIX
-  SOURCES += ../../src/utils/os_unix.c
+  SOURCES += ../wpa_supplicant/src/utils/os_unix.c
 }
 
-INCLUDEPATH	+= . .. ../../src ../../src/utils
+INCLUDEPATH	+= . .. ../wpa_supplicant/src ../wpa_supplicant/src/utils
 
 HEADERS	+= wpamsg.h \
 	wpagui.h \
@@ -54,7 +54,7 @@ SOURCES	+= main.cpp \
 	addinterface.cpp \
 	peers.cpp \
 	stringquery.cpp \
-	../../src/common/wpa_ctrl.c
+	../wpa_supplicant/src/common/wpa_ctrl.c
 
 RESOURCES += icons.qrc
 
