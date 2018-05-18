@@ -1515,38 +1515,36 @@ void WpaGui::updateTrayIcon(TrayIconType type)
 
 	switch (type) {
 	case TrayIconOffline:
-		names << "network-wireless-offline-symbolic"
-		      << "network-wireless-offline"
-		      << "network-wireless-signal-none-symbolic"
-		      << "network-wireless-signal-none";
+		names << "network-wireless-disconnected"
+		      << "network-wireless-offline-symbolic";
 		break;
 	case TrayIconAcquiring:
-		names << "network-wireless-acquiring-symbolic"
-		      << "network-wireless-acquiring";
+		names << "network-wireless-acquiring"
+		      << "network-wireless-acquiring-symbolic";
 		break;
 	case TrayIconConnected:
-		names << "network-wireless-connected-symbolic"
-		      << "network-wireless-connected";
+		names << "network-wireless-connected-00"
+		      << "network-wireless-connected-symbolic";
 		break;
 	case TrayIconSignalNone:
-		names << "network-wireless-signal-none-symbolic"
-		      << "network-wireless-signal-none";
+		names << "network-wireless-signal-none"
+		      << "network-wireless-signal-none-symbolic";
 		break;
 	case TrayIconSignalWeak:
-		names << "network-wireless-signal-weak-symbolic"
-		      << "network-wireless-signal-weak";
+		names << "network-wireless-signal-weak"
+		      << "network-wireless-signal-weak-symbolic";
 		break;
 	case TrayIconSignalOk:
-		names << "network-wireless-signal-ok-symbolic"
-		      << "network-wireless-signal-ok";
+		names << "network-wireless-signal-ok"
+		      << "network-wireless-signal-ok-symbolic";
 		break;
 	case TrayIconSignalGood:
-		names << "network-wireless-signal-good-symbolic"
-		      << "network-wireless-signal-good";
+		names << "network-wireless-signal-good"
+		      << "network-wireless-signal-good-symbolic";
 		break;
 	case TrayIconSignalExcellent:
-		names << "network-wireless-signal-excellent-symbolic"
-		      << "network-wireless-signal-excellent";
+		names << "network-wireless-connected-100"
+		      << "network-wireless-signal-excellent-symbolic";
 		break;
 	}
 
