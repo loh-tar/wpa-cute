@@ -97,6 +97,7 @@ WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *,
 	connect(helpContentsAction, SIGNAL(triggered()), this,
 		SLOT(helpContents()));
 	connect(helpAboutAction, SIGNAL(triggered()), this, SLOT(helpAbout()));
+	connect(helpAboutQtAction, &QAction::triggered, qApp, &QApplication::aboutQt);
 	connect(disconnectButton, SIGNAL(clicked()), this, SLOT(disconnect()));
 	connect(scanButton, SIGNAL(clicked()), this, SLOT(scan()));
 	connect(connectButton, SIGNAL(clicked()), this, SLOT(connectB()));
