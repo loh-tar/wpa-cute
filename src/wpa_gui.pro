@@ -6,6 +6,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG	+= qt warn_on release
 
 DEFINES += CONFIG_CTRL_IFACE
+QMAKE_CXXFLAGS += -Wformat-truncation=0
 
 win32 {
   LIBS += -lws2_32 -static
