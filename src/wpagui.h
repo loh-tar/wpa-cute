@@ -12,9 +12,9 @@
 #include <QSystemTrayIcon>
 #include <QObject>
 #include "ui_wpagui.h"
-#include "addinterface.h"
 
 class UserDataRequest;
+class AddInterface;
 
 class WpaGuiApp : public QApplication
 {
@@ -111,8 +111,8 @@ public slots:
 #ifdef CONFIG_NATIVE_WINDOWS
 	virtual void startService();
 	virtual void stopService();
-#endif /* CONFIG_NATIVE_WINDOWS */
 	virtual void addInterface();
+#endif /* CONFIG_NATIVE_WINDOWS */
 
 protected slots:
 	virtual void languageChange();
@@ -166,10 +166,9 @@ private:
 	QAction *fileStopServiceAction;
 
 	bool serviceRunning();
-#endif /* CONFIG_NATIVE_WINDOWS */
-
 	QAction *addInterfaceAction;
 	AddInterface *add_iface;
+#endif /* CONFIG_NATIVE_WINDOWS */
 
 	bool connectedToService;
 

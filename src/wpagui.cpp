@@ -8,6 +8,7 @@
 
 #ifdef CONFIG_NATIVE_WINDOWS
 #include <windows.h>
+#include "addinterface.h"
 #endif /* CONFIG_NATIVE_WINDOWS */
 
 #include <cstdio>
@@ -60,6 +61,8 @@ WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *,
 
 	connect(addInterfaceAction, SIGNAL(triggered()), this,
 		SLOT(addInterface()));
+
+	add_iface = NULL;
 #endif /* CONFIG_NATIVE_WINDOWS */
 
 	(void) statusBar();
@@ -126,7 +129,6 @@ WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *,
 	eh = NULL;
 	scanres = NULL;
 	peers = NULL;
-	add_iface = NULL;
 	udr = NULL;
 	tray_icon = NULL;
 	startInTray = false;
@@ -210,11 +212,13 @@ WpaGui::~WpaGui()
 		peers = NULL;
 	}
 
+#ifdef CONFIG_NATIVE_WINDOWS
 	if (add_iface) {
 		add_iface->close();
 		delete add_iface;
 		add_iface = NULL;
 	}
+#endif /* CONFIG_NATIVE_WINDOWS */
 
 	if (udr) {
 		udr->close();
@@ -1869,9 +1873,6 @@ bool WpaGui::serviceRunning()
 	return running;
 }
 
-#endif /* CONFIG_NATIVE_WINDOWS */
-
-
 void WpaGui::addInterface()
 {
 	if (add_iface) {
@@ -1883,6 +1884,7 @@ void WpaGui::addInterface()
 	add_iface->exec();
 }
 
+#endif /* CONFIG_NATIVE_WINDOWS */
 
 #ifndef QT_NO_SESSIONMANAGER
 void WpaGui::saveState()
