@@ -791,6 +791,7 @@ void WpaGui::scan()
 		return;
 	scanres->setWpaGui(this);
 	scanres->show();
+	scanres->activateWindow();
 	scanres->exec();
 }
 
@@ -807,6 +808,7 @@ void WpaGui::eventHistory()
 		return;
 	eh->addEvents(msgs);
 	eh->show();
+	eh->activateWindow();
 	eh->exec();
 }
 
@@ -1441,6 +1443,7 @@ void WpaGui::trayActivated(QSystemTrayIcon::ActivationReason how)
 			inTray = true;
 		} else {
 			show();
+			activateWindow();
 			inTray = false;
 		}
 		break;
