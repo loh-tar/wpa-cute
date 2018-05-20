@@ -33,7 +33,7 @@ NetworkConfig::NetworkConfig(QWidget *parent, const char *, bool,
 {
 	setupUi(this);
 
-	encrSelect->setEnabled(false);
+	encrBox->setVisible(false);
 	connect(authSelect, SIGNAL(activated(int)), this,
 		SLOT(authChanged(int)));
 	connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
@@ -109,12 +109,15 @@ void NetworkConfig::paramsFromScanResults(QTreeWidgetItem *sel)
 
 void NetworkConfig::authChanged(int sel)
 {
-	encrSelect->setEnabled(sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP &&
+	encrBox->setVisible(sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP &&
 			       sel != AUTH_NONE_WEP_SHARED);
-	pskEdit->setEnabled(sel == AUTH_WPA_PSK || sel == AUTH_WPA2_PSK ||
+	pskBox->setVisible(sel == AUTH_WPA_PSK || sel == AUTH_WPA2_PSK ||
 		sel == AUTH_DEFAULTS);
 	bool eap = sel == AUTH_IEEE8021X || sel == AUTH_WPA_EAP ||
 		sel == AUTH_WPA2_EAP;
+	eapBox->setVisible(eap);
+	resize(sizeHint());
+	adjustSize();
 	eapSelect->setEnabled(eap);
 	identityEdit->setEnabled(eap);
 	passwordEdit->setEnabled(eap);
@@ -298,7 +301,7 @@ void NetworkConfig::addNetwork()
 		setNetworkParam(id, "pairwise", pairwise, false);
 		setNetworkParam(id, "group", "TKIP CCMP WEP104 WEP40", false);
 	}
-	if (pskEdit->isEnabled() &&
+	if (pskBox->isVisible() &&
 	    strcmp(pskEdit->text().toLocal8Bit().constData(),
 		   WPA_GUI_KEY_DATA) != 0)
 		setNetworkParam(id, "psk",
@@ -451,6 +454,9 @@ void NetworkConfig::encrChanged(const QString &)
 
 void NetworkConfig::wepEnabled(bool enabled)
 {
+	wepBox->setVisible(enabled);
+	resize(sizeHint());
+	adjustSize();
 	wep0Edit->setEnabled(enabled);
 	wep1Edit->setEnabled(enabled);
 	wep2Edit->setEnabled(enabled);
@@ -513,6 +519,8 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	edit_network_id = network_id;
 	getEapCapa();
 
+	QString curSetting(tr("Currently Used") + ": ");
+
 	char reply[1024], cmd[256], *pos;
 	size_t reply_len;
 
@@ -543,6 +551,7 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	reply_len = sizeof(reply) - 1;
 	if (wpagui->ctrlRequest(cmd, reply, &reply_len) >= 0) {
 		reply[reply_len] = '\0';
+		authSelect->setToolTip(curSetting + reply);
 		if (strstr(reply, "WPA-PSK WPA-EAP")) {
 			auth = AUTH_DEFAULTS;
 			encr = 1;
@@ -561,6 +570,7 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	reply_len = sizeof(reply) - 1;
 	if (wpagui->ctrlRequest(cmd, reply, &reply_len) >= 0) {
 		reply[reply_len] = '\0';
+		encrSelect->setToolTip(curSetting + reply);
 		if (strstr(reply, "CCMP TKIP"))
 			encr = 2;
 		else if (strstr(reply, "CCMP") && auth != AUTH_NONE_OPEN &&
