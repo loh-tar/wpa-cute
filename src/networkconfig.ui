@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>621</width>
-    <height>810</height>
+    <height>844</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -89,6 +89,11 @@
           <string>WPA2-Enterprise (EAP)</string>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>Not Set (Defaults to WPA RSN)</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item row="2" column="0">
@@ -99,28 +104,7 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QComboBox" name="encrSelect">
-        <item>
-         <property name="text">
-          <string>None</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>WEP</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>TKIP</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>CCMP</string>
-         </property>
-        </item>
-       </widget>
+       <widget class="QComboBox" name="encrSelect"/>
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="pskLabel">

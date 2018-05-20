@@ -20,7 +20,8 @@ enum {
 	AUTH_WPA_PSK,
 	AUTH_WPA_EAP,
 	AUTH_WPA2_PSK,
-	AUTH_WPA2_EAP
+	AUTH_WPA2_EAP,
+	AUTH_DEFAULTS
 };
 
 #define WPA_GUI_KEY_DATA "[key is configured]"
@@ -110,7 +111,8 @@ void NetworkConfig::authChanged(int sel)
 {
 	encrSelect->setEnabled(sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP &&
 			       sel != AUTH_NONE_WEP_SHARED);
-	pskEdit->setEnabled(sel == AUTH_WPA_PSK || sel == AUTH_WPA2_PSK);
+	pskEdit->setEnabled(sel == AUTH_WPA_PSK || sel == AUTH_WPA2_PSK ||
+		sel == AUTH_DEFAULTS);
 	bool eap = sel == AUTH_IEEE8021X || sel == AUTH_WPA_EAP ||
 		sel == AUTH_WPA2_EAP;
 	eapSelect->setEnabled(eap);
@@ -121,8 +123,7 @@ void NetworkConfig::authChanged(int sel)
 	if (eap)
 		eapChanged(eapSelect->currentIndex());
 
-	while (encrSelect->count())
-		encrSelect->removeItem(0);
+	encrSelect->clear();
 
 	if (sel == AUTH_NONE_OPEN || sel == AUTH_NONE_WEP ||
 	    sel == AUTH_NONE_WEP_SHARED || sel == AUTH_IEEE8021X) {
@@ -132,8 +133,14 @@ void NetworkConfig::authChanged(int sel)
 	} else {
 		encrSelect->addItem("TKIP");
 		encrSelect->addItem("CCMP");
+		if (sel == AUTH_DEFAULTS) {
+			encrSelect->addItem("CCMP TKIP");
+			encrSelect->setCurrentIndex(2);
+		}
+		else {
 		encrSelect->setCurrentIndex((sel == AUTH_WPA2_PSK ||
-					     sel == AUTH_WPA2_EAP) ? 1 : 0);
+		                             sel == AUTH_WPA2_EAP ) ? 1 : 0);
+		}
 	}
 
 	wepEnabled(sel == AUTH_NONE_WEP || sel == AUTH_NONE_WEP_SHARED);
@@ -536,7 +543,11 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	reply_len = sizeof(reply) - 1;
 	if (wpagui->ctrlRequest(cmd, reply, &reply_len) >= 0) {
 		reply[reply_len] = '\0';
-		if (strstr(reply, "WPA-EAP"))
+		if (strstr(reply, "WPA-PSK WPA-EAP")) {
+			auth = AUTH_DEFAULTS;
+			encr = 1;
+		}
+		else if (strstr(reply, "WPA-EAP"))
 			auth = wpa & 2 ? AUTH_WPA2_EAP : AUTH_WPA_EAP;
 		else if (strstr(reply, "WPA-PSK"))
 			auth = wpa & 2 ? AUTH_WPA2_PSK : AUTH_WPA_PSK;
@@ -550,7 +561,9 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	reply_len = sizeof(reply) - 1;
 	if (wpagui->ctrlRequest(cmd, reply, &reply_len) >= 0) {
 		reply[reply_len] = '\0';
-		if (strstr(reply, "CCMP") && auth != AUTH_NONE_OPEN &&
+		if (strstr(reply, "CCMP TKIP"))
+			encr = 2;
+		else if (strstr(reply, "CCMP") && auth != AUTH_NONE_OPEN &&
 		    auth != AUTH_NONE_WEP && auth != AUTH_NONE_WEP_SHARED)
 			encr = 1;
 		else if (strstr(reply, "TKIP"))
