@@ -110,7 +110,7 @@ void NetworkConfig::paramsFromScanResults(QTreeWidgetItem *sel)
 void NetworkConfig::authChanged(int sel)
 {
 	encrBox->setVisible(sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP &&
-			       sel != AUTH_NONE_WEP_SHARED);
+			       sel != AUTH_NONE_WEP_SHARED && sel != AUTH_IEEE8021X);
 	pskBox->setVisible(sel == AUTH_WPA_PSK || sel == AUTH_WPA2_PSK ||
 		sel == AUTH_DEFAULTS);
 	bool eap = sel == AUTH_IEEE8021X || sel == AUTH_WPA_EAP ||
