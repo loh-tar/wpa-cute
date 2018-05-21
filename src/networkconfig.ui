@@ -336,7 +336,7 @@
      <property name="title">
       <string>Pre-Shared Key</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
+     <layout class="QGridLayout" name="gridLayout_1">
       <item row="0" column="0">
        <widget class="QLabel" name="pskLabel">
         <property name="toolTip">
@@ -414,7 +414,7 @@
       </size>
      </property>
      <property name="title">
-      <string>Pairwise</string>
+      <string>WPA Cipher</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
       <item row="0" column="0">
@@ -423,7 +423,7 @@
          <string>List of accepted pairwise ciphers for WPA [pairwise=]</string>
         </property>
         <property name="text">
-         <string>Encryption</string>
+         <string>Pairwise</string>
         </property>
        </widget>
       </item>
