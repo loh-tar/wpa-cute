@@ -809,6 +809,7 @@ void NetworkConfig::paramsFromConfig(int network_id)
 
 	removeButton->setEnabled(true);
 	addButton->setText("Save");
+	setWindowTitle(tr("Edit Network Block - %1").arg(network_id));
 }
 
 
