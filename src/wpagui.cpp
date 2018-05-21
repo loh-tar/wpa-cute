@@ -175,9 +175,8 @@ WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *,
 		      "wpa_supplicant.");
 	}
 
-	updateStatus();
 	networkMayHaveChanged = true;
-	updateNetworks();
+	triggerUpdate();
 }
 
 
@@ -856,8 +855,7 @@ void WpaGui::ping()
 
 	pingsToStatusUpdate--;
 	if (pingsToStatusUpdate <= 0) {
-		updateStatus();
-		updateNetworks();
+		triggerUpdate();
 	}
 
 #ifndef CONFIG_CTRL_IFACE_NAMED_PIPE
@@ -1173,7 +1171,6 @@ void WpaGui::editListedNetwork()
 void WpaGui::triggerUpdate()
 {
 	updateStatus();
-	networkMayHaveChanged = true;
 	updateNetworks();
 }
 
@@ -1357,8 +1354,8 @@ void WpaGui::selectAdapter( const QString & sel )
 	if (openCtrlConnection(sel.toLocal8Bit().constData()) < 0)
 		debug("Failed to open control connection to "
 		      "wpa_supplicant.");
-	updateStatus();
-	updateNetworks();
+	networkMayHaveChanged = true;
+	triggerUpdate();
 }
 
 
