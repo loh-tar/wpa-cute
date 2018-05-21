@@ -316,6 +316,8 @@ void NetworkConfig::addNetwork()
 		else
 			setNetworkParam(id, "pcsc", "NULL", false);
 	}
+		else
+			setNetworkParam(id, "eap", "NULL", false);
 	if (phase2Select->isEnabled()) {
 		QString eap = eapSelect->currentText();
 		QString inner = phase2Select->currentText();
