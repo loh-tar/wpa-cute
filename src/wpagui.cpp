@@ -38,6 +38,8 @@ WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *,
 {
 	setupUi(this);
 	this->setWindowFlags(Qt::Dialog);
+
+	disconReconButton->setDefaultAction(disconReconAction);
 	addNetworkButton->setDefaultAction(networkAddAction);
 	editNetworkButton->setDefaultAction(networkEditAction);
 	removeNetworkButton->setDefaultAction(networkRemoveAction);
@@ -85,6 +87,8 @@ WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *,
 	connect(actionWPS, SIGNAL(triggered()), this, SLOT(wpsDialog()));
 	connect(actionPeers, SIGNAL(triggered()), this, SLOT(peersDialog()));
 	connect(fileExitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+	connect(disconReconAction, SIGNAL(triggered()), this,
+		SLOT(disconnReconnect()));
 	connect(networkAddAction, SIGNAL(triggered()), this,
 		SLOT(addNetwork()));
 	connect(networkEditAction, SIGNAL(triggered()), this,
@@ -105,7 +109,6 @@ WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *,
 	connect(helpAboutAction, SIGNAL(triggered()), this, SLOT(helpAbout()));
 	connect(helpAboutQtAction, &QAction::triggered, qApp, &QApplication::aboutQt);
 	connect(scanButton, SIGNAL(clicked()), this, SLOT(scan()));
-	connect(connectButton, SIGNAL(clicked()), this, SLOT(connectB()));
 	connect(adapterSelect, SIGNAL(activated(const QString&)), this,
 		SLOT(selectAdapter(const QString&)));
 	connect(networkList, SIGNAL(itemSelectionChanged()), this,
@@ -464,26 +467,46 @@ int WpaGui::ctrlRequest(const char *cmd, char *buf, size_t *buflen)
 
 QString WpaGui::wpaStateTranslate(char *state)
 {
-	if (!strcmp(state, "DISCONNECTED"))
+	if (!strcmp(state, "DISCONNECTED")) {
+		wpaState = WpaDisconnected;
 		return tr("Disconnected");
-	else if (!strcmp(state, "INACTIVE"))
+	}
+	else if (!strcmp(state, "INACTIVE")) {
+		wpaState = WpaInactive;
 		return tr("Inactive");
-	else if (!strcmp(state, "SCANNING"))
+	}
+	else if (!strcmp(state, "SCANNING")) {
+		wpaState =WpaScanning ;
 		return tr("Scanning");
-	else if (!strcmp(state, "AUTHENTICATING"))
+	}
+	else if (!strcmp(state, "AUTHENTICATING")) {
+		wpaState = WpaAuthenticating;
 		return tr("Authenticating");
-	else if (!strcmp(state, "ASSOCIATING"))
+	}
+	else if (!strcmp(state, "ASSOCIATING")) {
+		wpaState = WpaAssociating;
 		return tr("Associating");
-	else if (!strcmp(state, "ASSOCIATED"))
+	}
+	else if (!strcmp(state, "ASSOCIATED")) {
+		wpaState = WpaAssociated;
 		return tr("Associated");
-	else if (!strcmp(state, "4WAY_HANDSHAKE"))
+	}
+	else if (!strcmp(state, "4WAY_HANDSHAKE")) {
+		wpaState = Wpa4WayHandshake;
 		return tr("4-Way Handshake");
-	else if (!strcmp(state, "GROUP_HANDSHAKE"))
+	}
+	else if (!strcmp(state, "GROUP_HANDSHAKE")) {
+		wpaState = WpaGroupHandshake;
 		return tr("Group Handshake");
-	else if (!strcmp(state, "COMPLETED"))
+	}
+	else if (!strcmp(state, "COMPLETED")) {
+		wpaState = WpaCompleted;
 		return tr("Completed");
-	else
+	}
+	else {
+		wpaState = WpaUnknown;
 		return tr("Unknown");
+	}
 }
 
 
@@ -565,6 +588,17 @@ void WpaGui::updateStatus()
 			} else if (strcmp(start, "wpa_state") == 0) {
 				status_updated = true;
 				textStatus->setText(wpaStateTranslate(pos));
+				if (WpaDisconnected == wpaState) {
+					disconReconAction->setText(tr("Reconnect"));
+					disconReconAction->setToolTip(tr("Enable WLAN networking"));
+				} else if (WpaCompleted == wpaState ||
+				           WpaScanning  == wpaState ||
+				           WpaInactive  == wpaState  )
+				{
+					disconReconAction->setText(tr("Disconnect"));
+					disconReconAction->setToolTip(tr("Disable WLAN networking"));
+				}
+				disconReconAction->setEnabled(true);
 			} else if (strcmp(start, "key_mgmt") == 0) {
 				auth_updated = true;
 				textAuthentication->setText(pos);
@@ -781,12 +815,21 @@ void WpaGui::helpAbout()
 }
 
 
-void WpaGui::disconnect()
+void WpaGui::disconnReconnect()
 {
 	char reply[10];
 	size_t reply_len = sizeof(reply);
-	ctrlRequest("DISCONNECT", reply, &reply_len);
-	stopWpsRun(false);
+
+	disconReconAction->setEnabled(false);
+
+	if (WpaDisconnected == wpaState) {
+		ctrlRequest("REASSOCIATE", reply, &reply_len);
+	} else if (WpaCompleted == wpaState || WpaScanning  == wpaState ||
+		       WpaInactive == wpaState)
+	{
+		ctrlRequest("DISCONNECT", reply, &reply_len);
+		stopWpsRun(false);
+	}
 }
 
 
@@ -1094,14 +1137,6 @@ void WpaGui::networkSelectionChanged()
 }
 
 
-void WpaGui::connectB()
-{
-	char reply[10];
-	size_t reply_len = sizeof(reply);
-	ctrlRequest("REASSOCIATE", reply, &reply_len);
-}
-
-
 void WpaGui::enableNetwork(const QString &sel)
 {
 	requestNetworkChange("ENABLE_NETWORK ", sel);
@@ -1328,14 +1363,7 @@ void WpaGui::createTrayIcon(bool trayOnly)
 
 	tray_menu = new QMenu(this);
 
-	disconnectAction = new QAction(tr("&Disconnect"), this);
-	reconnectAction = new QAction(tr("Re&connect"), this);
-	connect(disconnectAction, SIGNAL(triggered()), this,
-		SLOT(disconnect()));
-	connect(reconnectAction, SIGNAL(triggered()), this,
-		SLOT(connectB()));
-	tray_menu->addAction(disconnectAction);
-	tray_menu->addAction(reconnectAction);
+	tray_menu->addAction(disconReconAction);
 	tray_menu->addSeparator();
 
 	eventAction = new QAction(tr("&Event History"), this);

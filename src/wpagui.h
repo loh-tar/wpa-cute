@@ -48,6 +48,19 @@ public:
 		TrayIconSignalExcellent,
 	};
 
+	enum WpaStateType {
+		WpaDisconnected = 0,
+		WpaInactive,
+		WpaScanning,
+		WpaAuthenticating,
+		WpaAssociating,
+		WpaAssociated,
+		Wpa4WayHandshake,
+		WpaGroupHandshake,
+		WpaCompleted,
+		WpaUnknown
+	};
+
 	WpaGui(QApplication *app, QWidget *parent = 0, const char *name = 0,
 	       Qt::WindowFlags fl = 0);
 	~WpaGui();
@@ -71,7 +84,7 @@ public slots:
 	virtual void helpIndex();
 	virtual void helpContents();
 	virtual void helpAbout();
-	virtual void disconnect();
+	virtual void disconnReconnect();
 	virtual void scan();
 	virtual void eventHistory();
 	virtual void ping();
@@ -80,7 +93,6 @@ public slots:
 	virtual void processCtrlReq(const char *req);
 	virtual void receiveMsgs();
 	virtual void networkSelectionChanged();
-	virtual void connectB();
 	virtual void editListedNetwork();
 	virtual void removeListedNetwork();
 	virtual void addNetwork();
@@ -118,6 +130,7 @@ protected slots:
 private:
 	virtual void requestNetworkChange(const QString &req, const QString &sel);
 
+	WpaStateType wpaState;
 	ScanResults *scanres;
 	Peers *peers;
 	bool networkMayHaveChanged;
@@ -132,8 +145,6 @@ private:
 	char *ctrl_iface_dir;
 	struct wpa_ctrl *monitor_conn;
 	UserDataRequest *udr;
-	QAction *disconnectAction;
-	QAction *reconnectAction;
 	QAction *eventAction;
 	QAction *scanAction;
 	QAction *statAction;

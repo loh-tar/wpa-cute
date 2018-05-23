@@ -70,9 +70,9 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QPushButton" name="connectButton">
+         <widget class="QToolButton" name="disconReconButton">
           <property name="text">
-           <string>Connect</string>
+           <string>DisconnReconn</string>
           </property>
          </widget>
         </item>
@@ -252,7 +252,7 @@
        <attribute name="title">
         <string>Manage Networks</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout">
+       <layout class="QGridLayout" name="gridLayout_1">
         <item row="0" column="0">
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
@@ -470,8 +470,10 @@
    </property>
    <widget class="QMenu" name="fileMenu">
     <property name="title">
-     <string>&amp;File</string>
+     <string>&amp;wpa</string>
     </property>
+    <addaction name="disconReconAction"/>
+    <addaction name="separator"/>
     <addaction name="fileEventHistoryAction"/>
     <addaction name="fileSaveConfigAction"/>
     <addaction name="actionWPS"/>
@@ -604,6 +606,14 @@
   <action name="networkDisEnableAction">
    <property name="text">
     <string>DisEnable</string>
+   </property>
+  </action>
+  <action name="disconReconAction">
+   <property name="text">
+    <string notr="true">DisconnReconn</string>
+   </property>
+   <property name="toolTip">
+    <string notr="true">DisconnReconn</string>
    </property>
   </action>
  </widget>
