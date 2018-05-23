@@ -576,7 +576,7 @@ void WpaGui::updateStatus()
 			} else if (strcmp(start, "ssid") == 0) {
 				ssid_updated = true;
 				textSsid->setText(pos);
-				updateTrayToolTip(pos + tr(" (associated)"));
+				updateTrayToolTip(pos);
 				if (!signalMeterInterval) {
 					/* if signal meter is not enabled show
 					 * full signal strength */
@@ -659,7 +659,7 @@ void WpaGui::updateStatus()
 		textAuthentication->clear();
 	if (!ssid_updated) {
 		textSsid->clear();
-		updateTrayToolTip(tr("(not-associated)"));
+		updateTrayToolTip(textStatus->text());
 		updateTrayIcon(TrayIconOffline);
 	}
 	if (!bssid_updated)
@@ -1476,7 +1476,7 @@ void WpaGui::showTrayStatus()
 void WpaGui::updateTrayToolTip(const QString &msg)
 {
 	if (tray_icon)
-		tray_icon->setToolTip(msg);
+		tray_icon->setToolTip(QString("%1 - %2").arg(ctrl_iface).arg(msg));
 }
 
 
