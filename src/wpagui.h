@@ -148,8 +148,6 @@ private:
 	QAction *eventAction;
 	QAction *scanAction;
 	QAction *statAction;
-	QAction *showAction;
-	QAction *hideAction;
 	QAction *quitAction;
 	QMenu *tray_menu;
 	QSystemTrayIcon *tray_icon;

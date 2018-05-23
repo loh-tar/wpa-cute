@@ -1375,16 +1375,9 @@ void WpaGui::createTrayIcon(bool trayOnly)
 	tray_menu->addAction(eventAction);
 	tray_menu->addAction(scanAction);
 	tray_menu->addAction(statAction);
-	tray_menu->addSeparator();
 
-	showAction = new QAction(tr("&Show Window"), this);
-	hideAction = new QAction(tr("&Hide Window"), this);
 	quitAction = new QAction(tr("&Quit"), this);
-	connect(showAction, SIGNAL(triggered()), this, SLOT(show()));
-	connect(hideAction, SIGNAL(triggered()), this, SLOT(hide()));
 	connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
-	tray_menu->addAction(showAction);
-	tray_menu->addAction(hideAction);
 	tray_menu->addSeparator();
 	tray_menu->addAction(quitAction);
 
