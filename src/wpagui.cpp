@@ -38,6 +38,10 @@ WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *,
 {
 	setupUi(this);
 	this->setWindowFlags(Qt::Dialog);
+	addNetworkButton->setDefaultAction(networkAddAction);
+	editNetworkButton->setDefaultAction(networkEditAction);
+	removeNetworkButton->setDefaultAction(networkRemoveAction);
+	disEnableNetworkButton->setDefaultAction(networkDisEnableAction);
 
 #ifdef CONFIG_NATIVE_WINDOWS
 	fileStopServiceAction = new QAction(this);
@@ -84,9 +88,11 @@ WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *,
 	connect(networkAddAction, SIGNAL(triggered()), this,
 		SLOT(addNetwork()));
 	connect(networkEditAction, SIGNAL(triggered()), this,
-		SLOT(editSelectedNetwork()));
+		SLOT(editListedNetwork()));
 	connect(networkRemoveAction, SIGNAL(triggered()), this,
-		SLOT(removeSelectedNetwork()));
+		SLOT(removeListedNetwork()));
+	connect(networkDisEnableAction, SIGNAL(triggered()), this,
+		SLOT(disEnableNetwork()));
 	connect(networkEnableAllAction, SIGNAL(triggered()), this,
 		SLOT(enableAllNetworks()));
 	connect(networkDisableAllAction, SIGNAL(triggered()), this,
@@ -98,26 +104,13 @@ WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *,
 		SLOT(helpContents()));
 	connect(helpAboutAction, SIGNAL(triggered()), this, SLOT(helpAbout()));
 	connect(helpAboutQtAction, &QAction::triggered, qApp, &QApplication::aboutQt);
-	connect(disconnectButton, SIGNAL(clicked()), this, SLOT(disconnect()));
 	connect(scanButton, SIGNAL(clicked()), this, SLOT(scan()));
 	connect(connectButton, SIGNAL(clicked()), this, SLOT(connectB()));
 	connect(adapterSelect, SIGNAL(activated(const QString&)), this,
 		SLOT(selectAdapter(const QString&)));
-	connect(networkSelect, SIGNAL(activated(const QString&)), this,
-		SLOT(selectNetwork(const QString&)));
-	connect(addNetworkButton, SIGNAL(clicked()), this, SLOT(addNetwork()));
-	connect(editNetworkButton, SIGNAL(clicked()), this,
-		SLOT(editListedNetwork()));
-	connect(removeNetworkButton, SIGNAL(clicked()), this,
-		SLOT(removeListedNetwork()));
 	connect(networkList, SIGNAL(itemSelectionChanged()), this,
-		SLOT(updateNetworkDisabledStatus()));
-	connect(enableRadioButton, SIGNAL(toggled(bool)), this,
-		SLOT(enableListedNetwork(bool)));
-	connect(disableRadioButton, SIGNAL(toggled(bool)), this,
-		SLOT(disableListedNetwork(bool)));
-	connect(scanNetworkButton, SIGNAL(clicked()), this, SLOT(scan()));
-	connect(networkList, SIGNAL(itemDoubleClicked(QListWidgetItem *)),
+		SLOT(networkSelectionChanged()));
+	connect(networkList, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)),
 		this, SLOT(editListedNetwork()));
 	connect(wpaguiTab, SIGNAL(currentChanged(int)), this,
 		SLOT(tabChanged(int)));
@@ -175,6 +168,7 @@ WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *,
 		      "wpa_supplicant.");
 	}
 
+	selectedNetwork = NULL;
 	networkMayHaveChanged = true;
 	triggerUpdate();
 }
@@ -645,17 +639,17 @@ void WpaGui::updateNetworks()
 {
 	char buf[4096], *start, *end, *id, *ssid, *bssid, *flags;
 	size_t len;
-	int first_active = -1;
 	int was_selected = -1;
-	bool current = false;
+	QTreeWidgetItem *currentNetwork = NULL;
 
 	if (!networkMayHaveChanged)
 		return;
 
-	if (networkList->currentRow() >= 0)
-		was_selected = networkList->currentRow();
+	if (selectedNetwork)
+		was_selected = selectedNetwork->text(0).toInt();
 
-	networkSelect->clear();
+	selectedNetwork = NULL;
+	const QSignalBlocker blocker(networkList);
 	networkList->clear();
 
 	if (ctrl_conn == NULL)
@@ -703,40 +697,57 @@ void WpaGui::updateNetworks()
 			continue;
 		}
 
-		QString network(id);
-		network.append(": ");
-		network.append(ssid);
-		networkSelect->addItem(network);
-		networkList->addItem(network);
+		QTreeWidgetItem *item = new QTreeWidgetItem(networkList);
+		item->setText(0, id);
+		item->setText(1, ssid);
+		item->setText(2, bssid);
+		item->setText(3, flags);
 
 		if (strstr(flags, "[CURRENT]")) {
-			networkSelect->setCurrentIndex(networkSelect->count() -
-						      1);
-			current = true;
-		} else if (first_active < 0 &&
-			   strstr(flags, "[DISABLED]") == NULL)
-			first_active = networkSelect->count() - 1;
+			currentNetwork = item;
+		}
+		if (atoi(id) == was_selected) {
+			networkList->setCurrentItem(item);
+			selectedNetwork = item;
+			debug("restore old selection: %d", was_selected);
+		}
 
 		if (last)
 			break;
 		start = end + 1;
 	}
 
-	if (networkSelect->count() > 1)
-		networkSelect->addItem(tr("Select any network"));
-
-	if (!current && first_active >= 0)
-		networkSelect->setCurrentIndex(first_active);
-
-	if (was_selected >= 0 && networkList->count() > 0) {
-		if (was_selected < networkList->count())
-			networkList->setCurrentRow(was_selected);
-		else
-			networkList->setCurrentRow(networkList->count() - 1);
+	if (!selectedNetwork) {
+		if (currentNetwork) {
+			networkList->setCurrentItem(currentNetwork);
+			selectedNetwork = currentNetwork;
+			debug("select current network");
+		} else {
+			networkList->setCurrentItem(NULL);
+			debug("select NULL");
+		}
 	}
-	else
-		networkList->setCurrentRow(networkSelect->currentIndex());
 
+	if (selectedNetwork)
+		networkList->scrollToItem(selectedNetwork);
+
+	for (int i = 0; i < networkList->columnCount(); ++i)
+		networkList->resizeColumnToContents(i);
+
+	if (networkList->topLevelItemCount()) {
+		networkEnableAllAction->setEnabled(true);
+		networkDisableAllAction->setEnabled(true);
+		networkRemoveAllAction->setEnabled(true);
+		// TODO Connect/Disconnect actions
+	}
+	else {
+		networkEnableAllAction->setEnabled(false);
+		networkDisableAllAction->setEnabled(false);
+		networkRemoveAllAction->setEnabled(false);
+	}
+
+
+	networkSelectionChanged();
 	networkMayHaveChanged = false;
 }
 
@@ -1054,6 +1065,35 @@ void WpaGui::receiveMsgs()
 }
 
 
+void WpaGui::networkSelectionChanged()
+{
+	selectedNetwork = networkList->currentItem();
+	if (!selectedNetwork) {
+		debug("networkSelectionChanged - NULL");
+		networkEditAction->setEnabled(false);
+		networkRemoveAction->setEnabled(false);
+		networkDisEnableAction->setEnabled(false);
+		networkDisEnableAction->setText(tr("Dis-/Enable"));
+		return;
+	}
+	networkEditAction->setEnabled(true);
+	networkRemoveAction->setEnabled(true);
+	networkDisEnableAction->setEnabled(true);
+
+	switch (getNetworkDisabled(selectedNetwork->text(0))) {
+		case 1:
+			networkDisEnableAction->setText(tr("Enable"));
+			break;
+		case 0:
+			networkDisEnableAction->setText(tr("Disable"));
+			break;
+		default:
+			networkDisEnableAction->setEnabled(false);  // TODO Hint user
+			break;
+	}
+}
+
+
 void WpaGui::connectB()
 {
 	char reply[10];
@@ -1062,57 +1102,35 @@ void WpaGui::connectB()
 }
 
 
-void WpaGui::selectNetwork( const QString &sel )
-{
-	QString cmd(sel);
-	char reply[10];
-	size_t reply_len = sizeof(reply);
-
-	if (cmd.contains(QRegExp("^\\d+:")))
-		cmd.truncate(cmd.indexOf(':'));
-	else
-		cmd = "any";
-	cmd.prepend("SELECT_NETWORK ");
-	ctrlRequest(cmd.toLocal8Bit().constData(), reply, &reply_len);
-	triggerUpdate();
-	stopWpsRun(false);
-}
-
-
 void WpaGui::enableNetwork(const QString &sel)
 {
-	QString cmd(sel);
-	char reply[10];
-	size_t reply_len = sizeof(reply);
-
-	if (cmd.contains(QRegExp("^\\d+:")))
-		cmd.truncate(cmd.indexOf(':'));
-	else if (!cmd.startsWith("all")) {
-		debug("Invalid editNetwork '%s'",
-		      cmd.toLocal8Bit().constData());
-		return;
-	}
-	cmd.prepend("ENABLE_NETWORK ");
-	ctrlRequest(cmd.toLocal8Bit().constData(), reply, &reply_len);
-	triggerUpdate();
+	requestNetworkChange("ENABLE_NETWORK ", sel);
 }
 
 
 void WpaGui::disableNetwork(const QString &sel)
 {
+	requestNetworkChange("DISABLE_NETWORK ", sel);
+}
+
+
+void WpaGui::requestNetworkChange(const QString &req, const QString &sel)
+{
 	QString cmd(sel);
 	char reply[10];
 	size_t reply_len = sizeof(reply);
 
-	if (cmd.contains(QRegExp("^\\d+:")))
-		cmd.truncate(cmd.indexOf(':'));
-	else if (!cmd.startsWith("all")) {
-		debug("Invalid editNetwork '%s'",
-		      cmd.toLocal8Bit().constData());
-		return;
+	if (cmd.compare("all") != 0) {
+		if (!QRegExp("^\\d+").exactMatch(cmd)) {
+			debug("Invalid request target: %s '%s'",
+			      req.toLocal8Bit().constData(),
+			      cmd.toLocal8Bit().constData());
+			return;
+		}
 	}
-	cmd.prepend("DISABLE_NETWORK ");
+	cmd.prepend(req);
 	ctrlRequest(cmd.toLocal8Bit().constData(), reply, &reply_len);
+	networkMayHaveChanged = true;
 	triggerUpdate();
 }
 
@@ -1122,10 +1140,7 @@ void WpaGui::editNetwork(const QString &sel)
 	QString cmd(sel);
 	int id = -1;
 
-	if (cmd.contains(QRegExp("^\\d+:"))) {
-		cmd.truncate(cmd.indexOf(':'));
-		id = cmd.toInt();
-	}
+	id = cmd.toInt();
 
 	NetworkConfig *nc = new NetworkConfig();
 	if (nc == NULL)
@@ -1139,31 +1154,19 @@ void WpaGui::editNetwork(const QString &sel)
 
 	nc->show();
 	nc->exec();
-}
-
-
-void WpaGui::editSelectedNetwork()
-{
-	if (networkSelect->count() < 1) {
-		QMessageBox::information(
-			this, tr("No Networks"),
-			tr("There are no networks to edit.\n"));
-		return;
-	}
-	QString sel(networkSelect->currentText());
-	editNetwork(sel);
+	networkMayHaveChanged = true;
 }
 
 
 void WpaGui::editListedNetwork()
 {
-	if (networkList->currentRow() < 0) {
+	if (!networkList->currentItem()) {
 		QMessageBox::information(this, tr("Select A Network"),
 					 tr("Select a network from the list to"
 					    " edit it.\n"));
 		return;
 	}
-	QString sel(networkList->currentItem()->text());
+	QString sel(networkList->currentItem()->text(0));
 	editNetwork(sel);
 }
 
@@ -1184,50 +1187,26 @@ void WpaGui::addNetwork()
 	nc->newNetwork();
 	nc->show();
 	nc->exec();
+	networkMayHaveChanged = true;
 }
 
 
 void WpaGui::removeNetwork(const QString &sel)
 {
-	QString cmd(sel);
-	char reply[10];
-	size_t reply_len = sizeof(reply);
-
-	if (cmd.contains(QRegExp("^\\d+:")))
-		cmd.truncate(cmd.indexOf(':'));
-	else if (!cmd.startsWith("all")) {
-		debug("Invalid editNetwork '%s'",
-		      cmd.toLocal8Bit().constData());
-		return;
-	}
-	cmd.prepend("REMOVE_NETWORK ");
-	ctrlRequest(cmd.toLocal8Bit().constData(), reply, &reply_len);
-	triggerUpdate();
-}
-
-
-void WpaGui::removeSelectedNetwork()
-{
-	if (networkSelect->count() < 1) {
-		QMessageBox::information(this, tr("No Networks"),
-			                 tr("There are no networks to remove."
-					    "\n"));
-		return;
-	}
-	QString sel(networkSelect->currentText());
-	removeNetwork(sel);
+	requestNetworkChange("REMOVE_NETWORK ", sel);
 }
 
 
 void WpaGui::removeListedNetwork()
 {
-	if (networkList->currentRow() < 0) {
+	if (!networkList->currentItem()) {
 		QMessageBox::information(this, tr("Select A Network"),
 					 tr("Select a network from the list "
 					    "to remove it.\n"));
 		return;
 	}
-	QString sel(networkList->currentItem()->text());
+
+	QString sel(networkList->currentItem()->text(0));
 	removeNetwork(sel);
 }
 
@@ -1258,13 +1237,14 @@ int WpaGui::getNetworkDisabled(const QString &sel)
 	QString cmd(sel);
 	char reply[10];
 	size_t reply_len = sizeof(reply) - 1;
-	int pos = cmd.indexOf(':');
-	if (pos < 0) {
-		debug("Invalid getNetworkDisabled '%s'",
-		      cmd.toLocal8Bit().constData());
-		return -1;
+
+	if (cmd.compare("all") != 0) {
+		if (!QRegExp("^\\d+").exactMatch(cmd)) {
+			debug("Invalid getNetworkDisabled '%s'",
+				cmd.toLocal8Bit().constData());
+			return -1;
+		}
 	}
-	cmd.truncate(pos);
 	cmd.prepend("GET_NETWORK ");
 	cmd.append(" disabled");
 
@@ -1279,47 +1259,20 @@ int WpaGui::getNetworkDisabled(const QString &sel)
 }
 
 
-void WpaGui::updateNetworkDisabledStatus()
+
+void WpaGui::disEnableNetwork()
 {
-	if (networkList->currentRow() < 0)
-		return;
-
-	QString sel(networkList->currentItem()->text());
-
-	switch (getNetworkDisabled(sel)) {
-	case 0:
-		if (!enableRadioButton->isChecked())
-			enableRadioButton->setChecked(true);
-		return;
+	switch (getNetworkDisabled(selectedNetwork->text(0))) {
 	case 1:
-		if (!disableRadioButton->isChecked())
-			disableRadioButton->setChecked(true);
-		return;
+		enableNetwork(selectedNetwork->text(0));
+		break;
+	case 0:
+		disableNetwork(selectedNetwork->text(0));
+		break;
+	default:
+		debug("disEnableNetwork -1");  // TODO Hint user
+		break;
 	}
-}
-
-
-void WpaGui::enableListedNetwork(bool enabled)
-{
-	if (networkList->currentRow() < 0 || !enabled)
-		return;
-
-	QString sel(networkList->currentItem()->text());
-
-	if (getNetworkDisabled(sel) == 1)
-		enableNetwork(sel);
-}
-
-
-void WpaGui::disableListedNetwork(bool disabled)
-{
-	if (networkList->currentRow() < 0 || !disabled)
-		return;
-
-	QString sel(networkList->currentItem()->text());
-
-	if (getNetworkDisabled(sel) == 0)
-		disableNetwork(sel);
 }
 
 
@@ -1355,6 +1308,7 @@ void WpaGui::selectAdapter( const QString & sel )
 		debug("Failed to open control connection to "
 		      "wpa_supplicant.");
 	networkMayHaveChanged = true;
+	selectedNetwork = NULL;
 	triggerUpdate();
 }
 

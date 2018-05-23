@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>530</width>
-    <height>500</height>
+    <width>528</width>
+    <height>578</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,38 +18,112 @@
     <normaloff>:/icons/wpa_gui.svg</normaloff>:/icons/wpa_gui.svg</iconset>
   </property>
   <widget class="QWidget" name="widget">
-   <layout class="QGridLayout">
-    <item row="0" column="0">
-     <widget class="QLabel" name="adapterLabel">
+   <layout class="QVBoxLayout" name="verticalLayout_4">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>249</width>
+            <height>13</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="adapterLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Adapter</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="adapterSelect">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>254</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QPushButton" name="connectButton">
+          <property name="text">
+           <string>Connect</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="scanButton">
+          <property name="text">
+           <string>Scan</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QLabel" name="statusHint">
       <property name="text">
-       <string>Adapter:</string>
+       <string>Status Hint</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="1">
-     <widget class="QComboBox" name="adapterSelect"/>
-    </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="networkLabel">
-      <property name="text">
-       <string>Network:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QComboBox" name="networkSelect"/>
-    </item>
-    <item row="2" column="0" colspan="2">
+    <item>
      <widget class="QTabWidget" name="wpaguiTab">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>1</verstretch>
+       </sizepolicy>
+      </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="statusTab">
        <attribute name="title">
         <string>Current Status</string>
        </attribute>
        <layout class="QGridLayout">
-        <item row="0" column="0" colspan="5">
+        <item row="0" column="0" colspan="2">
          <widget class="QFrame" name="frame3">
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
@@ -58,45 +132,10 @@
            <enum>QFrame::Plain</enum>
           </property>
           <layout class="QGridLayout">
-           <item row="0" column="0">
-            <widget class="QLabel" name="statusLabel">
-             <property name="text">
-              <string>Status:</string>
-             </property>
-            </widget>
-           </item>
            <item row="1" column="0">
             <widget class="QLabel" name="lastMessageLabel">
              <property name="text">
               <string>Last message:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="authenticationLabel">
-             <property name="text">
-              <string>Authentication:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="encryptionLabel">
-             <property name="text">
-              <string>Encryption:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="ssidLabel">
-             <property name="text">
-              <string>SSID:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="bssidLabel">
-             <property name="text">
-              <string>BSSID:</string>
              </property>
             </widget>
            </item>
@@ -107,36 +146,22 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
-            <widget class="QLabel" name="textStatus">
+           <item row="2" column="0">
+            <widget class="QLabel" name="authenticationLabel">
              <property name="text">
-              <string/>
+              <string>Authentication:</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="1" colspan="3">
-            <widget class="QLabel" name="textLastMessage">
+           <item row="0" column="0">
+            <widget class="QLabel" name="statusLabel">
              <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLabel" name="textAuthentication">
-             <property name="text">
-              <string/>
+              <string>Status:</string>
              </property>
             </widget>
            </item>
            <item row="3" column="1">
             <widget class="QLabel" name="textEncryption">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <widget class="QLabel" name="textSsid">
              <property name="text">
               <string/>
              </property>
@@ -149,6 +174,48 @@
              </property>
             </widget>
            </item>
+           <item row="4" column="1">
+            <widget class="QLabel" name="textSsid">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="textStatus">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="bssidLabel">
+             <property name="text">
+              <string>BSSID:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="ssidLabel">
+             <property name="text">
+              <string>SSID:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="textAuthentication">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" colspan="3">
+            <widget class="QLabel" name="textLastMessage">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
            <item row="6" column="1">
             <widget class="QLabel" name="textIpAddress">
              <property name="text">
@@ -156,55 +223,28 @@
              </property>
             </widget>
            </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="encryptionLabel">
+             <property name="text">
+              <string>Encryption:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0" colspan="3">
+            <spacer name="verticalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
           </layout>
          </widget>
-        </item>
-        <item row="1" column="0">
-         <spacer>
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="connectButton">
-          <property name="text">
-           <string>Connect</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QPushButton" name="disconnectButton">
-          <property name="text">
-           <string>Disconnect</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="3">
-         <widget class="QPushButton" name="scanButton">
-          <property name="text">
-           <string>Scan</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="4">
-         <spacer>
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </widget>
@@ -212,81 +252,123 @@
        <attribute name="title">
         <string>Manage Networks</string>
        </attribute>
-       <layout class="QGridLayout">
-        <item row="0" column="0" colspan="5">
-         <widget class="QListWidget" name="networkList">
-          <property name="selectionRectVisible">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0" rowspan="2">
-         <spacer>
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>61</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="1" column="1">
-         <widget class="QRadioButton" name="enableRadioButton">
-          <property name="text">
-           <string>Enabled</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QPushButton" name="editNetworkButton">
-          <property name="text">
-           <string>Edit</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="3">
-         <widget class="QPushButton" name="removeNetworkButton">
-          <property name="text">
-           <string>Remove</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="4" rowspan="2">
-         <spacer>
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>61</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="2" column="1">
-         <widget class="QRadioButton" name="disableRadioButton">
-          <property name="text">
-           <string>Disabled</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="QPushButton" name="addNetworkButton">
-          <property name="text">
-           <string>Add</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="3">
-         <widget class="QPushButton" name="scanNetworkButton">
-          <property name="text">
-           <string>Scan</string>
-          </property>
-         </widget>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QTreeWidget" name="networkList">
+            <property name="rootIsDecorated">
+             <bool>false</bool>
+            </property>
+            <property name="itemsExpandable">
+             <bool>true</bool>
+            </property>
+            <property name="sortingEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="expandsOnDoubleClick">
+             <bool>true</bool>
+            </property>
+            <column>
+             <property name="text">
+              <string>ID</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>SSID</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>BSSID</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Flags</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QToolButton" name="removeNetworkButton">
+              <property name="text">
+               <string>Remove</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QToolButton" name="addNetworkButton">
+              <property name="text">
+               <string>Add</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="editNetworkButton">
+              <property name="text">
+               <string>Edit</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QToolButton" name="disEnableNetworkButton">
+              <property name="minimumSize">
+               <size>
+                <width>119</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Dis-/Enable</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
@@ -382,7 +464,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>530</width>
+     <width>528</width>
      <height>40</height>
     </rect>
    </property>
@@ -403,10 +485,13 @@
     </property>
     <addaction name="networkAddAction"/>
     <addaction name="networkEditAction"/>
-    <addaction name="networkRemoveAction"/>
+    <addaction name="separator"/>
+    <addaction name="networkDisEnableAction"/>
     <addaction name="separator"/>
     <addaction name="networkEnableAllAction"/>
     <addaction name="networkDisableAllAction"/>
+    <addaction name="separator"/>
+    <addaction name="networkRemoveAction"/>
     <addaction name="networkRemoveAllAction"/>
    </widget>
    <widget class="QMenu" name="helpMenu">
@@ -514,6 +599,11 @@
    </property>
    <property name="statusTip">
     <string>Show the Qt library's About box</string>
+   </property>
+  </action>
+  <action name="networkDisEnableAction">
+   <property name="text">
+    <string>DisEnable</string>
    </property>
   </action>
  </widget>

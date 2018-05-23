@@ -79,11 +79,9 @@ public slots:
 	virtual void processMsg(char *msg);
 	virtual void processCtrlReq(const char *req);
 	virtual void receiveMsgs();
+	virtual void networkSelectionChanged();
 	virtual void connectB();
-	virtual void selectNetwork(const QString &sel);
-	virtual void editSelectedNetwork();
 	virtual void editListedNetwork();
-	virtual void removeSelectedNetwork();
 	virtual void removeListedNetwork();
 	virtual void addNetwork();
 	virtual void enableAllNetworks();
@@ -91,9 +89,7 @@ public slots:
 	virtual void removeAllNetworks();
 	virtual void saveConfig();
 	virtual void selectAdapter(const QString &sel);
-	virtual void updateNetworkDisabledStatus();
-	virtual void enableListedNetwork(bool);
-	virtual void disableListedNetwork(bool);
+	virtual void disEnableNetwork();
 	virtual void showTrayMessage(QSystemTrayIcon::MessageIcon type,
 				     int sec, const QString &msg);
 	virtual void showTrayStatus();
@@ -120,9 +116,12 @@ protected slots:
 	virtual void closeEvent(QCloseEvent *event);
 
 private:
+	virtual void requestNetworkChange(const QString &req, const QString &sel);
+
 	ScanResults *scanres;
 	Peers *peers;
 	bool networkMayHaveChanged;
+	QTreeWidgetItem *selectedNetwork;
 	char *ctrl_iface;
 	EventHistory *eh;
 	struct wpa_ctrl *ctrl_conn;
