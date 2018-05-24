@@ -58,6 +58,7 @@ public:
 		Wpa4WayHandshake,
 		WpaGroupHandshake,
 		WpaCompleted,
+		WpaWait4Registrar,
 		WpaUnknown
 	};
 
@@ -129,6 +130,7 @@ protected slots:
 
 private:
 	virtual void requestNetworkChange(const QString &req, const QString &sel);
+	virtual void logHint(const QString &hint);
 
 	WpaStateType wpaState;
 	ScanResults *scanres;
