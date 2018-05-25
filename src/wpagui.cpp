@@ -172,10 +172,8 @@ WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *,
 	signalMeterTimer->setInterval(signalMeterInterval);
 	connect(signalMeterTimer, SIGNAL(timeout()), SLOT(signalMeterUpdate()));
 
-	if (openCtrlConnection(ctrl_iface) < 0) {
-		debug("Failed to open control connection to wpa_supplicant.");
-		logHint(tr("No running wpa_supplicant found"));
-	}
+	wpaState = WpaUnknown;
+	openCtrlConnection(ctrl_iface);
 
 	selectedNetwork = NULL;
 	networkMayHaveChanged = true;
@@ -344,6 +342,8 @@ int WpaGui::openCtrlConnection(const char *ifname)
 #endif /* CONFIG_CTRL_IFACE_NAMED_PIPE */
 	}
 
+	try
+	{
 	if (ctrl_iface == NULL) {
 #ifdef CONFIG_NATIVE_WINDOWS
 		static bool first = true;
@@ -359,20 +359,20 @@ int WpaGui::openCtrlConnection(const char *ifname)
 				startService();
 		}
 #endif /* CONFIG_NATIVE_WINDOWS */
-		return -1;
+		throw 1;
 	}
 
 #ifdef CONFIG_CTRL_IFACE_UNIX
 	flen = strlen(ctrl_iface_dir) + strlen(ctrl_iface) + 2;
 	cfile = (char *) malloc(flen);
 	if (cfile == NULL)
-		return -1;
+		throw 2;
 	snprintf(cfile, flen, "%s/%s", ctrl_iface_dir, ctrl_iface);
 #else /* CONFIG_CTRL_IFACE_UNIX */
 	flen = strlen(ctrl_iface) + 1;
 	cfile = (char *) malloc(flen);
 	if (cfile == NULL)
-		return -1;
+		throw 2;
 	snprintf(cfile, flen, "%s", ctrl_iface);
 #endif /* CONFIG_CTRL_IFACE_UNIX */
 
@@ -389,26 +389,60 @@ int WpaGui::openCtrlConnection(const char *ifname)
 		monitor_conn = NULL;
 	}
 
-	debug("Trying to connect to '%s'", cfile);
+	logHint(tr("Connection to wpa_supplicant..."));
+
 	ctrl_conn = wpa_ctrl_open(cfile);
 	if (ctrl_conn == NULL) {
 		free(cfile);
-		return -1;
+		throw 3;
 	}
-	logHint(tr("Connected to %1").arg(cfile));
+
+	logHint(tr("...successful! Using interface %1").arg(ctrl_iface));
 
 	monitor_conn = wpa_ctrl_open(cfile);
 	free(cfile);
 	if (monitor_conn == NULL) {
 		wpa_ctrl_close(ctrl_conn);
-		return -1;
+		throw 4;
 	}
 	if (wpa_ctrl_attach(monitor_conn)) {
-		debug("Failed to attach to wpa_supplicant");
 		wpa_ctrl_close(monitor_conn);
 		monitor_conn = NULL;
 		wpa_ctrl_close(ctrl_conn);
 		ctrl_conn = NULL;
+		throw 5;
+	}
+	}
+	catch (int e)
+	{
+		QString errTxt(tr("Fatal error: "));
+		QString dbgTxt;
+
+		switch (e) {
+			case 1:
+				dbgTxt = "Failed to open control connection to wpa_supplicant.";
+				errTxt = tr("No running wpa_supplicant found");
+				break;
+			case 2:
+				dbgTxt = "Malloc of cfile fails";
+				errTxt.append(dbgTxt);
+				break;
+			case 3:
+				dbgTxt = "Failed to open control connection to wpa_supplicant on adapter ";
+				dbgTxt.append(ctrl_iface);
+				errTxt = tr("No wpa_supplicant with adapter '%1' found").arg(ctrl_iface);
+				break;
+			case 4:
+				dbgTxt = "monitor_conn == NULL";
+				errTxt.append(dbgTxt);
+				break;
+			case 5:
+				dbgTxt = "Failed to attach to wpa_supplicant";
+				errTxt.append(dbgTxt);
+				break;
+		}
+		debug("case %d : %s",e, dbgTxt.toLocal8Bit().constData());
+		logHint(errTxt);
 		return -1;
 	}
 
@@ -1388,9 +1422,7 @@ void WpaGui::selectAdapter( const QString & sel )
 		return;
 
 	logHint(tr("Change adapter to %1").arg(sel));
-	if (openCtrlConnection(sel.toLocal8Bit().constData()) < 0)
-		debug("Failed to open control connection to "
-		      "wpa_supplicant.");
+	openCtrlConnection(sel.toLocal8Bit().constData());
 	networkMayHaveChanged = true;
 	selectedNetwork = NULL;
 	triggerUpdate();
