@@ -253,6 +253,9 @@ void WpaGui::parse_argv()
 		case 'i':
 			free(ctrl_iface);
 			ctrl_iface = strdup(optarg);
+			adapterSelect->clear();
+			adapterSelect->addItem(ctrl_iface);
+			adapterSelect->setCurrentIndex(0);
 			break;
 		case 'm':
 			signalMeterInterval = atoi(optarg) * 1000;
@@ -285,6 +288,9 @@ int WpaGui::openCtrlConnection(const char *ifname)
 			ctrl_iface = strdup(ifname);
 		}
 	} else {
+		adapterSelect->clear();
+		adapterSelect->addItem(tr("Not specified"));
+		adapterSelect->setCurrentIndex(0);
 #ifdef CONFIG_CTRL_IFACE_UDP
 		free(ctrl_iface);
 		ctrl_iface = strdup("udp");
