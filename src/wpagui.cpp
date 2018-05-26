@@ -1069,6 +1069,13 @@ void WpaGui::processMsg(char *msg)
 				tr("Connection to network established."));
 		QTimer::singleShot(5 * 1000, this, SLOT(showTrayStatus()));
 		stopWpsRun(true);
+	} else if (str_match(pos, WPA_EVENT_TERMINATING)) {
+		showTrayMessage(QSystemTrayIcon::Information, 3,
+				tr("The wpa_supplicant is terminated."));
+		wpaState = WpaUnknown;
+		updateTrayIcon(TrayIconOffline);
+		updateTrayToolTip(tr("No running wpa_supplicant"));
+		stopWpsRun(true);
 	} else if (str_match(pos, WPS_EVENT_AP_AVAILABLE_PBC)) {
 		logHint(tr("WPS AP in active PBC mode found"));
 		if (WpaInactive == wpaState || WpaDisconnected == wpaState) {
