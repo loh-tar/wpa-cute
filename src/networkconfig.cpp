@@ -423,7 +423,8 @@ void NetworkConfig::addNetwork()
 					"configuration."));
 		/* Network was added, so continue anyway */
 	}
-	wpagui->triggerUpdate();
+
+	wpagui->updateNetworks();
 	wpagui->ctrlRequest("SAVE_CONFIG", reply, &reply_len);
 
 	close();
@@ -815,30 +816,7 @@ void NetworkConfig::paramsFromConfig(int network_id)
 
 void NetworkConfig::removeNetwork()
 {
-	char reply[10], cmd[256];
-	size_t reply_len;
-
-	if (QMessageBox::information(
-		    this, "wpa_gui",
-		    tr("This will permanently remove the network\n"
-		       "from the configuration. Do you really want\n"
-		       "to remove this network?"),
-		    tr("Yes"), tr("No")) != 0)
-		return;
-
-	snprintf(cmd, sizeof(cmd), "REMOVE_NETWORK %d", edit_network_id);
-	reply_len = sizeof(reply);
-	wpagui->ctrlRequest(cmd, reply, &reply_len);
-	if (strncmp(reply, "OK", 2) != 0) {
-		QMessageBox::warning(this, "wpa_gui",
-				     tr("Failed to remove network from "
-					"wpa_supplicant\n"
-					"configuration."));
-	} else {
-		wpagui->triggerUpdate();
-		wpagui->ctrlRequest("SAVE_CONFIG", reply, &reply_len);
-	}
-
+	wpagui->removeNetwork(QString::number(edit_network_id));
 	close();
 }
 

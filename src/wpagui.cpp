@@ -33,9 +33,10 @@
 #endif
 
 
-WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *,
-	       Qt::WindowFlags)
-	: QMainWindow(parent), app(_app)
+WpaGui::WpaGui(QApplication *_app
+             , QWidget *parent, const char *
+             , Qt::WindowFlags)
+      : QMainWindow(parent), app(_app)
 {
 	setupUi(this);
 	this->setWindowFlags(Qt::Dialog);
@@ -176,8 +177,8 @@ WpaGui::WpaGui(QApplication *_app, QWidget *parent, const char *,
 	openCtrlConnection(ctrl_iface);
 
 	selectedNetwork = NULL;
-	networkMayHaveChanged = true;
-	triggerUpdate();
+	updateNetworks();
+	updateStatus();
 }
 
 
@@ -721,14 +722,14 @@ void WpaGui::updateStatus()
 }
 
 
-void WpaGui::updateNetworks()
+void WpaGui::updateNetworks(bool changed/* = true*/)
 {
 	char buf[4096], *start, *end, *id, *ssid, *bssid, *flags;
 	size_t len;
 	int was_selected = -1;
 	QTreeWidgetItem *currentNetwork = NULL;
 
-	if (!networkMayHaveChanged)
+	if (!changed)
 		return;
 
 	if (selectedNetwork)
@@ -832,9 +833,7 @@ void WpaGui::updateNetworks()
 		networkRemoveAllAction->setEnabled(false);
 	}
 
-
 	networkSelectionChanged();
-	networkMayHaveChanged = false;
 }
 
 
@@ -1100,13 +1099,12 @@ void WpaGui::processMsg(char *msg)
 	else if (str_match(pos, WPA_EVENT_SCAN_RESULTS) && scanres) {
 		logHint(tr("Scan results available"));
 		scanres->updateResults();
-	}
-	else if (str_match(pos, WPA_EVENT_DISCONNECTED))
+	} else if (str_match(pos, WPA_EVENT_DISCONNECTED)) {
 		showTrayMessage(QSystemTrayIcon::Information, 3,
-				tr("Disconnected from network."));
-	else if (str_match(pos, WPA_EVENT_CONNECTED)) {
+		                tr("Disconnected from network."));
+	} else if (str_match(pos, WPA_EVENT_CONNECTED)) {
 		showTrayMessage(QSystemTrayIcon::Information, 3,
-				tr("Connection to network established."));
+		                tr("Connection to network established."));
 		QTimer::singleShot(5 * 1000, this, SLOT(showTrayStatus()));
 		stopWpsRun(true);
 	} else if (str_match(pos, WPA_EVENT_TERMINATING)) {
@@ -1190,6 +1188,8 @@ void WpaGui::receiveMsgs()
 			processMsg(buf);
 		}
 	}
+
+	updateNetworks(networkMayHaveChanged);
 }
 
 
@@ -1250,8 +1250,8 @@ void WpaGui::requestNetworkChange(const QString &req, const QString &sel)
 	}
 	cmd.prepend(req);
 	ctrlRequest(cmd.toLocal8Bit().constData(), reply, &reply_len);
-	networkMayHaveChanged = true;
-	triggerUpdate();
+
+	updateNetworks();
 }
 
 
@@ -1429,7 +1429,6 @@ void WpaGui::selectAdapter( const QString & sel )
 
 	logHint(tr("Change adapter to %1").arg(sel));
 	openCtrlConnection(sel.toLocal8Bit().constData());
-	networkMayHaveChanged = true;
 	selectedNetwork = NULL;
 	triggerUpdate();
 }
