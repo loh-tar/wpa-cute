@@ -236,7 +236,7 @@
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="networkconfigTab">
+        <widget class="QWidget" name="networksTab">
          <attribute name="title">
           <string>Networks</string>
          </attribute>
@@ -429,7 +429,7 @@
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="tab">
+        <widget class="QWidget" name="eventTab">
          <attribute name="title">
           <string>Events</string>
          </attribute>

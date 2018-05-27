@@ -49,7 +49,11 @@ public:
 	};
 
 	enum WpaStateType {
-		WpaDisconnected = 0,
+		WpaFatal = 0,
+		WpaUnknown,
+		WpaNotRunning,
+		WpaRunning,
+		WpaDisconnected,
 		WpaInactive,
 		WpaScanning,
 		WpaAuthenticating,
@@ -57,9 +61,8 @@ public:
 		WpaAssociated,
 		Wpa4WayHandshake,
 		WpaGroupHandshake,
-		WpaCompleted,
 		WpaWait4Registrar,
-		WpaUnknown
+		WpaCompleted
 	};
 
 	WpaGui(QApplication *app, QWidget *parent = 0, const char *name = 0,
@@ -67,7 +70,6 @@ public:
 	~WpaGui();
 
 	virtual int ctrlRequest(const char *cmd, char *buf, size_t *buflen);
-	virtual void triggerUpdate();
 	virtual void editNetwork(const QString &sel);
 	virtual void removeNetwork(const QString &sel);
 	virtual void enableNetwork(const QString &sel);
@@ -142,8 +144,6 @@ private:
 	EventHistory *eh;
 	struct wpa_ctrl *ctrl_conn;
 	QSocketNotifier *msgNotifier;
-	QTimer *timer;
-	int pingsToStatusUpdate;
 	WpaMsgList msgs;
 	char *ctrl_iface_dir;
 	struct wpa_ctrl *monitor_conn;
