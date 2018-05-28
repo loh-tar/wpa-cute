@@ -85,36 +85,40 @@ public slots:
 	virtual void updateStatus();
 	virtual void updateNetworks(bool changed = true);
 
+	virtual void disconnReconnect();
+	virtual void eventHistory();
+	virtual void saveConfig();
+	virtual void wpsDialog();
+	virtual void peersDialog();
+
+	virtual void addNetwork();
+	virtual void editListedNetwork();
+	virtual void enableAllNetworks();
+	virtual void disableAllNetworks();
+	virtual void removeListedNetwork();
+	virtual void removeAllNetworks();
+
 	virtual void helpIndex();
 	virtual void helpContents();
 	virtual void helpAbout();
-	virtual void disconnReconnect();
+
 	virtual void scan();
-	virtual void eventHistory();
 	virtual void ping();
 	virtual void signalMeterUpdate();
 	virtual void processMsg(char *msg);
 	virtual void processCtrlReq(const char *req);
 	virtual void receiveMsgs();
 	virtual void networkSelectionChanged();
-	virtual void editListedNetwork();
-	virtual void removeListedNetwork();
-	virtual void addNetwork();
-	virtual void enableAllNetworks();
-	virtual void disableAllNetworks();
-	virtual void removeAllNetworks();
-	virtual void saveConfig();
+
 	virtual void selectAdapter(const QString &sel);
 	virtual void disEnableNetwork();
 	virtual void showTrayMessage(QSystemTrayIcon::MessageIcon type,
-				     int sec, const QString &msg);
+	                             int sec, const QString &msg);
 	virtual void showTrayStatus();
 	virtual void updateTrayIcon(TrayIconType type);
 	virtual void updateTrayToolTip(const QString &msg);
 	virtual QIcon loadThemedIcon(const QStringList &names,
-				     const QIcon &fallback);
-	virtual void wpsDialog();
-	virtual void peersDialog();
+	                             const QIcon &fallback);
 	virtual void tabChanged(int index);
 	virtual void wpsPbc();
 	virtual void wpsGeneratePin();
@@ -148,10 +152,6 @@ private:
 	char *ctrl_iface_dir;
 	struct wpa_ctrl *monitor_conn;
 	UserDataRequest *udr;
-	QAction *eventAction;
-	QAction *scanAction;
-	QAction *statAction;
-	QAction *quitAction;
 	QMenu *tray_menu;
 	QSystemTrayIcon *tray_icon;
 	TrayIconType currentIconType;

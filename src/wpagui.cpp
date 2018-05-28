@@ -63,17 +63,17 @@ WpaGui::WpaGui(QApplication *_app
 	fileStartServiceAction->setIconText(tr("Start Service"));
 	fileMenu->insertAction(fileStopServiceAction, fileStartServiceAction);
 
-	connect(fileStartServiceAction, SIGNAL(triggered()), this,
-		SLOT(startService()));
-	connect(fileStopServiceAction, SIGNAL(triggered()), this,
-		SLOT(stopService()));
+	connect(fileStartServiceAction, SIGNAL(triggered())
+	      , this, SLOT(startService()));
+	connect(fileStopServiceAction, SIGNAL(triggered())
+	      , this, SLOT(stopService()));
 
 	addInterfaceAction = new QAction(this);
 	addInterfaceAction->setIconText(tr("Add Interface"));
 	fileMenu->insertAction(fileStartServiceAction, addInterfaceAction);
 
-	connect(addInterfaceAction, SIGNAL(triggered()), this,
-		SLOT(addInterface()));
+	connect(addInterfaceAction, SIGNAL(triggered())
+	      , this, SLOT(addInterface()));
 
 	add_iface = NULL;
 #endif /* CONFIG_NATIVE_WINDOWS */
@@ -87,50 +87,66 @@ WpaGui::WpaGui(QApplication *_app
 	wpsTab->setEnabled(false);
 	wpaguiTab->setTabEnabled(wpaguiTab->indexOf(wpsTab), false);
 
-	connect(fileEventHistoryAction, SIGNAL(triggered()), this,
-		SLOT(eventHistory()));
-	connect(fileSaveConfigAction, SIGNAL(triggered()), this,
-		SLOT(saveConfig()));
-	connect(actionWPS, SIGNAL(triggered()), this, SLOT(wpsDialog()));
-	connect(actionPeers, SIGNAL(triggered()), this, SLOT(peersDialog()));
-	connect(fileExitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
-	connect(disconReconAction, SIGNAL(triggered()), this,
-		SLOT(disconnReconnect()));
-	connect(networkAddAction, SIGNAL(triggered()), this,
-		SLOT(addNetwork()));
-	connect(networkEditAction, SIGNAL(triggered()), this,
-		SLOT(editListedNetwork()));
-	connect(networkRemoveAction, SIGNAL(triggered()), this,
-		SLOT(removeListedNetwork()));
-	connect(networkDisEnableAction, SIGNAL(triggered()), this,
-		SLOT(disEnableNetwork()));
-	connect(networkEnableAllAction, SIGNAL(triggered()), this,
-		SLOT(enableAllNetworks()));
-	connect(networkDisableAllAction, SIGNAL(triggered()), this,
-		SLOT(disableAllNetworks()));
-	connect(networkRemoveAllAction, SIGNAL(triggered()), this,
-		SLOT(removeAllNetworks()));
-	connect(helpIndexAction, SIGNAL(triggered()), this, SLOT(helpIndex()));
-	connect(helpContentsAction, SIGNAL(triggered()), this,
-		SLOT(helpContents()));
-	connect(helpAboutAction, SIGNAL(triggered()), this, SLOT(helpAbout()));
-	connect(helpAboutQtAction, &QAction::triggered, qApp, &QApplication::aboutQt);
-	connect(scanButton, SIGNAL(clicked()), this, SLOT(scan()));
-	connect(adapterSelect, SIGNAL(activated(const QString&)), this,
-		SLOT(selectAdapter(const QString&)));
-	connect(networkList, SIGNAL(itemSelectionChanged()), this,
-		SLOT(networkSelectionChanged()));
-	connect(networkList, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)),
-		this, SLOT(editListedNetwork()));
-	connect(eventList, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)),
-		eventList, SLOT(scrollToBottom()));
-	connect(wpaguiTab, SIGNAL(currentChanged(int)), this,
-		SLOT(tabChanged(int)));
-	connect(wpsPbcButton, SIGNAL(clicked()), this, SLOT(wpsPbc()));
-	connect(wpsPinButton, SIGNAL(clicked()), this, SLOT(wpsGeneratePin()));
-	connect(wpsApPinEdit, SIGNAL(textChanged(const QString &)), this,
-		SLOT(wpsApPinChanged(const QString &)));
-	connect(wpsApPinButton, SIGNAL(clicked()), this, SLOT(wpsApPin()));
+	connect(disconReconAction, SIGNAL(triggered())
+	      , this, SLOT(disconnReconnect()));
+	connect(eventHistoryAction, SIGNAL(triggered())
+	      , this, SLOT(eventHistory()));
+	connect(scanAction, SIGNAL(triggered())
+	      , this, SLOT(scan()));
+	connect(saveConfigAction, SIGNAL(triggered())
+	      , this, SLOT(saveConfig()));
+	connect(wpsAction, SIGNAL(triggered())
+	      , this, SLOT(wpsDialog()));
+	connect(peersAction, SIGNAL(triggered())
+	      , this, SLOT(peersDialog()));
+	connect(quitAction, SIGNAL(triggered())
+	      , qApp, SLOT(quit()));
+
+	connect(networkAddAction, SIGNAL(triggered())
+	      , this, SLOT(addNetwork()));
+	connect(networkEditAction, SIGNAL(triggered())
+	      , this, SLOT(editListedNetwork()));
+	connect(networkDisEnableAction, SIGNAL(triggered())
+	      , this, SLOT(disEnableNetwork()));
+	connect(networkEnableAllAction, SIGNAL(triggered())
+	      , this, SLOT(enableAllNetworks()));
+	connect(networkDisableAllAction, SIGNAL(triggered())
+	      , this, SLOT(disableAllNetworks()));
+	connect(networkRemoveAction, SIGNAL(triggered())
+	      , this, SLOT(removeListedNetwork()));
+	connect(networkRemoveAllAction, SIGNAL(triggered())
+	      , this, SLOT(removeAllNetworks()));
+
+	connect(helpIndexAction, SIGNAL(triggered())
+	      , this, SLOT(helpIndex()));
+	connect(helpContentsAction, SIGNAL(triggered())
+	      , this, SLOT(helpContents()));
+	connect(helpAboutAction, SIGNAL(triggered())
+	      , this, SLOT(helpAbout()));
+	connect(helpAboutQtAction, &QAction::triggered
+	      , qApp, &QApplication::aboutQt);
+
+	connect(adapterSelect, SIGNAL(activated(const QString&))
+	      , this, SLOT(selectAdapter(const QString&)));
+
+	connect(networkList, SIGNAL(itemSelectionChanged())
+	      , this, SLOT(networkSelectionChanged()));
+	connect(networkList, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int))
+	      , this, SLOT(editListedNetwork()));
+
+	connect(eventList, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int))
+	      , eventList, SLOT(scrollToBottom()));
+
+	connect(wpaguiTab, SIGNAL(currentChanged(int))
+	      , this, SLOT(tabChanged(int)));
+	connect(wpsPbcButton, SIGNAL(clicked())
+	      , this, SLOT(wpsPbc()));
+	connect(wpsPinButton, SIGNAL(clicked())
+	      , this, SLOT(wpsGeneratePin()));
+	connect(wpsApPinEdit, SIGNAL(textChanged(const QString &))
+	      , this, SLOT(wpsApPinChanged(const QString &)));
+	connect(wpsApPinButton, SIGNAL(clicked())
+	      , this, SLOT(wpsApPin()));
 
 	eh = NULL;
 	scanres = NULL;
@@ -508,7 +524,7 @@ int WpaGui::openCtrlConnection(const char *ifname)
 		QString res(buf);
 		QStringList types = res.split(QChar(' '));
 		bool wps = types.contains("WSC");
-		actionWPS->setEnabled(wps);
+		wpsAction->setEnabled(wps);
 		wpsTab->setEnabled(wps);
 		wpaguiTab->setTabEnabled(wpaguiTab->indexOf(wpsTab), wps);
 	}
@@ -1471,34 +1487,25 @@ void WpaGui::createTrayIcon(bool trayOnly)
 	tray_icon = new QSystemTrayIcon(this);
 	updateTrayIcon(TrayIconOffline);
 
-	connect(tray_icon,
-		SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
-		this, SLOT(trayActivated(QSystemTrayIcon::ActivationReason)));
+	connect(tray_icon, SIGNAL(activated(QSystemTrayIcon::ActivationReason))
+	      , this, SLOT(trayActivated(QSystemTrayIcon::ActivationReason)));
 
 	ackTrayIcon = false;
 
 	tray_menu = new QMenu(this);
 
+	QAction *statAction;
+	statAction = new QAction(tr("S&tatus"), this);
+	connect(statAction, SIGNAL(triggered()), this, SLOT(showTrayStatus()));
+	tray_menu->addAction(statAction);
 	tray_menu->addAction(disconReconAction);
 	tray_menu->addSeparator();
-
-	eventAction = new QAction(tr("&Event History"), this);
-	scanAction = new QAction(tr("Scan &Results"), this);
-	statAction = new QAction(tr("S&tatus"), this);
-	connect(eventAction, SIGNAL(triggered()), this, SLOT(eventHistory()));
-	connect(scanAction, SIGNAL(triggered()), this, SLOT(scan()));
-	connect(statAction, SIGNAL(triggered()), this, SLOT(showTrayStatus()));
-	tray_menu->addAction(eventAction);
+	tray_menu->addAction(eventHistoryAction);
 	tray_menu->addAction(scanAction);
-	tray_menu->addAction(statAction);
-
-	quitAction = new QAction(tr("&Quit"), this);
-	connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
 	tray_menu->addSeparator();
 	tray_menu->addAction(quitAction);
 
 	tray_icon->setContextMenu(tray_menu);
-
 	tray_icon->show();
 
 	if (!trayOnly)

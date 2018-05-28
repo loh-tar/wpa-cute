@@ -495,12 +495,13 @@
     </property>
     <addaction name="disconReconAction"/>
     <addaction name="separator"/>
-    <addaction name="fileEventHistoryAction"/>
-    <addaction name="fileSaveConfigAction"/>
-    <addaction name="actionWPS"/>
-    <addaction name="actionPeers"/>
+    <addaction name="eventHistoryAction"/>
+    <addaction name="scanAction"/>
+    <addaction name="saveConfigAction"/>
+    <addaction name="wpsAction"/>
+    <addaction name="peersAction"/>
     <addaction name="separator"/>
-    <addaction name="fileExitAction"/>
+    <addaction name="quitAction"/>
    </widget>
    <widget class="QMenu" name="networkMenu">
     <property name="title">
@@ -531,12 +532,12 @@
    <addaction name="networkMenu"/>
    <addaction name="helpMenu"/>
   </widget>
-  <action name="fileEventHistoryAction">
+  <action name="eventHistoryAction">
    <property name="text">
     <string>Event &amp;History</string>
    </property>
   </action>
-  <action name="fileSaveConfigAction">
+  <action name="saveConfigAction">
    <property name="text">
     <string>&amp;Save Configuration</string>
    </property>
@@ -544,9 +545,9 @@
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="fileExitAction">
+  <action name="quitAction">
    <property name="text">
-    <string>E&amp;xit</string>
+    <string>&amp;Quit</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
@@ -603,7 +604,7 @@
     <string>&amp;About</string>
    </property>
   </action>
-  <action name="actionWPS">
+  <action name="wpsAction">
    <property name="enabled">
     <bool>false</bool>
    </property>
@@ -611,7 +612,7 @@
     <string>&amp;Wi-Fi Protected Setup</string>
    </property>
   </action>
-  <action name="actionPeers">
+  <action name="peersAction">
    <property name="text">
     <string>&amp;Peers</string>
    </property>
@@ -635,6 +636,11 @@
    </property>
    <property name="toolTip">
     <string notr="true">DisconnReconn</string>
+   </property>
+  </action>
+  <action name="scanAction">
+   <property name="text">
+    <string>Scan</string>
    </property>
   </action>
  </widget>
