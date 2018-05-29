@@ -32,8 +32,6 @@
 #define debug(M, ...) do {} while (0)
 #endif
 
-#define BorderCollie 2000
-
 
 WpaGui::WpaGui(QApplication *_app
              , QWidget *parent, const char *
@@ -45,6 +43,28 @@ WpaGui::WpaGui(QApplication *_app
 	logHint(tr("Start-up at %1")
 	       .arg(QDateTime::currentDateTime()
 	       .toString("dddd, yyyy-MM-dd")));
+
+
+// Force polling when QSocketNotifier is not supported
+// FIXME Not sure if this is all enough here.
+//       The orig code has had this check at the beginning of ping()
+// #ifdef CONFIG_CTRL_IFACE_NAMED_PIPE
+// *
+// * QSocketNotifier cannot be used with Windows named pipes, so use a
+// * timer to check for received messages for now. This could be
+// * optimized be doing something specific to named pipes or Windows
+// * events, but it is not clear what would be the best way of doing that
+// * in Qt.
+// */
+// receiveMsgs();
+// #endif /* CONFIG_CTRL_IFACE_NAMED_PIPE */
+#if !defined(CONFIG_CTRL_IFACE_UNIX) && !defined(CONFIG_CTRL_IFACE_UDP)
+	logHint("QSocketNotifier not supported, polling is mandatory");
+	enablePollingAction->setEnabled(false);
+	enablePollingAction->setChecked(true);
+	disableNotifierAction->setEnabled(false);
+	disableNotifierAction->setChecked(true);
+#endif
 
 	disconReconButton->setDefaultAction(disconReconAction);
 	addNetworkButton->setDefaultAction(networkAddAction);
@@ -164,6 +184,11 @@ WpaGui::WpaGui(QApplication *_app
 
 	parse_argv();
 
+	connect(disableNotifierAction, SIGNAL(toggled(bool))
+	      , this, SLOT(disableNotifier(bool)));
+	connect(enablePollingAction, SIGNAL(toggled(bool))
+	      , this, SLOT(enablePolling(bool)));
+
 #ifndef QT_NO_SESSIONMANAGER
 	if (app->isSessionRestored()) {
 		QSettings settings("wpa_supplicant", "wpa_gui");
@@ -181,17 +206,19 @@ WpaGui::WpaGui(QApplication *_app
 		show();
 
 	connectedToService = false;	// FIXME Windows only, using wpaState possible ?
+	watchdogTimer = new QTimer(this);
+	connect(watchdogTimer, SIGNAL(timeout()), SLOT(ping()));
+	watchdogTimer->setSingleShot(false);
+	letTheDogOut(PomDog, enablePollingAction->isChecked());
 
 	signalMeterTimer = new QTimer(this);
 	signalMeterTimer->setInterval(signalMeterInterval);
 	connect(signalMeterTimer, SIGNAL(timeout()), SLOT(signalMeterUpdate()));
 
 	wpaState = WpaUnknown;
-	openCtrlConnection(ctrl_iface);
-
 	selectedNetwork = NULL;
-	updateNetworks();
-	updateStatus();
+
+	ping();
 }
 
 
@@ -258,9 +285,10 @@ void WpaGui::languageChange()
 void WpaGui::parse_argv()
 {
 	int c;
+	bool hasN(false), hasP(false);
 	WpaGuiApp *app = qobject_cast<WpaGuiApp*>(qApp);
 	for (;;) {
-		c = getopt(app->argc, app->argv, "i:m:p:tq");
+		c = getopt(app->argc, app->argv, "i:m:p:tqNP");
 		if (c < 0)
 			break;
 		switch (c) {
@@ -284,6 +312,26 @@ void WpaGui::parse_argv()
 		case 'q':
 			quietMode = true;
 			break;
+		case 'N':
+			hasN = true;
+			break;
+		case 'P':
+			hasP = true;
+			break;
+		}
+	}
+
+	if(hasN) {
+		if (disableNotifierAction->isEnabled()) {
+			disableNotifierAction->setChecked(true);
+			enablePollingAction->setChecked(true);
+			enablePollingAction->setEnabled(false);
+			logHint("QSocketNotifier disabled by command line option -N");
+		}
+	} else if(hasP) {
+		if (enablePollingAction->isEnabled()) {
+			enablePollingAction->setChecked(true);
+			logHint("Polling enabled by command line -P");
 		}
 	}
 }
@@ -488,11 +536,13 @@ int WpaGui::openCtrlConnection(const char *ifname)
 		return -1;
 	}
 
-#if defined(CONFIG_CTRL_IFACE_UNIX) || defined(CONFIG_CTRL_IFACE_UDP)
-	msgNotifier = new QSocketNotifier(wpa_ctrl_get_fd(monitor_conn),
-					  QSocketNotifier::Read, this);
-	connect(msgNotifier, SIGNAL(activated(int)), SLOT(receiveMsgs()));
-#endif
+	if (disableNotifierAction->isChecked()) {
+		logHint("Use polling to fetch news from wpa_supplicant");
+	} else {
+		msgNotifier = new QSocketNotifier(wpa_ctrl_get_fd(monitor_conn),
+		                                  QSocketNotifier::Read, this);
+		connect(msgNotifier, SIGNAL(activated(int)), SLOT(receiveMsgs()));
+	}
 
 	adapterSelect->clear();
 	adapterSelect->addItem(ctrl_iface);
@@ -612,6 +662,10 @@ void WpaGui::updateStatus()
 
 	debug("updateStatus >>");
 
+	// Wake the dog after network reconnect
+	if (!watchdogTimer->isActive() && enablePollingAction->isChecked())
+		letTheDogOut(PomDog);
+
 	textAuthentication->clear();
 	textEncryption->clear();
 	textSsid->clear();
@@ -624,6 +678,7 @@ void WpaGui::updateStatus()
 		updateTrayToolTip(textStatus->text());
 		updateTrayIcon(TrayIconOffline);
 		signalMeterTimer->stop();
+		letTheDogOut(BorderCollie);
 		return;
 	}
 	debug("updateStatus >>>>");
@@ -770,6 +825,8 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 	int was_selected = -1;
 	QTreeWidgetItem *currentNetwork = NULL;
 
+	debug("updateNetworks() ??????");
+
 	if (!changed)
 		return;
 
@@ -792,6 +849,8 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 	if (start == NULL)
 		return;
 	start++;
+
+	debug("updateNetworks() >>>>>>");
 
 	while (*start) {
 		bool last = false;
@@ -875,6 +934,62 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 	}
 
 	networkSelectionChanged();
+
+	debug("updateNetworks() <<<<<<");
+}
+
+
+void WpaGui::disableNotifier(bool yes)
+{
+	if (yes)
+		logHint("User requests to disable QSocketNotifier");
+	else
+		logHint("User requests to enable QSocketNotifier");
+
+	// So much effort only to block the log hint
+	const QSignalBlocker blocker(enablePollingAction);
+	enablePollingAction->setChecked(yes);
+	enablePollingAction->setEnabled(!yes);
+	letTheDogOut(PomDog, yes);
+
+	openCtrlConnection(ctrl_iface);
+}
+
+
+void WpaGui::letTheDogOut(int dog, bool yes)
+{
+	if (yes && dog >= PomDog) {
+		if (watchdogTimer->interval() != dog)
+			debug("New dog on patrol %d", dog);
+		watchdogTimer->start(dog);
+	}
+	else if (watchdogTimer->isActive()) {
+		watchdogTimer->stop();
+		debug("No dog on patrol");
+	}
+}
+
+
+void WpaGui::letTheDogOut(int dog/* = PomDog*/)
+{
+	letTheDogOut(dog, true);
+}
+
+
+void WpaGui::letTheDogOut(bool yes/* = true*/)
+{
+	letTheDogOut(watchdogTimer->interval(), yes);
+}
+
+
+void WpaGui::enablePolling(bool yes)
+{
+	if (yes)
+		logHint("User requests to enable polling");
+	else
+		logHint("User requests to disable polling");
+
+	letTheDogOut(PomDog, yes);
 }
 
 
@@ -968,23 +1083,17 @@ void WpaGui::eventHistory()
 
 void WpaGui::ping()
 {
-	char buf[10];
-	size_t len;
+	char  buf[10];
+	size_t len(sizeof(buf) - 1);
 	static WpaStateType oldState(WpaUnknown);
+
+	debug("PING! >>>>> state: %d / %d",oldState, wpaState);
+	if (wpaState > WpaNotRunning)
+		receiveMsgs();
+	debug("PING! ----- state: %d / %d",oldState, wpaState);
+
 	bool stateChanged(wpaState != oldState);
-
 	oldState = wpaState;
-
-#ifdef CONFIG_CTRL_IFACE_NAMED_PIPE
-	/*
-	 * QSocketNotifier cannot be used with Windows named pipes, so use a
-	 * timer to check for received messages for now. This could be
-	 * optimized be doing something specific to named pipes or Windows
-	 * events, but it is not clear what would be the best way of doing that
-	 * in Qt.
-	 */
-	receiveMsgs();
-#endif /* CONFIG_CTRL_IFACE_NAMED_PIPE */
 
 	if (scanres && !scanres->isVisible()) {
 		delete scanres;
@@ -1001,9 +1110,73 @@ void WpaGui::ping()
 		udr = NULL;
 	}
 
+	int dog(watchdogTimer->interval());
+	int maxDog(SnoozingDog);
 
-// 	if (stateChanged)
-// 		triggerUpdate();
+	if (stateChanged)
+		dog = PomDog;
+	else {
+		if (BassetHound < dog)
+			dog += BassetHound;
+		else if (BorderCollie < dog)
+			dog += BorderCollie;
+		else
+			dog += PomDog;
+	}
+
+	switch (wpaState) {
+		case WpaFatal:
+			letTheDogOut(false);
+			signalMeterTimer->stop();
+			logHint(tr("Polling halted"));
+			return;
+			break;
+		case WpaDisconnected:
+// 			maxDog = SnoozingDog;
+			break;
+		case WpaInactive:
+		case WpaScanning:
+			maxDog = BassetHound;
+			break;
+		case WpaUnknown:
+		case WpaNotRunning:
+			if (openCtrlConnection(ctrl_iface) == 0) {
+				updateStatus();
+				updateNetworks();
+				letTheDogOut(enablePollingAction->isChecked());
+				return;
+			}
+			maxDog = BassetHound;
+			break;
+		case WpaAssociated:
+		case WpaCompleted:
+			if (ctrlRequest("PING", buf, &len) < 0) {
+				logHint(tr("PING failed - trying to reconnect"));
+				dog = PomDog;
+				wpaState = WpaUnknown;
+			} else {
+				debug("Play ping-pong");
+				updateStatus();
+				if (isVisible())
+					updateNetworks();
+			}
+			break;
+		default :
+			break;
+	}
+
+	if (isVisible())
+		maxDog = BorderCollie;
+
+	if (dog > maxDog)
+		dog = maxDog;
+
+	letTheDogOut(dog);
+
+	if (stateChanged)
+		updateStatus();
+
+	debug("PING! <<<<<");
 }
 
 
@@ -1230,6 +1403,8 @@ void WpaGui::receiveMsgs()
 	char buf[256];
 	size_t len;
 
+	debug("receiveMsgs() >>>>>");
+
 	while (monitor_conn && wpa_ctrl_pending(monitor_conn) > 0) {
 		len = sizeof(buf) - 1;
 		if (wpa_ctrl_recv(monitor_conn, buf, &len) == 0) {
@@ -1239,6 +1414,8 @@ void WpaGui::receiveMsgs()
 	}
 
 	updateNetworks(networkMayHaveChanged);
+
+	debug("receiveMsgs() <<<<<<");
 }
 
 

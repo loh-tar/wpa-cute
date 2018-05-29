@@ -65,6 +65,13 @@ public:
 		WpaCompleted
 	};
 
+	enum DogBreed {
+		PomDog         = 1000,
+		BorderCollie   = 2500,
+		BassetHound    = 9000,
+		SnoozingDog    = 20 * 1000
+	};
+
 	WpaGui(QApplication *app, QWidget *parent = 0, const char *name = 0,
 	       Qt::WindowFlags fl = 0);
 	~WpaGui();
@@ -97,6 +104,9 @@ public slots:
 	virtual void disableAllNetworks();
 	virtual void removeListedNetwork();
 	virtual void removeAllNetworks();
+
+	virtual void disableNotifier(bool yes);
+	virtual void enablePolling(bool yes);
 
 	virtual void helpIndex();
 	virtual void helpContents();
@@ -139,6 +149,10 @@ private:
 	virtual void requestNetworkChange(const QString &req, const QString &sel);
 	virtual void logHint(const QString &hint);
 
+	virtual void letTheDogOut(int dog, bool yes);
+	virtual void letTheDogOut(int dog = PomDog);
+	virtual void letTheDogOut(bool yes = true);
+
 	WpaStateType wpaState;
 	ScanResults *scanres;
 	Peers *peers;
@@ -148,6 +162,7 @@ private:
 	EventHistory *eh;
 	struct wpa_ctrl *ctrl_conn;
 	QSocketNotifier *msgNotifier;
+	QTimer *watchdogTimer;
 	WpaMsgList msgs;
 	char *ctrl_iface_dir;
 	struct wpa_ctrl *monitor_conn;

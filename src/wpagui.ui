@@ -528,8 +528,16 @@
     <addaction name="helpAboutAction"/>
     <addaction name="helpAboutQtAction"/>
    </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settin&amp;gs</string>
+    </property>
+    <addaction name="enablePollingAction"/>
+    <addaction name="disableNotifierAction"/>
+   </widget>
    <addaction name="fileMenu"/>
    <addaction name="networkMenu"/>
+   <addaction name="menuSettings"/>
    <addaction name="helpMenu"/>
   </widget>
   <action name="eventHistoryAction">
@@ -638,9 +646,31 @@
     <string notr="true">DisconnReconn</string>
    </property>
   </action>
+  <action name="disableNotifierAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Disable notifier</string>
+   </property>
+   <property name="iconText">
+    <string>Force Polling</string>
+   </property>
+   <property name="statusTip">
+    <string>Don't use QSocketNotifier to receive supplicant messages</string>
+   </property>
+  </action>
+  <action name="enablePollingAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Use polling</string>
+   </property>
+  </action>
   <action name="scanAction">
    <property name="text">
-    <string>Scan</string>
+    <string>S&amp;can</string>
    </property>
   </action>
  </widget>
