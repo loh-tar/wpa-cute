@@ -144,6 +144,7 @@ protected slots:
 	virtual void languageChange();
 	virtual void trayActivated(QSystemTrayIcon::ActivationReason how);
 	virtual void closeEvent(QCloseEvent *event);
+	virtual void showEvent(QShowEvent *event);
 
 private:
 	virtual void requestNetworkChange(const QString &req, const QString &sel);

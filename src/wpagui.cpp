@@ -200,11 +200,6 @@ WpaGui::WpaGui(QApplication *_app
 	}
 #endif
 
-	if (QSystemTrayIcon::isSystemTrayAvailable())
-		createTrayIcon(startInTray);
-	else
-		show();
-
 	connectedToService = false;	// FIXME Windows only, using wpaState possible ?
 	watchdogTimer = new QTimer(this);
 	connect(watchdogTimer, SIGNAL(timeout()), SLOT(ping()));
@@ -214,6 +209,12 @@ WpaGui::WpaGui(QApplication *_app
 	signalMeterTimer = new QTimer(this);
 	signalMeterTimer->setInterval(signalMeterInterval);
 	connect(signalMeterTimer, SIGNAL(timeout()), SLOT(signalMeterUpdate()));
+
+	// Must done after creation of watchdogTimer due to showEvent catch
+	if (QSystemTrayIcon::isSystemTrayAvailable())
+		createTrayIcon(startInTray);
+	else
+		show();
 
 	wpaState = WpaUnknown;
 	selectedNetwork = NULL;
@@ -1897,6 +1898,13 @@ void WpaGui::closeEvent(QCloseEvent *event)
 	}
 
 	event->accept();
+}
+
+
+void WpaGui::showEvent(QShowEvent *event)
+{
+    letTheDogOut(BorderCollie, enablePollingAction->isChecked());
+	event->ignore();
 }
 
 
