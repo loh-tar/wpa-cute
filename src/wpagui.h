@@ -38,7 +38,11 @@ class WpaGui : public QMainWindow, public Ui::WpaGui
 public:
 
 	enum TrayIconType {
-		TrayIconOffline = 0,
+		TrayIconNone = 0,
+		TrayIconError,
+		TrayIconOffline,
+		TrayIconInactive,
+		TrayIconScanning,
 		TrayIconAcquiring,
 		TrayIconConnected,
 		TrayIconSignalNone,
@@ -53,15 +57,16 @@ public:
 		WpaUnknown,
 		WpaNotRunning,
 		WpaRunning,
-		WpaDisconnected,
-		WpaInactive,
-		WpaScanning,
 		WpaAuthenticating,
 		WpaAssociating,
 		WpaAssociated,
 		Wpa4WayHandshake,
 		WpaGroupHandshake,
 		WpaWait4Registrar,
+		WpaInactive,
+		WpaScanning,
+		WpaDisconnected,
+		WpaLostSignal,
 		WpaCompleted
 	};
 
@@ -89,7 +94,7 @@ public:
 
 public slots:
 	virtual void parse_argv();
-	virtual void updateStatus();
+	virtual void updateStatus(bool changed = true);
 	virtual void updateNetworks(bool changed = true);
 
 	virtual void disconnReconnect();
@@ -154,11 +159,17 @@ private:
 	virtual void letTheDogOut(int dog = PomDog);
 	virtual void letTheDogOut(bool yes = true);
 
+	        void wpaStateTranslate(const char *state);
+	        void setState(const WpaStateType state);
+
+
 	WpaStateType wpaState;
+	bool statusNeedsUpdate;
+	bool networkNeedsUpdate;
+
 	ScanResults *scanres;
 	Peers *peers;
-	bool networkMayHaveChanged;
-	QTreeWidgetItem *selectedNetwork;
+
 	char *ctrl_iface;
 	EventHistory *eh;
 	struct wpa_ctrl *ctrl_conn;
@@ -171,7 +182,6 @@ private:
 	QMenu *tray_menu;
 	QSystemTrayIcon *tray_icon;
 	TrayIconType currentIconType;
-	QString wpaStateTranslate(char *state);
 	void createTrayIcon(bool);
 	bool ackTrayIcon;
 	bool startInTray;

@@ -73,13 +73,25 @@
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
            <widget class="QToolButton" name="disconReconButton">
+            <property name="minimumSize">
+             <size>
+              <width>160</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="text">
              <string>DisconnReconn</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="scanButton">
+           <widget class="QToolButton" name="scanButton">
+            <property name="minimumSize">
+             <size>
+              <width>160</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="text">
              <string>Scan</string>
             </property>
@@ -665,7 +677,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Use polling</string>
+    <string>&amp;Use polling</string>
    </property>
   </action>
   <action name="scanAction">

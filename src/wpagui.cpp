@@ -67,6 +67,7 @@ WpaGui::WpaGui(QApplication *_app
 #endif
 
 	disconReconButton->setDefaultAction(disconReconAction);
+	scanButton->setDefaultAction(scanAction);
 	addNetworkButton->setDefaultAction(networkAddAction);
 	editNetworkButton->setDefaultAction(networkEditAction);
 	removeNetworkButton->setDefaultAction(networkRemoveAction);
@@ -216,8 +217,7 @@ WpaGui::WpaGui(QApplication *_app
 	else
 		show();
 
-	wpaState = WpaUnknown;
-	selectedNetwork = NULL;
+	setState(WpaUnknown);
 
 	ping();
 }
@@ -493,40 +493,34 @@ int WpaGui::openCtrlConnection(const char *ifname)
 			case 1:
 				dbgTxt = "Failed to open control connection to wpa_supplicant.";
 				errTxt = tr("No running wpa_supplicant found");
-				wpaState = WpaNotRunning;
+				setState(WpaNotRunning);
 				break;
 			case 2:
 				dbgTxt = "Malloc of cfile fails";
 				errTxt.append(dbgTxt);
-				wpaState = WpaFatal;
+				setState(WpaFatal);
 				break;
 			case 3:
 				dbgTxt = "Failed to open control connection to wpa_supplicant on adapter ";
 				dbgTxt.append(ctrl_iface);
 				errTxt = tr("No wpa_supplicant with adapter '%1' found").arg(ctrl_iface);
-				wpaState = WpaNotRunning;
+				setState(WpaNotRunning);
 				break;
 			case 4:
 				dbgTxt = "monitor_conn == NULL";
 				errTxt.append(dbgTxt);
-				wpaState = WpaFatal;
+				setState(WpaFatal);
 				break;
 			case 5:
 				dbgTxt = "Failed to attach to wpa_supplicant";
 				errTxt.append(dbgTxt);
-				wpaState = WpaFatal;
+				setState(WpaFatal);
 				break;
 		}
 
 		if (oldState != wpaState ) {
-			disconReconButton->setEnabled(false);
-			scanButton->setEnabled(false);
 			if (adapterSelect->count() < 2)
 				adapterSelect->setEnabled(false);
-			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(networksTab), false);
-			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(wpsTab), false);
-			wpaguiTab->setCurrentWidget(eventTab);
-			debug("UI almost disabled");
 			logHint(tr("...Failed!"));
 			logHint(errTxt);
 			if (WpaFatal != wpaState)
@@ -580,13 +574,7 @@ int WpaGui::openCtrlConnection(const char *ifname)
 		wpaguiTab->setTabEnabled(wpaguiTab->indexOf(wpsTab), wps);
 	}
 
-	wpaState = WpaRunning;
-	disconReconButton->setEnabled(true);
-	scanButton->setEnabled(true);
-	adapterSelect->setEnabled(true);
-	wpaguiTab->setTabEnabled(wpaguiTab->indexOf(networksTab), true);
-	debug("UI almost enabled");
-
+	setState(WpaRunning);
 	return 0;
 }
 
@@ -607,61 +595,204 @@ int WpaGui::ctrlRequest(const char *cmd, char *buf, size_t *buflen)
 }
 
 
-QString WpaGui::wpaStateTranslate(char *state)
+void WpaGui::wpaStateTranslate(const char *state)
 {
 	if (!strcmp(state, "DISCONNECTED")) {
-		wpaState = WpaDisconnected;
-		return tr("Disconnected");
+		setState(WpaDisconnected);
 	}
 	else if (!strcmp(state, "INACTIVE")) {
-		wpaState = WpaInactive;
-		return tr("Inactive");
+		setState(WpaInactive);
 	}
 	else if (!strcmp(state, "SCANNING")) {
-		wpaState =WpaScanning ;
-		return tr("Scanning");
+		setState(WpaScanning);
 	}
 	else if (!strcmp(state, "AUTHENTICATING")) {
-		wpaState = WpaAuthenticating;
-		return tr("Authenticating");
+		setState(WpaAuthenticating);
 	}
 	else if (!strcmp(state, "ASSOCIATING")) {
-		wpaState = WpaAssociating;
-		return tr("Associating");
+		setState(WpaAssociating);
 	}
 	else if (!strcmp(state, "ASSOCIATED")) {
-		wpaState = WpaAssociated;
-		return tr("Associated");
+		setState(WpaAssociated);
 	}
 	else if (!strcmp(state, "4WAY_HANDSHAKE")) {
-		wpaState = Wpa4WayHandshake;
-		return tr("4-Way Handshake");
+		setState(Wpa4WayHandshake);
 	}
 	else if (!strcmp(state, "GROUP_HANDSHAKE")) {
-		wpaState = WpaGroupHandshake;
-		return tr("Group Handshake");
+		setState(WpaGroupHandshake);
 	}
 	else if (!strcmp(state, "COMPLETED")) {
-		wpaState = WpaCompleted;
-		return tr("Completed");
+		setState(WpaCompleted);
 	}
 	else if (!strcmp(state, "NOT_RUNNING")) {
-		wpaState = WpaNotRunning;
-		return tr("No running wpa_supplicant");
+		setState(WpaNotRunning);
 	}
 	else {
-		wpaState = WpaUnknown;
-		return tr("Unknown");
+		setState(WpaUnknown);
 	}
 }
 
 
-void WpaGui::updateStatus()
+void WpaGui::setState(const WpaStateType state)
+{
+	static int oldState = -1;
+	TrayIconType icon   = TrayIconNone;
+	QString stateText;
+
+	const QString DiscActTxt(tr("Disconnect"));
+	const QString DiscActTTTxt(tr("Disable WLAN networking"));
+	const QString RecActTxt(tr("Reconnect"));
+	const QString RecActTTTxt(tr("Enable WLAN networking"));
+
+	if (state == oldState)
+		return;
+
+	oldState = state;
+	statusNeedsUpdate = true;
+
+	switch (state) {
+		case WpaFatal:
+			wpaState = WpaFatal;
+			icon = TrayIconError;
+			stateText = tr("Fatal Error!");
+			disconReconAction->setEnabled(false);
+			wpsAction->setEnabled(false);
+			saveConfigAction->setEnabled(false);
+			networkMenu->setEnabled(false);
+			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(networksTab), false);
+			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(wpsTab), false);
+			wpaguiTab->setCurrentWidget(eventTab);
+			break;
+		case WpaUnknown:
+			wpaState = WpaUnknown;
+// 			icon = ;
+			stateText = tr("Unknown");
+			break;
+		case WpaNotRunning:
+			wpaState = WpaNotRunning;
+			icon = TrayIconError;
+			stateText = tr("No running wpa_supplicant");
+			stopWpsRun(true);
+			disconReconAction->setEnabled(false);
+			wpsAction->setEnabled(false);
+			saveConfigAction->setEnabled(false);
+			networkMenu->setEnabled(false);
+			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(networksTab), false);
+			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(wpsTab), false);
+			wpaguiTab->setCurrentWidget(eventTab);
+			// FIXME is it possible that wpa_supplicant runs with one adapter
+			// but not the other? If not set to false here and remove the
+			// line in openCtrlConnection()
+			// adapterSelect->setEnabled(false);
+			networkNeedsUpdate = true;
+			if (ctrl_conn) {
+				wpa_ctrl_close(ctrl_conn);
+				ctrl_conn = NULL;
+			}
+			break;
+		case WpaRunning:
+			wpaState = WpaRunning;
+			icon = TrayIconSignalNone;
+			stateText = tr("wpa_supplicant is running");
+			disconReconAction->setEnabled(true);
+			wpsAction->setEnabled(true);
+			saveConfigAction->setEnabled(true);
+			networkMenu->setEnabled(true);
+			adapterSelect->setEnabled(true);
+			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(networksTab), true);
+			break;
+		case WpaAuthenticating:
+			wpaState = WpaAuthenticating;
+			stateText = tr("Authenticating");
+			icon = TrayIconAcquiring;
+			break;
+		case WpaAssociating:
+			wpaState = WpaAssociating;
+			stateText = tr("Associating");
+			icon = TrayIconAcquiring;
+			break;
+		case WpaAssociated:
+			wpaState = WpaAssociated;
+			stateText = tr("Associated");
+			icon = TrayIconAcquiring;
+			break;
+		case Wpa4WayHandshake:
+			wpaState = Wpa4WayHandshake;
+			stateText = tr("4-Way Handshake");
+			icon = TrayIconAcquiring;
+			break;
+		case WpaGroupHandshake:
+			wpaState = WpaGroupHandshake;
+			stateText = tr("Group Handshake");
+			icon = TrayIconAcquiring;
+			break;
+		case WpaWait4Registrar:
+			stateText = tr("Wait for registrar");
+			icon = TrayIconAcquiring;
+			break;
+		case WpaInactive:
+			wpaState = WpaInactive;
+			icon = TrayIconInactive;
+			stateText = tr("Inactive");
+			disconReconAction->setText(DiscActTxt);
+			disconReconAction->setToolTip(DiscActTTTxt);
+			disconReconAction->setEnabled(true);
+			break;
+		case WpaScanning:
+			wpaState = WpaScanning;
+			icon = TrayIconScanning;
+			stateText = tr("Scanning");
+			disconReconAction->setText(DiscActTxt);
+			disconReconAction->setToolTip(DiscActTTTxt);
+			disconReconAction->setEnabled(true);
+			break;
+		case WpaDisconnected:
+			wpaState = WpaDisconnected;
+			icon = TrayIconOffline;
+			stateText = tr("Disconnected");
+			disconReconAction->setText(RecActTxt);
+			disconReconAction->setToolTip(RecActTTTxt);
+			disconReconAction->setEnabled(true);
+			networkNeedsUpdate = true;
+			break;
+		case WpaLostSignal:
+			wpaState = WpaLostSignal;
+			icon = TrayIconSignalNone;
+			stateText = tr("Lost signal");
+			break;
+		case WpaCompleted:
+			wpaState = WpaCompleted;
+			icon = TrayIconSignalExcellent;
+			stateText = tr("Connected");
+			stopWpsRun(true);
+			signalMeterTimer->start();
+			disconReconAction->setText(DiscActTxt);
+			disconReconAction->setToolTip(DiscActTTTxt);
+			disconReconAction->setEnabled(true);
+			networkNeedsUpdate = true;
+			break;
+	}
+
+	debug("#### New state: %s", stateText.toLocal8Bit().constData());
+
+	textStatus->setText(stateText);
+	updateTrayToolTip(stateText);
+	updateTrayIcon(icon);
+}
+
+
+void WpaGui::updateStatus(bool changed/* = true*/)
 {
 	char buf[2048], *start, *end, *pos;
 	size_t len(sizeof(buf) - 1);
 
-	debug("updateStatus >>");
+	debug(" updateStatus ??");
+
+	if (!changed)
+		return;
+
+	debug(" updateStatus >>");
+	statusNeedsUpdate = false;
 
 	// Wake the dog after network reconnect
 	if (!watchdogTimer->isActive() && enablePollingAction->isChecked())
@@ -674,42 +805,16 @@ void WpaGui::updateStatus()
 	textIpAddress->clear();
 
 	if (WpaNotRunning == wpaState) {
-		ctrl_conn = NULL;
-		textStatus->setText(wpaStateTranslate(strdup("NOT_RUNNING")));
-		updateTrayToolTip(textStatus->text());
-		updateTrayIcon(TrayIconOffline);
-		signalMeterTimer->stop();
 		letTheDogOut(BorderCollie);
 		return;
 	}
-	debug("updateStatus >>>>");
-
-
-	if (WpaDisconnected == wpaState) {
-		// In case of wpa_supplicant shut down would updateNetworks() fail
-		networkMayHaveChanged = false;
-		disconReconAction->setText(tr("Reconnect"));
-		disconReconAction->setToolTip(tr("Enable WLAN networking"));
-		disconReconAction->setEnabled(true);
-		textStatus->setText(wpaStateTranslate(strdup("DISCONNECTED")));
-		updateTrayToolTip(textStatus->text());
-		updateTrayIcon(TrayIconOffline);
-		signalMeterTimer->stop();
-		return;
-	}
-	debug("updateStatus >>>>>>");
-
-	if (ctrl_conn == NULL)
-		return;
-	debug("updateStatus >>>>>>>>");
+	debug(" updateStatus >>>>");
 
 	if (ctrlRequest("STATUS", buf, &len) < 0) {
 		logHint(tr("Could not get status from wpa_supplicant"));
 		updateTrayToolTip(tr("No status information"));
-		updateTrayIcon(TrayIconOffline);
-		signalMeterTimer->stop();
 #ifndef CONFIG_NATIVE_WINDOWS
-		wpaState = WpaUnknown;
+		setState(WpaUnknown);
 		ctrl_conn = NULL;
 #endif /* CONFIG_NATIVE_WINDOWS */
 
@@ -729,7 +834,7 @@ void WpaGui::updateStatus()
 #endif /* CONFIG_NATIVE_WINDOWS */
 		return;
 	}
-	debug("updateStatus >>>>>>>>");
+	debug(" updateStatus >>>>>>");
 
 	buf[len] = '\0';
 
@@ -755,27 +860,12 @@ void WpaGui::updateStatus()
 				textBssid->setText(pos);
 			} else if (strcmp(start, "ssid") == 0) {
 				textSsid->setText(pos);
+				// Needed to fix rare cases with a missig ssid in tool tip
 				updateTrayToolTip(pos);
-				if (!signalMeterInterval) {
-					/* if signal meter is not enabled show
-					 * full signal strength */
-					updateTrayIcon(TrayIconSignalExcellent);
-				}
 			} else if (strcmp(start, "ip_address") == 0) {
 				textIpAddress->setText(pos);
 			} else if (strcmp(start, "wpa_state") == 0) {
-				textStatus->setText(wpaStateTranslate(pos));
-				if (WpaDisconnected == wpaState) {
-					disconReconAction->setText(tr("Reconnect"));
-					disconReconAction->setToolTip(tr("Enable WLAN networking"));
-				} else if (WpaCompleted == wpaState ||
-				           WpaScanning  == wpaState ||
-				           WpaInactive  == wpaState  )
-				{
-					disconReconAction->setText(tr("Disconnect"));
-					disconReconAction->setToolTip(tr("Disable WLAN networking"));
-				}
-				disconReconAction->setEnabled(true);
+				wpaStateTranslate(pos);
 			} else if (strcmp(start, "key_mgmt") == 0) {
 				textAuthentication->setText(pos);
 				/* TODO: could add EAP status to this */
@@ -790,9 +880,11 @@ void WpaGui::updateStatus()
 
 		if (last)
 			break;
+
 		start = end + 1;
 	}
-	if (mode)
+
+	if (mode && !textStatus->text().contains(mode))
 		textStatus->setText(textStatus->text() + " (" + mode + ")");
 
 	if (pairwise_cipher || group_cipher) {
@@ -814,8 +906,8 @@ void WpaGui::updateStatus()
 
 	logHint(textStatus->text());
 
-	debug("updateStatus <<<<<<<<");
-
+	statusNeedsUpdate = false;
+	debug(" updateStatus <<<<<<");
 }
 
 
@@ -824,34 +916,40 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 	char buf[4096], *start, *end, *id, *ssid, *bssid, *flags;
 	size_t len;
 	int was_selected = -1;
-	QTreeWidgetItem *currentNetwork = NULL;
 
-	debug("updateNetworks() ??????");
+	debug(" updateNetworks() ??");
 
 	if (!changed)
 		return;
+
+	networkNeedsUpdate = false;
+	QTreeWidgetItem *currentNetwork = NULL;
+	QTreeWidgetItem *selectedNetwork = networkList->currentItem();
 
 	if (selectedNetwork)
 		was_selected = selectedNetwork->text(0).toInt();
 
 	selectedNetwork = NULL;
+
 	const QSignalBlocker blocker(networkList);
 	networkList->clear();
 
 	if (ctrl_conn == NULL)
 		return;
 
+	debug(" updateNetworks() >>");
 	len = sizeof(buf) - 1;
 	if (ctrlRequest("LIST_NETWORKS", buf, &len) < 0)
 		return;
 
+	debug(" updateNetworks() >>>>");
 	buf[len] = '\0';
 	start = strchr(buf, '\n');
 	if (start == NULL)
 		return;
 	start++;
 
-	debug("updateNetworks() >>>>>>");
+	debug(" updateNetworks() >>>>>>");
 
 	while (*start) {
 		bool last = false;
@@ -897,7 +995,7 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 		if (atoi(id) == was_selected) {
 			networkList->setCurrentItem(item);
 			selectedNetwork = item;
-			debug("restore old selection: %d", was_selected);
+			debug(" restore old selection: %d", was_selected);
 		}
 
 		if (last)
@@ -926,7 +1024,6 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 		networkEnableAllAction->setEnabled(true);
 		networkDisableAllAction->setEnabled(true);
 		networkRemoveAllAction->setEnabled(true);
-		// TODO Connect/Disconnect actions
 	}
 	else {
 		networkEnableAllAction->setEnabled(false);
@@ -1039,12 +1136,9 @@ void WpaGui::disconnReconnect()
 		logHint("User requests network disconnect");
 		ctrlRequest("DISCONNECT", reply, &reply_len);
 		stopWpsRun(false);
-		QTimer::singleShot(BorderCollie, this, SLOT(updateNetworks()));
 	}
 
-	wpaState = WpaUnknown;
-	// Needed to get inactive status (if so)
-	QTimer::singleShot(BorderCollie, this, SLOT(updateStatus()));
+	updateStatus();
 }
 
 
@@ -1130,6 +1224,7 @@ void WpaGui::ping()
 			letTheDogOut(false);
 			signalMeterTimer->stop();
 			logHint(tr("Polling halted"));
+			debug("PING! <-<<<");
 			return;
 			break;
 		case WpaDisconnected:
@@ -1145,6 +1240,7 @@ void WpaGui::ping()
 				updateStatus();
 				updateNetworks();
 				letTheDogOut(enablePollingAction->isChecked());
+				debug("PING! <<<-<");
 				return;
 			}
 			maxDog = BassetHound;
@@ -1154,7 +1250,7 @@ void WpaGui::ping()
 			if (ctrlRequest("PING", buf, &len) < 0) {
 				logHint(tr("PING failed - trying to reconnect"));
 				dog = PomDog;
-				wpaState = WpaUnknown;
+				setState(WpaUnknown);
 			} else {
 				debug("Play ping-pong");
 				updateStatus();
@@ -1163,6 +1259,7 @@ void WpaGui::ping()
 			}
 			break;
 		default :
+			debug("wpaState ignored by PING: %d", wpaState);
 			break;
 	}
 
@@ -1187,6 +1284,9 @@ void WpaGui::signalMeterUpdate()
 	size_t reply_len = sizeof(reply);
 	char *rssi;
 	int rssi_value;
+
+	if (WpaCompleted != wpaState)
+		return;
 
 	ctrlRequest("SIGNAL_POLL", reply, &reply_len);
 
@@ -1225,6 +1325,9 @@ void WpaGui::signalMeterUpdate()
 		updateTrayIcon(TrayIconSignalWeak);
 	else
 		updateTrayIcon(TrayIconSignalNone);
+
+	if (!signalMeterInterval)
+		signalMeterTimer->stop();
 }
 
 
@@ -1297,43 +1400,56 @@ void WpaGui::processMsg(char *msg)
 
 	debug("processMsg - %s", msg);
 
-	WpaStateType oldState(wpaState);
-
-	if (str_match(pos, WPA_CTRL_REQ))
+	if (str_match(pos, WPA_CTRL_REQ)) {
 		processCtrlReq(pos + strlen(WPA_CTRL_REQ));
-	else if (str_match(pos, WPA_EVENT_SCAN_RESULTS) && scanres) {
+	} else if (str_match(pos, WPA_EVENT_SCAN_STARTED)) {
+		setState(WpaScanning);
+	} else if (str_match(pos, WPA_EVENT_SCAN_RESULTS) && scanres) {
 		logHint(tr("Scan results available"));
 		scanres->updateResults();
+	} else if (str_match(pos, WPA_EVENT_NETWORK_NOT_FOUND)) {
+		logHint("Network not found");
+		networkNeedsUpdate = true;
 	} else if (str_match(pos, WPA_EVENT_DISCONNECTED)) {
-		networkMayHaveChanged = true;
-		wpaState = WpaDisconnected;
-		showTrayMessage(QSystemTrayIcon::Information, 3,
-		                tr("Disconnected from network."));
-		signalMeterTimer->stop();
+		if (strstr(pos, "reason=3")) {
+			showTrayMessage(QSystemTrayIcon::Information, 3,
+							tr("Disconnected from network"));
+			if (WpaDisconnected != wpaState) {
+				// Unclear situation, possible supplicant shut down where
+				// any ctrlRequest() would fail, So ensure not to update
+				// status or network until some clarifying message, see below.
+				setState(WpaUnknown);
+				statusNeedsUpdate = false;
+				networkNeedsUpdate = false;
+				// If WPA_EVENT_TERMINATING not arrive check networks anyway
+			    QTimer::singleShot(BorderCollie, this, SLOT(updateNetworks()));
+			}
+			// Needed to get inactive status (if so) or if
+			// WPA_EVENT_TERMINATING not arrive check anyway
+			QTimer::singleShot(BorderCollie, this, SLOT(updateStatus()));
+		} else if (strstr(pos, "reason=4")) {
+			setState(WpaLostSignal);
+			showTrayMessage(QSystemTrayIcon::Information, 3,
+							tr("Lost signal"));
+		} else {
+			debug("WARNING disconnect reason not handled/ignored");
+		}
 	} else if (str_match(pos, WPA_EVENT_CONNECTED)) {
-		networkMayHaveChanged = true;
-		wpaState = WpaCompleted;
+		setState(WpaCompleted);
 		showTrayMessage(QSystemTrayIcon::Information, 3,
 		                tr("Connection to network established."));
 		QTimer::singleShot(5 * 1000, this, SLOT(showTrayStatus()));
-		stopWpsRun(true);
 		// Needed to ensure IP is read
 		QTimer::singleShot(BorderCollie, this, SLOT(updateStatus()));
-		if (signalMeterInterval)
-			signalMeterTimer->start();
 	} else if (str_match(pos, WPA_EVENT_TERMINATING)) {
-		wpaState = WpaNotRunning;
-		networkMayHaveChanged = true;
+		setState(WpaNotRunning);
 		showTrayMessage(QSystemTrayIcon::Information, 3,
 		                tr("The wpa_supplicant is terminated."));
-		updateTrayIcon(TrayIconOffline);
-		updateTrayToolTip(tr("No running wpa_supplicant"));
-		stopWpsRun(true);
 	} else if (str_match(pos, WPS_EVENT_AP_AVAILABLE_PBC)) {
 		logHint(tr("WPS AP in active PBC mode found"));
 		if (WpaInactive == wpaState || WpaDisconnected == wpaState) {
 			wpaguiTab->setCurrentWidget(wpsTab);
-			wpaState = WpaWait4Registrar;
+			setState(WpaWait4Registrar);
 		}
 		wpsInstructions->setText(tr("Press the PBC button on the "
 		                            "screen to start registration"));
@@ -1368,15 +1484,15 @@ void WpaGui::processMsg(char *msg)
 		logHint(tr("Registration failed"));
 	} else if (str_match(pos, WPS_EVENT_SUCCESS)) {
 		logHint(tr("Registration succeeded"));
+	} else if (str_match(pos, WPA_EVENT_BSS_REMOVED)) {
+		// Needed to catch these or the next has not the desired effect to...
+		debug("Message noticed but so far ignored");
+	} else if (WpaUnknown == wpaState) {
+		// ...catch the buggy wpa_supplicant behavior when shut down
+		setState(WpaRunning);
 	} else {
 		debug("Message ignored");
-		return;
 	}
-
-	if (oldState != wpaState)
-		// Do it now so we lost no state change,
-		// as we would at the end of receiveMsgs()
-		updateStatus();
 }
 
 
@@ -1404,7 +1520,7 @@ void WpaGui::receiveMsgs()
 	char buf[256];
 	size_t len;
 
-	debug("receiveMsgs() >>>>>");
+	debug("receiveMsgs() >>>");
 
 	while (monitor_conn && wpa_ctrl_pending(monitor_conn) > 0) {
 		len = sizeof(buf) - 1;
@@ -1413,8 +1529,10 @@ void WpaGui::receiveMsgs()
 			processMsg(buf);
 		}
 	}
+	debug("receiveMsgs() >>>>>>");
 
-	updateNetworks(networkMayHaveChanged);
+	updateStatus(statusNeedsUpdate);
+	updateNetworks(networkNeedsUpdate);
 
 	debug("receiveMsgs() <<<<<<");
 }
@@ -1422,7 +1540,7 @@ void WpaGui::receiveMsgs()
 
 void WpaGui::networkSelectionChanged()
 {
-	selectedNetwork = networkList->currentItem();
+	QTreeWidgetItem *selectedNetwork = networkList->currentItem();
 	if (!selectedNetwork) {
 		debug("networkSelectionChanged - NULL");
 		networkEditAction->setEnabled(false);
@@ -1501,7 +1619,6 @@ void WpaGui::editNetwork(const QString &sel)
 
 	nc->show();
 	nc->exec();
-	networkMayHaveChanged = true;
 }
 
 
@@ -1527,7 +1644,6 @@ void WpaGui::addNetwork()
 	nc->newNetwork();
 	nc->show();
 	nc->exec();
-	networkMayHaveChanged = true;
 }
 
 
@@ -1602,20 +1718,21 @@ int WpaGui::getNetworkDisabled(const QString &sel)
 
 void WpaGui::disEnableNetwork()
 {
+	QTreeWidgetItem *selectedNetwork = networkList->currentItem();
 	switch (getNetworkDisabled(selectedNetwork->text(0))) {
 	case 1:
 		enableNetwork(selectedNetwork->text(0));
 		break;
 	case 0:
 		disableNetwork(selectedNetwork->text(0));
-		// Needed to get inactive status (if so) after diconnect status
-		QTimer::singleShot(BorderCollie, this, SLOT(updateStatus()));
 		break;
 	default:
 		// We should never read this
 		logHint("Oops?! Error after getNetworkDisabled() call");
 		break;
 	}
+
+	updateStatus();
 }
 
 
@@ -1652,7 +1769,6 @@ void WpaGui::selectAdapter( const QString & sel )
 
 	logHint(tr("User requests adapter change to %1").arg(sel));
 	openCtrlConnection(sel.toLocal8Bit().constData());
-	selectedNetwork = NULL;
 	updateNetworks();
 	updateStatus();
 }
@@ -1779,18 +1895,33 @@ void WpaGui::showTrayStatus()
 
 void WpaGui::updateTrayToolTip(const QString &msg)
 {
-	if (tray_icon)
-		tray_icon->setToolTip(QString("%1 - %2").arg(ctrl_iface).arg(msg));
+	if (!tray_icon)
+		return;
+
+	if (WpaCompleted == wpaState)
+		tray_icon->setToolTip(QString("%1 - %2")
+		                     .arg(ctrl_iface)
+		                     .arg(textSsid->text()));
+	else if (ctrl_iface)
+		tray_icon->setToolTip(QString("%1 - %2")
+		                     .arg(ctrl_iface).arg(msg));
+	else
+		tray_icon->setToolTip(QString("%1 - %2")
+		                     .arg(qAppName()).arg(msg));
 }
 
 
-void WpaGui::updateTrayIcon(TrayIconType type)
+void WpaGui::updateTrayIcon(const TrayIconType type)
 {
-	if (!tray_icon || currentIconType == type)
+	static TrayIconType oldIconType(TrayIconNone);
+	QStringList names;
+	QIcon fallback_icon;
+
+
+	if (!tray_icon || type == oldIconType)
 		return;
 
-	QIcon fallback_icon;
-	QStringList names;
+	oldIconType = type;
 
 	if (QImageReader::supportedImageFormats().contains(QByteArray("svg")))
 		fallback_icon = QIcon(":/icons/wpa_gui.svg");
@@ -1798,9 +1929,24 @@ void WpaGui::updateTrayIcon(TrayIconType type)
 		fallback_icon = QIcon(":/icons/wpa_gui.png");
 
 	switch (type) {
+	case TrayIconNone:
+		return;
+		break;
+	case TrayIconError:
+		names << "error"
+		      << "network-wireless-offline-symbolic";
+		break;
 	case TrayIconOffline:
 		names << "network-wireless-disconnected"
 		      << "network-wireless-offline-symbolic";
+		break;
+	case TrayIconInactive:
+		names << "network-wireless-disconnected"
+		      << "network-wireless-offline-symbolic";
+		break;
+	case TrayIconScanning:
+		names << "network-wireless-acquiring"
+		      << "network-wireless-acquiring-symbolic";
 		break;
 	case TrayIconAcquiring:
 		names << "network-wireless-acquiring"
@@ -1832,7 +1978,6 @@ void WpaGui::updateTrayIcon(TrayIconType type)
 		break;
 	}
 
-	currentIconType = type;
 	tray_icon->setIcon(loadThemedIcon(names, fallback_icon));
 }
 
