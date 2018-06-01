@@ -518,6 +518,31 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>ssidEdit</tabstop>
+  <tabstop>authSelect</tabstop>
+  <tabstop>encrSelect</tabstop>
+  <tabstop>pskEdit</tabstop>
+  <tabstop>eapSelect</tabstop>
+  <tabstop>identityEdit</tabstop>
+  <tabstop>passwordEdit</tabstop>
+  <tabstop>cacertEdit</tabstop>
+  <tabstop>phase2Select</tabstop>
+  <tabstop>wep0Edit</tabstop>
+  <tabstop>wep1Edit</tabstop>
+  <tabstop>wep2Edit</tabstop>
+  <tabstop>wep3Edit</tabstop>
+  <tabstop>idstrEdit</tabstop>
+  <tabstop>prioritySpinBox</tabstop>
+  <tabstop>addButton</tabstop>
+  <tabstop>useWpsButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+  <tabstop>removeButton</tabstop>
+  <tabstop>wep0Radio</tabstop>
+  <tabstop>wep1Radio</tabstop>
+  <tabstop>wep3Radio</tabstop>
+  <tabstop>wep2Radio</tabstop>
+ </tabstops>
  <includes>
   <include location="global">qtreewidget.h</include>
  </includes>
