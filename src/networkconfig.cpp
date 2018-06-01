@@ -825,6 +825,8 @@ void NetworkConfig::newNetwork()
 {
 	new_network = true;
 	getEapCapa();
+	// Trigger UI to collapse to only fitting options
+	authChanged(0);
 }
 
 
