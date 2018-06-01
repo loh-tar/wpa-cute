@@ -667,6 +667,7 @@ void WpaGui::setState(const WpaStateType state)
 			wpaState = WpaUnknown;
 // 			icon = ;
 			stateText = tr("Unknown");
+			rssiBar->hide();
 			break;
 		case WpaNotRunning:
 			wpaState = WpaNotRunning;
@@ -754,11 +755,13 @@ void WpaGui::setState(const WpaStateType state)
 			disconReconAction->setToolTip(RecActTTTxt);
 			disconReconAction->setEnabled(true);
 			networkNeedsUpdate = true;
+			rssiBar->hide();
 			break;
 		case WpaLostSignal:
 			wpaState = WpaLostSignal;
 			icon = TrayIconSignalNone;
 			stateText = tr("Lost signal");
+			rssiBar->hide();
 			break;
 		case WpaCompleted:
 			wpaState = WpaCompleted;
@@ -770,6 +773,7 @@ void WpaGui::setState(const WpaStateType state)
 			disconReconAction->setToolTip(DiscActTTTxt);
 			disconReconAction->setEnabled(true);
 			networkNeedsUpdate = true;
+			rssiBar->show();
 			break;
 	}
 
@@ -905,6 +909,9 @@ void WpaGui::updateStatus(bool changed/* = true*/)
 		textEncryption->clear();
 
 	logHint(textStatus->text());
+
+	if (!signalMeterInterval)
+		signalMeterUpdate();
 
 	statusNeedsUpdate = false;
 	debug(" updateStatus <<<<<<");
@@ -1297,12 +1304,13 @@ void WpaGui::signalMeterUpdate()
 	else if ((rssi = strstr(reply, "RSSI=")) != NULL)
 		rssi_value = atoi(&rssi[sizeof("RSSI")]);
 	else {
-		debug("Failed to get RSSI value");
+		logHint(tr("Failed to get RSSI value"));
 		updateTrayIcon(TrayIconSignalNone);
 		return;
 	}
 
 	debug("RSSI value: %d", rssi_value);
+	rssiBar->setValue(rssi_value);
 
 	/*
 	 * NOTE: The code below assumes, that the unit of the value returned
