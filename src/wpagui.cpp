@@ -1839,10 +1839,8 @@ void WpaGui::showTrayMessage(const QString &msg
 {
 	logHint(msg);
 
-	if (!QSystemTrayIcon::supportsMessages())
-		return;
-
-	if (isVisible() || !tray_icon || !tray_icon->isVisible() || tally.contains(QuietMode))
+	if (isVisible() || !tray_icon || !tray_icon->isVisible() ||
+		tally.contains(QuietMode) || !QSystemTrayIcon::supportsMessages())
 		return;
 
 	tray_icon->showMessage(qAppName(), msg, type, sec * 1000);
@@ -1879,6 +1877,10 @@ void WpaGui::showTrayStatus()
 	char buf[2048];
 	size_t len;
 
+	if (isVisible() || !tray_icon || !tray_icon->isVisible() ||
+		tally.contains(QuietMode) || !QSystemTrayIcon::supportsMessages())
+		return;
+
 	len = sizeof(buf) - 1;
 	if (ctrlRequest("STATUS", buf, &len) < 0)
 		return;
@@ -1913,8 +1915,11 @@ void WpaGui::showTrayStatus()
 			msg.append("EAP:  \t" + (*it).mid(pos) + "\n");
 	}
 
-	if (!msg.isEmpty())
-		showTrayMessage(msg);
+	if (msg.isEmpty())
+		return;
+
+	tray_icon->showMessage(qAppName(), msg
+	                     , QSystemTrayIcon::Information, 5 * 1000);
 }
 
 
