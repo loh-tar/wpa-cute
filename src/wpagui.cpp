@@ -1874,52 +1874,48 @@ void WpaGui::trayActivated(QSystemTrayIcon::ActivationReason how)
 
 void WpaGui::showTrayStatus()
 {
-	char buf[2048];
-	size_t len;
-
 	if (isVisible() || !tray_icon || !tray_icon->isVisible() ||
 		tally.contains(QuietMode) || !QSystemTrayIcon::supportsMessages())
 		return;
 
-	len = sizeof(buf) - 1;
-	if (ctrlRequest("STATUS", buf, &len) < 0)
-		return;
-	buf[len] = '\0';
+	// A daring attempt to make that ugly info message looking nicer, sadly
+	// mean these Qt guys that pretty serious:
+	//   "title and message must be plain text strings."
+	// Well, I thought of thinks like rich text. Rats!
+	// At least we have now a nice debug line...
+	QString title, msg, mask("%1  %2 \n");
+	int lw = 20, tw = -40;
 
-	QString msg, status(buf);
+	title = QString("%1 - %2").arg(qAppName())
+	                          .arg(tr("A %1 frontend")
+	                          .arg("wpa_supplicant"));
 
-	QStringList lines = status.split(QRegExp("\\n"));
-	for (QStringList::Iterator it = lines.begin();
-	     it != lines.end(); it++) {
-		int pos = (*it).indexOf('=') + 1;
-		if (pos < 1)
-			continue;
+	if (ctrl_iface)
+		msg.append(mask.arg(adapterLabel->text() + ":", lw)
+		               .arg(ctrl_iface, tw));
 
-		if ((*it).startsWith("bssid="))
-			msg.append("BSSID:\t" + (*it).mid(pos) + "\n");
-		else if ((*it).startsWith("ssid="))
-			msg.append("SSID: \t" + (*it).mid(pos) + "\n");
-		else if ((*it).startsWith("pairwise_cipher="))
-			msg.append("PAIR: \t" + (*it).mid(pos) + "\n");
-		else if ((*it).startsWith("group_cipher="))
-			msg.append("GROUP:\t" + (*it).mid(pos) + "\n");
-		else if ((*it).startsWith("key_mgmt="))
-			msg.append("AUTH: \t" + (*it).mid(pos) + "\n");
-		else if ((*it).startsWith("wpa_state="))
-			msg.append("STATE:\t" + (*it).mid(pos) + "\n");
-		else if ((*it).startsWith("ip_address="))
-			msg.append("IP:   \t" + (*it).mid(pos) + "\n");
-		else if ((*it).startsWith("Supplicant PAE state="))
-			msg.append("PAE:  \t" + (*it).mid(pos) + "\n");
-		else if ((*it).startsWith("EAP state="))
-			msg.append("EAP:  \t" + (*it).mid(pos) + "\n");
+	msg.append(mask.arg(statusLabel->text(), lw)
+	               .arg(textStatus->text(), tw));
+
+	if (WpaCompleted == wpaState) {
+		msg.append(mask.arg(ssidLabel->text(), lw)
+		               .arg(textSsid->text(), tw));
+		msg.append(mask.arg(rssiLabel->text(), lw)
+		               .arg(rssiBar->text(), tw));
+		msg.append(mask.arg(bssidLabel->text(), lw)
+		               .arg(textBssid->text(), tw));
+		msg.append(mask.arg(authenticationLabel->text(), lw)
+		               .arg(textAuthentication->text(), tw));
+		msg.append(mask.arg(encryptionLabel->text(), lw)
+		               .arg(textEncryption->text(), tw));
+		msg.append(mask.arg(ipAddressLabel->text(), lw)
+		               .arg(textIpAddress->text(), tw));
+		// FIXME Add PAE/EAP and tests which fields are not empty
+		debug("%s", msg.toLocal8Bit().constData());
 	}
 
-	if (msg.isEmpty())
-		return;
-
-	tray_icon->showMessage(qAppName(), msg
-	                     , QSystemTrayIcon::Information, 5 * 1000);
+	tray_icon->showMessage(title, msg
+	                     , QSystemTrayIcon::Information, 10 * 1000);
 }
 
 
