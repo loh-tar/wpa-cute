@@ -127,8 +127,9 @@ public slots:
 
 	virtual void selectAdapter(const QString &sel);
 	virtual void disEnableNetwork();
-	virtual void showTrayMessage(QSystemTrayIcon::MessageIcon type,
-	                             int sec, const QString &msg);
+	virtual void showTrayMessage(const QString &msg
+	           , QSystemTrayIcon::MessageIcon type = QSystemTrayIcon::Information
+	           , int sec = 5);
 	virtual void showTrayStatus();
 	virtual void updateTrayIcon(TrayIconType type);
 	virtual void updateTrayToolTip(const QString &msg);

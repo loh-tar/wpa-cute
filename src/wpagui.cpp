@@ -1420,8 +1420,7 @@ void WpaGui::processMsg(char *msg)
 		networkNeedsUpdate = true;
 	} else if (str_match(pos, WPA_EVENT_DISCONNECTED)) {
 		if (strstr(pos, "reason=3")) {
-			showTrayMessage(QSystemTrayIcon::Information, 3,
-							tr("Disconnected from network"));
+			showTrayMessage(tr("Disconnected from network"));
 			if (WpaDisconnected != wpaState) {
 				// Unclear situation, possible supplicant shut down where
 				// any ctrlRequest() would fail, So ensure not to update
@@ -1437,22 +1436,19 @@ void WpaGui::processMsg(char *msg)
 			QTimer::singleShot(BorderCollie, this, SLOT(updateStatus()));
 		} else if (strstr(pos, "reason=4")) {
 			setState(WpaLostSignal);
-			showTrayMessage(QSystemTrayIcon::Information, 3,
-							tr("Lost signal"));
+			showTrayMessage(tr("Lost signal"), QSystemTrayIcon::Warning);
 		} else {
 			debug("WARNING disconnect reason not handled/ignored");
 		}
 	} else if (str_match(pos, WPA_EVENT_CONNECTED)) {
 		setState(WpaCompleted);
-		showTrayMessage(QSystemTrayIcon::Information, 3,
-		                tr("Connection to network established."));
-		QTimer::singleShot(5 * 1000, this, SLOT(showTrayStatus()));
+		showTrayMessage(tr("Connection to network established"));
 		// Needed to ensure IP is read
 		QTimer::singleShot(BorderCollie, this, SLOT(updateStatus()));
 	} else if (str_match(pos, WPA_EVENT_TERMINATING)) {
 		setState(WpaNotRunning);
-		showTrayMessage(QSystemTrayIcon::Information, 3,
-		                tr("The wpa_supplicant is terminated."));
+		showTrayMessage(tr("The wpa_supplicant is terminated")
+		              , QSystemTrayIcon::Critical);
 	} else if (str_match(pos, WPS_EVENT_AP_AVAILABLE_PBC)) {
 		logHint(tr("WPS AP in active PBC mode found"));
 		if (WpaInactive == wpaState || WpaDisconnected == wpaState) {
@@ -1466,9 +1462,8 @@ void WpaGui::processMsg(char *msg)
 		if (WpaInactive == wpaState || WpaDisconnected == wpaState)
 			wpaguiTab->setCurrentWidget(wpsTab);
 	} else if (str_match(pos, WPS_EVENT_AP_AVAILABLE_AUTH)) {
-		showTrayMessage(QSystemTrayIcon::Information, 3,
-				"Wi-Fi Protected Setup (WPS) AP\n"
-				"indicating this client is authorized.");
+		showTrayMessage("Wi-Fi Protected Setup (WPS) AP\n"
+		                "indicating this client is authorized");
 		logHint("WPS AP indicating this client is authorized");
 		if (WpaInactive == wpaState || WpaDisconnected == wpaState)
 			wpaguiTab->setCurrentWidget(wpsTab);
@@ -1816,10 +1811,10 @@ void WpaGui::createTrayIcon(bool trayOnly)
 }
 
 
-void WpaGui::showTrayMessage(QSystemTrayIcon::MessageIcon type, int sec,
-			     const QString & msg)
+void WpaGui::showTrayMessage(const QString &msg
+	       , QSystemTrayIcon::MessageIcon type/* = QSystemTrayIcon::Information*/
+	       , int sec/* = 5*/)
 {
-
 	logHint(msg);
 
 	if (!QSystemTrayIcon::supportsMessages())
@@ -1897,7 +1892,7 @@ void WpaGui::showTrayStatus()
 	}
 
 	if (!msg.isEmpty())
-		showTrayMessage(QSystemTrayIcon::Information, 10, msg);
+		showTrayMessage(msg);
 }
 
 
@@ -2036,16 +2031,13 @@ void WpaGui::closeEvent(QCloseEvent *event)
 		/* give user a visual hint that the tray icon exists */
 		if (QSystemTrayIcon::supportsMessages()) {
 			hide();
-			showTrayMessage(QSystemTrayIcon::Information, 3,
-					qAppName() +
-					tr(" will keep running in "
-					   "the system tray."));
+			showTrayMessage(tr("I will keep running in the system tray"));
 		} else {
 			QMessageBox::information(this, qAppName() +
 						 tr(" systray"),
 						 tr("The program will keep "
 						    "running in the system "
-						    "tray."));
+						    "tray"));
 		}
 		ackTrayIcon = true;
 	}
