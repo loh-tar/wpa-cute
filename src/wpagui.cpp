@@ -35,6 +35,7 @@
 enum TallyType {
 	AckTrayIcon,
 	ConnectedToService,     // FIXME Windows only, using wpaState possible ?
+	FreshConnected,
 	InTray,
 	NetworkNeedsUpdate,
 	QuietMode,
@@ -782,6 +783,7 @@ void WpaGui::setState(const WpaStateType state)
 			disconReconAction->setToolTip(DiscActTTTxt);
 			disconReconAction->setEnabled(true);
 			tally.insert(NetworkNeedsUpdate);
+			tally.insert(FreshConnected);
 			rssiBar->show();
 			break;
 	}
@@ -918,6 +920,12 @@ void WpaGui::updateStatus(bool changed/* = true*/)
 		textEncryption->clear();
 
 	logHint(textStatus->text());
+
+	if (tally.contains(FreshConnected)) {
+		tally.remove(FreshConnected);
+		showTrayMessage(tr("Connection to %1 established")
+		               .arg(textSsid->text()));
+	}
 
 	if (!signalMeterInterval)
 		signalMeterUpdate();
@@ -1429,8 +1437,9 @@ void WpaGui::processMsg(char *msg)
 		tally.insert(NetworkNeedsUpdate);
 	} else if (str_match(pos, WPA_EVENT_DISCONNECTED)) {
 		if (strstr(pos, "reason=3")) {
-			showTrayMessage(tr("Disconnected from network"));
 			if (WpaDisconnected != wpaState) {
+				showTrayMessage(tr("Disconnected from %1")
+				               .arg(textSsid->text()));
 				// Unclear situation, possible supplicant shut down where
 				// any ctrlRequest() would fail, So ensure not to update
 				// status or network until some clarifying message, see below.
@@ -1439,19 +1448,22 @@ void WpaGui::processMsg(char *msg)
 				tally.remove(NetworkNeedsUpdate);
 				// If WPA_EVENT_TERMINATING not arrive check networks anyway
 			    QTimer::singleShot(BorderCollie, this, SLOT(updateNetworks()));
+			} else {
+				showTrayMessage(tr("Disconnected from network"));
 			}
 			// Needed to get inactive status (if so) or if
 			// WPA_EVENT_TERMINATING not arrive check anyway
 			QTimer::singleShot(BorderCollie, this, SLOT(updateStatus()));
 		} else if (strstr(pos, "reason=4")) {
 			setState(WpaLostSignal);
-			showTrayMessage(tr("Lost signal"), QSystemTrayIcon::Warning);
+			showTrayMessage(tr("Lost signal from %1")
+			               .arg(textSsid->text())
+			              , QSystemTrayIcon::Warning);
 		} else {
 			debug("WARNING disconnect reason not handled/ignored");
 		}
 	} else if (str_match(pos, WPA_EVENT_CONNECTED)) {
 		setState(WpaCompleted);
-		showTrayMessage(tr("Connection to network established"));
 		// Needed to ensure IP is read
 		QTimer::singleShot(BorderCollie, this, SLOT(updateStatus()));
 	} else if (str_match(pos, WPA_EVENT_TERMINATING)) {
