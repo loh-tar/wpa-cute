@@ -32,6 +32,16 @@
 #define debug(M, ...) do {} while (0)
 #endif
 
+enum TallyType {
+	AckTrayIcon,
+	ConnectedToService,     // FIXME Windows only, using wpaState possible ?
+	InTray,
+	NetworkNeedsUpdate,
+	QuietMode,
+	StartInTray,
+	StatusNeedsUpdate,
+	WpsRunning,
+};
 
 WpaGui::WpaGui(QApplication *_app
              , QWidget *parent, const char *
@@ -174,8 +184,6 @@ WpaGui::WpaGui(QApplication *_app
 	peers = NULL;
 	udr = NULL;
 	tray_icon = NULL;
-	startInTray = false;
-	quietMode = false;
 	ctrl_iface = NULL;
 	ctrl_conn = NULL;
 	monitor_conn = NULL;
@@ -194,14 +202,15 @@ WpaGui::WpaGui(QApplication *_app
 	if (app->isSessionRestored()) {
 		QSettings settings("wpa_supplicant", "wpa_gui");
 		settings.beginGroup("state");
-		if (app->sessionId().compare(settings.value("session_id").
-					     toString()) == 0)
-			startInTray = settings.value("in_tray").toBool();
+		if (app->sessionId()
+		   .compare(settings.value("session_id").toString()) == 0 &&
+		              settings.value("in_tray").toBool())
+			tally.insert(StartInTray);
+
 		settings.endGroup();
 	}
 #endif
 
-	connectedToService = false;	// FIXME Windows only, using wpaState possible ?
 	watchdogTimer = new QTimer(this);
 	connect(watchdogTimer, SIGNAL(timeout()), SLOT(ping()));
 	watchdogTimer->setSingleShot(false);
@@ -213,7 +222,7 @@ WpaGui::WpaGui(QApplication *_app
 
 	// Must done after creation of watchdogTimer due to showEvent catch
 	if (QSystemTrayIcon::isSystemTrayAvailable())
-		createTrayIcon(startInTray);
+		createTrayIcon(tally.contains(StartInTray));
 	else
 		show();
 
@@ -308,10 +317,10 @@ void WpaGui::parse_argv()
 			ctrl_iface_dir = strdup(optarg);
 			break;
 		case 't':
-			startInTray = true;
+			tally.insert(StartInTray);
 			break;
 		case 'q':
-			quietMode = true;
+			tally.insert(QuietMode);
 			break;
 		case 'N':
 			hasN = true;
@@ -399,7 +408,7 @@ int WpaGui::openCtrlConnection(const char *ifname)
 			ret = wpa_ctrl_request(ctrl, "INTERFACES", 10, buf,
 					       &len, NULL);
 			if (ret >= 0) {
-				connectedToService = true;
+				tally.insert(connectedToService);
 				buf[len] = '\0';
 				pos = strchr(buf, '\n');
 				if (pos)
@@ -648,7 +657,7 @@ void WpaGui::setState(const WpaStateType state)
 		return;
 
 	oldState = state;
-	statusNeedsUpdate = true;
+	tally.insert(StatusNeedsUpdate);
 
 	switch (state) {
 		case WpaFatal:
@@ -685,7 +694,7 @@ void WpaGui::setState(const WpaStateType state)
 			// but not the other? If not set to false here and remove the
 			// line in openCtrlConnection()
 			// adapterSelect->setEnabled(false);
-			networkNeedsUpdate = true;
+			tally.insert(NetworkNeedsUpdate);
 			if (ctrl_conn) {
 				wpa_ctrl_close(ctrl_conn);
 				ctrl_conn = NULL;
@@ -754,7 +763,7 @@ void WpaGui::setState(const WpaStateType state)
 			disconReconAction->setText(RecActTxt);
 			disconReconAction->setToolTip(RecActTTTxt);
 			disconReconAction->setEnabled(true);
-			networkNeedsUpdate = true;
+			tally.insert(NetworkNeedsUpdate);
 			rssiBar->hide();
 			break;
 		case WpaLostSignal:
@@ -772,7 +781,7 @@ void WpaGui::setState(const WpaStateType state)
 			disconReconAction->setText(DiscActTxt);
 			disconReconAction->setToolTip(DiscActTTTxt);
 			disconReconAction->setEnabled(true);
-			networkNeedsUpdate = true;
+			tally.insert(NetworkNeedsUpdate);
 			rssiBar->show();
 			break;
 	}
@@ -796,7 +805,7 @@ void WpaGui::updateStatus(bool changed/* = true*/)
 		return;
 
 	debug(" updateStatus >>");
-	statusNeedsUpdate = false;
+	tally.remove(StatusNeedsUpdate);
 
 	// Wake the dog after network reconnect
 	if (!watchdogTimer->isActive() && enablePollingAction->isChecked())
@@ -913,7 +922,7 @@ void WpaGui::updateStatus(bool changed/* = true*/)
 	if (!signalMeterInterval)
 		signalMeterUpdate();
 
-	statusNeedsUpdate = false;
+	tally.remove(StatusNeedsUpdate);
 	debug(" updateStatus <<<<<<");
 }
 
@@ -929,7 +938,7 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 	if (!changed)
 		return;
 
-	networkNeedsUpdate = false;
+	tally.remove(NetworkNeedsUpdate);
 	QTreeWidgetItem *currentNetwork = NULL;
 	QTreeWidgetItem *selectedNetwork = networkList->currentItem();
 
@@ -1417,7 +1426,7 @@ void WpaGui::processMsg(char *msg)
 		scanres->updateResults();
 	} else if (str_match(pos, WPA_EVENT_NETWORK_NOT_FOUND)) {
 		logHint("Network not found");
-		networkNeedsUpdate = true;
+		tally.insert(NetworkNeedsUpdate);
 	} else if (str_match(pos, WPA_EVENT_DISCONNECTED)) {
 		if (strstr(pos, "reason=3")) {
 			showTrayMessage(tr("Disconnected from network"));
@@ -1426,8 +1435,8 @@ void WpaGui::processMsg(char *msg)
 				// any ctrlRequest() would fail, So ensure not to update
 				// status or network until some clarifying message, see below.
 				setState(WpaUnknown);
-				statusNeedsUpdate = false;
-				networkNeedsUpdate = false;
+				tally.remove(StatusNeedsUpdate);
+				tally.remove(NetworkNeedsUpdate);
 				// If WPA_EVENT_TERMINATING not arrive check networks anyway
 			    QTimer::singleShot(BorderCollie, this, SLOT(updateNetworks()));
 			}
@@ -1534,8 +1543,8 @@ void WpaGui::receiveMsgs()
 	}
 	debug("receiveMsgs() >>>>>>");
 
-	updateStatus(statusNeedsUpdate);
-	updateNetworks(networkNeedsUpdate);
+	updateStatus(tally.contains(StatusNeedsUpdate));
+	updateNetworks(tally.contains(NetworkNeedsUpdate));
 
 	debug("receiveMsgs() <<<<<<");
 }
@@ -1787,7 +1796,7 @@ void WpaGui::createTrayIcon(bool trayOnly)
 	connect(tray_icon, SIGNAL(activated(QSystemTrayIcon::ActivationReason))
 	      , this, SLOT(trayActivated(QSystemTrayIcon::ActivationReason)));
 
-	ackTrayIcon = false;
+	tally.remove(AckTrayIcon);
 
 	tray_menu = new QMenu(this);
 
@@ -1805,9 +1814,10 @@ void WpaGui::createTrayIcon(bool trayOnly)
 	tray_icon->setContextMenu(tray_menu);
 	tray_icon->show();
 
-	if (!trayOnly)
+	if (trayOnly)
+		tally.insert(InTray);
+	else
 		show();
-	inTray = trayOnly;
 }
 
 
@@ -1820,7 +1830,7 @@ void WpaGui::showTrayMessage(const QString &msg
 	if (!QSystemTrayIcon::supportsMessages())
 		return;
 
-	if (isVisible() || !tray_icon || !tray_icon->isVisible() || quietMode)
+	if (isVisible() || !tray_icon || !tray_icon->isVisible() || tally.contains(QuietMode))
 		return;
 
 	tray_icon->showMessage(qAppName(), msg, type, sec * 1000);
@@ -1833,14 +1843,14 @@ void WpaGui::trayActivated(QSystemTrayIcon::ActivationReason how)
 	/* use close() here instead of hide() and allow the
 	 * custom closeEvent handler take care of children */
 	case QSystemTrayIcon::Trigger:
-		ackTrayIcon = true;
+		tally.insert(AckTrayIcon);
 		if (isVisible()) {
 			close();
-			inTray = true;
+			tally.insert(InTray);
 		} else {
 			show();
 			activateWindow();
-			inTray = false;
+			tally.remove(InTray);
 		}
 		break;
 	case QSystemTrayIcon::MiddleClick:
@@ -2027,7 +2037,7 @@ void WpaGui::closeEvent(QCloseEvent *event)
 		udr = NULL;
 	}
 
-	if (tray_icon && !ackTrayIcon) {
+	if (tray_icon && !tally.contains(AckTrayIcon)) {
 		/* give user a visual hint that the tray icon exists */
 		if (QSystemTrayIcon::supportsMessages()) {
 			hide();
@@ -2039,7 +2049,7 @@ void WpaGui::closeEvent(QCloseEvent *event)
 						    "running in the system "
 						    "tray"));
 		}
-		ackTrayIcon = true;
+		tally.insert(AckTrayIcon);
 	}
 
 	event->accept();
@@ -2080,7 +2090,7 @@ void WpaGui::tabChanged(int index)
 	if (index != 2)
 		return;
 
-	if (wpsRunning)
+	if (tally.contains(WpsRunning))
 		return;
 
 	wpsApPinEdit->setEnabled(!bssFromScan.isEmpty());
@@ -2107,7 +2117,7 @@ void WpaGui::wpsPbc()
 					 "the PBC mode."));
 	}
 	logHint(tr("Waiting for Registrar"));
-	wpsRunning = true;
+	tally.insert(WpsRunning);
 }
 
 
@@ -2127,7 +2137,7 @@ void WpaGui::wpsGeneratePin()
 				 "(either the internal one in the AP or an "
 				 "external one)."));
 	logHint(tr("Waiting for Registrar"));
-	wpsRunning = true;
+	tally.insert(WpsRunning);
 }
 
 
@@ -2159,19 +2169,19 @@ void WpaGui::wpsApPin()
 		return;
 
 	logHint(tr("Waiting for AP/Enrollee"));
-	wpsRunning = true;
+	tally.insert(WpsRunning);
 }
 
 
 void WpaGui::stopWpsRun(bool success)
 {
-	if (wpsRunning)
+	if (tally.contains(WpsRunning))
 		logHint(success ? tr("Connected to the network") :
 		                  tr("Stopped"));
 
 	wpsPinEdit->setEnabled(false);
 	wpsInstructions->setText("");
-	wpsRunning = false;
+	tally.remove(WpsRunning);
 	bssFromScan = "";
 	wpsApPinEdit->setEnabled(false);
 	wpsApPinButton->setEnabled(false);
@@ -2323,7 +2333,7 @@ void WpaGui::saveState()
 	QSettings settings("wpa_supplicant", "wpa_gui");
 	settings.beginGroup("state");
 	settings.setValue("session_id", app->sessionId());
-	settings.setValue("in_tray", inTray);
+	settings.setValue("in_tray", tally.contains(InTray));
 	settings.endGroup();
 }
 #endif

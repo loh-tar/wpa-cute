@@ -164,9 +164,8 @@ private:
 	        void setState(const WpaStateType state);
 
 
+	QSet<int> tally;
 	WpaStateType wpaState;
-	bool statusNeedsUpdate;
-	bool networkNeedsUpdate;
 
 	ScanResults *scanres;
 	Peers *peers;
@@ -184,13 +183,8 @@ private:
 	QSystemTrayIcon *tray_icon;
 	TrayIconType currentIconType;
 	void createTrayIcon(bool);
-	bool ackTrayIcon;
-	bool startInTray;
-	bool quietMode;
 
 	int openCtrlConnection(const char *ifname);
-
-	bool wpsRunning;
 
 	QString bssFromScan;
 
@@ -208,10 +202,7 @@ private:
 	AddInterface *add_iface;
 #endif /* CONFIG_NATIVE_WINDOWS */
 
-	bool connectedToService;
-
 	QApplication *app;
-	bool inTray;
 };
 
 #endif /* WPAGUI_H */
