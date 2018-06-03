@@ -219,7 +219,7 @@ WpaGui::WpaGui(QApplication *_app
 
 	signalMeterTimer = new QTimer(this);
 	signalMeterTimer->setInterval(signalMeterInterval);
-	connect(signalMeterTimer, SIGNAL(timeout()), SLOT(signalMeterUpdate()));
+	connect(signalMeterTimer, SIGNAL(timeout()), SLOT(updateSignalMeter()));
 
 	// Must done after creation of watchdogTimer due to showEvent catch
 	if (QSystemTrayIcon::isSystemTrayAvailable())
@@ -929,7 +929,7 @@ void WpaGui::updateStatus(bool changed/* = true*/)
 	}
 
 	if (!signalMeterInterval)
-		signalMeterUpdate();
+		updateSignalMeter();
 
 	tally.remove(StatusNeedsUpdate);
 	debug(" updateStatus <<<<<<");
@@ -1303,7 +1303,7 @@ void WpaGui::ping()
 }
 
 
-void WpaGui::signalMeterUpdate()
+void WpaGui::updateSignalMeter()
 {
 	char reply[128];
 	size_t reply_len = sizeof(reply);
@@ -1895,6 +1895,9 @@ void WpaGui::showTrayStatus()
 		return;
 	}
 
+	if (!signalMeterInterval)
+		updateSignalMeter();
+
 	// A daring attempt to make that ugly info message looking nicer, sadly
 	// mean these Qt guys that pretty serious:
 	//   "title and message must be plain text strings."
@@ -2088,6 +2091,8 @@ void WpaGui::closeEvent(QCloseEvent *event)
 
 void WpaGui::showEvent(QShowEvent *event)
 {
+	if (!signalMeterInterval)
+		updateSignalMeter();
     letTheDogOut(BorderCollie, enablePollingAction->isChecked());
 	event->ignore();
 }

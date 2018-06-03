@@ -94,8 +94,10 @@ public:
 
 public slots:
 	virtual void parse_argv();
+
 	virtual void updateStatus(bool changed = true);
 	virtual void updateNetworks(bool changed = true);
+	virtual void updateSignalMeter();
 
 	virtual void disconnReconnect();
 	virtual void eventHistory();
@@ -119,7 +121,6 @@ public slots:
 
 	virtual void scan();
 	virtual void ping();
-	virtual void signalMeterUpdate();
 	virtual void processMsg(char *msg);
 	virtual void processCtrlReq(const char *req);
 	virtual void receiveMsgs();
