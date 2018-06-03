@@ -319,6 +319,7 @@ void WpaGui::parse_argv()
 			break;
 		case 't':
 			tally.insert(StartInTray);
+			tally.insert(AckTrayIcon);
 			break;
 		case 'q':
 			tally.insert(QuietMode);
@@ -1808,8 +1809,6 @@ void WpaGui::createTrayIcon(bool trayOnly)
 	connect(tray_icon, SIGNAL(activated(QSystemTrayIcon::ActivationReason))
 	      , this, SLOT(trayActivated(QSystemTrayIcon::ActivationReason)));
 
-	tally.remove(AckTrayIcon);
-
 	tray_menu = new QMenu(this);
 
 	QAction *statAction;
@@ -1825,6 +1824,12 @@ void WpaGui::createTrayIcon(bool trayOnly)
 
 	tray_icon->setContextMenu(tray_menu);
 	tray_icon->show();
+
+	if (!QSystemTrayIcon::supportsMessages()) {
+		noTrayBalloonAction->setChecked(true);
+		noTrayBalloonAction->setEnabled(false);
+		logHint(tr("Tray balloon messages not supported, disabled"));
+	}
 
 	if (trayOnly)
 		tally.insert(InTray);
@@ -1848,12 +1853,11 @@ void WpaGui::showTrayMessage(const QString &msg
 
 
 void WpaGui::trayActivated(QSystemTrayIcon::ActivationReason how)
- {
+{
 	switch (how) {
 	/* use close() here instead of hide() and allow the
 	 * custom closeEvent handler take care of children */
 	case QSystemTrayIcon::Trigger:
-		tally.insert(AckTrayIcon);
 		if (isVisible()) {
 			close();
 			tally.insert(InTray);
@@ -1874,9 +1878,22 @@ void WpaGui::trayActivated(QSystemTrayIcon::ActivationReason how)
 
 void WpaGui::showTrayStatus()
 {
-	if (isVisible() || !tray_icon || !tray_icon->isVisible() ||
-		tally.contains(QuietMode) || !QSystemTrayIcon::supportsMessages())
+	if (noTrayBalloonAction->isChecked()) {
+		if (isVisible()) {
+			// FIXME When the window is behind some other window it comes
+			// not in front. Using raise() has no effect on my KDE.
+			// Calling hide();show(); has, but flicker unpleasant
+			activateWindow();
+			wpaguiTab->setCurrentWidget(statusTab);
+		} else {
+			show();
+			activateWindow();
+			tally.remove(InTray);
+			wpaguiTab->setCurrentWidget(statusTab);
+		}
+
 		return;
+	}
 
 	// A daring attempt to make that ugly info message looking nicer, sadly
 	// mean these Qt guys that pretty serious:

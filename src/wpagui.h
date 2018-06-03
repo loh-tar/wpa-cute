@@ -130,7 +130,6 @@ public slots:
 	virtual void showTrayMessage(const QString &msg
 	           , QSystemTrayIcon::MessageIcon type = QSystemTrayIcon::Information
 	           , int sec = 5);
-	virtual void showTrayStatus();
 	virtual void updateTrayIcon(TrayIconType type);
 	virtual void updateTrayToolTip(const QString &msg);
 	virtual QIcon loadThemedIcon(const QStringList &names,
@@ -147,6 +146,7 @@ public slots:
 #endif /* CONFIG_NATIVE_WINDOWS */
 
 protected slots:
+	virtual void showTrayStatus();
 	virtual void languageChange();
 	virtual void trayActivated(QSystemTrayIcon::ActivationReason how);
 	virtual void closeEvent(QCloseEvent *event);

@@ -596,6 +596,7 @@
     </property>
     <addaction name="enablePollingAction"/>
     <addaction name="disableNotifierAction"/>
+    <addaction name="noTrayBalloonAction"/>
    </widget>
    <addaction name="fileMenu"/>
    <addaction name="networkMenu"/>
@@ -733,6 +734,17 @@
   <action name="scanAction">
    <property name="text">
     <string>S&amp;can</string>
+   </property>
+  </action>
+  <action name="noTrayBalloonAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>No tray status balloon</string>
+   </property>
+   <property name="statusTip">
+    <string>Middle click on tray icon show main window with status tab</string>
    </property>
   </action>
  </widget>
