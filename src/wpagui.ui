@@ -590,7 +590,7 @@
     <addaction name="helpAboutAction"/>
     <addaction name="helpAboutQtAction"/>
    </widget>
-   <widget class="QMenu" name="menuSettings">
+   <widget class="QMenu" name="settingsMenu">
     <property name="title">
      <string>Settin&amp;gs</string>
     </property>
@@ -600,7 +600,7 @@
    </widget>
    <addaction name="fileMenu"/>
    <addaction name="networkMenu"/>
-   <addaction name="menuSettings"/>
+   <addaction name="settingsMenu"/>
    <addaction name="helpMenu"/>
   </widget>
   <action name="eventHistoryAction">
@@ -741,7 +741,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>No tray status balloon</string>
+    <string>&amp;No tray status balloon</string>
    </property>
    <property name="statusTip">
     <string>Middle click on tray icon show main window with status tab</string>

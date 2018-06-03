@@ -1817,8 +1817,11 @@ void WpaGui::createTrayIcon(bool trayOnly)
 	tray_menu->addAction(statAction);
 	tray_menu->addAction(disconReconAction);
 	tray_menu->addSeparator();
-	tray_menu->addAction(eventHistoryAction);
+	tray_menu->addAction(peersAction);
 	tray_menu->addAction(scanAction);
+	tray_menu->addSeparator();
+	tray_menu->addMenu(settingsMenu);
+	tray_menu->addMenu(helpMenu);
 	tray_menu->addSeparator();
 	tray_menu->addAction(quitAction);
 
