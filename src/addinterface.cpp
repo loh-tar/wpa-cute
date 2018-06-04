@@ -211,7 +211,7 @@ void AddInterface::interfaceSelected(QTreeWidgetItem *sel)
 	wpa_ctrl_close(ctrl);
 
 	if (ret < 0) {
-		QMessageBox::warning(this, "wpa_gui",
+		QMessageBox::warning(this, ProjAppName,
 				     tr("Add interface command could not be "
 					"completed."));
 		return;
@@ -219,7 +219,7 @@ void AddInterface::interfaceSelected(QTreeWidgetItem *sel)
 
 	buf[len] = '\0';
 	if (buf[0] != 'O' || buf[1] != 'K') {
-		QMessageBox::warning(this, "wpa_gui",
+		QMessageBox::warning(this, ProjAppName,
 				     tr("Failed to add the interface."));
 		return;
 	}
@@ -228,7 +228,7 @@ void AddInterface::interfaceSelected(QTreeWidgetItem *sel)
 
 #ifdef CONFIG_NATIVE_WINDOWS
 	if (!addRegistryInterface(sel->text(1))) {
-		QMessageBox::information(this, "wpa_gui",
+		QMessageBox::information(this, ProjAppName,
 					 tr("Failed to add the interface into "
 					    "registry."));
 	}

@@ -201,7 +201,7 @@ WpaGui::WpaGui(QApplication *_app
 
 #ifndef QT_NO_SESSIONMANAGER
 	if (app->isSessionRestored()) {
-		QSettings settings("wpa_supplicant", "wpa_gui");
+		QSettings settings("wpa_supplicant", ProjAppName);
 		settings.beginGroup("state");
 		if (app->sessionId()
 		   .compare(settings.value("session_id").toString()) == 0 &&
@@ -430,7 +430,7 @@ int WpaGui::openCtrlConnection(const char *ifname)
 		if (first && !serviceRunning()) {
 			first = false;
 			if (QMessageBox::warning(
-				    this, qAppName(),
+				    this, ProjAppName,
 				    tr("wpa_supplicant service is not "
 				       "running.\n"
 				       "Do you want to start it?"),
@@ -840,7 +840,7 @@ void WpaGui::updateStatus(bool changed/* = true*/)
 		    (ctrl_iface == NULL || *ctrl_iface == '\0')) {
 			first = false;
 			if (QMessageBox::information(
-				    this, qAppName(),
+				    this, ProjAppName,
 				    tr("No network interfaces in use.\n"
 				       "Would you like to add one?"),
 				    QMessageBox::Yes | QMessageBox::No) ==
@@ -1130,18 +1130,27 @@ void WpaGui::helpContents()
 
 void WpaGui::helpAbout()
 {
-	QMessageBox::about(this, "wpa_gui for wpa_supplicant",
-			   "Copyright (c) 2003-2015,\n"
-			   "Jouni Malinen <j@w1.fi>\n"
-			   "and contributors.\n"
-			   "\n"
-			   "This software may be distributed under\n"
-			   "the terms of the BSD license.\n"
-			   "See README for more details.\n"
-			   "\n"
-			   "This product includes software developed\n"
-			   "by the OpenSSL Project for use in the\n"
-			   "OpenSSL Toolkit (http://www.openssl.org/)\n");
+	QString title(ProjAppName + tr(" - A graphical wpa_supplicant front end"));
+	QString msg(ProjAppName " version " ProjVersion " " ProjRelease "\n"
+	            "Copyright (C) 2018 loh.tar@googlemail.com\n"
+	            "\n"
+	            "This is a fork from wpa_gui shipped with "
+	            "wpa_supplicant version 2.6\n"
+	            "\n"
+	            "wpa_gui for wpa_supplicant\n"
+	            "Copyright (C) 2003-2015,\n"
+	            "Jouni Malinen <j@w1.fi>\n"
+	            "and contributors.\n"
+	            "\n"
+	            "This software may be distributed under\n"
+	            "the terms of the BSD license.\n"
+	            "See README for more details.\n"
+	            "\n"
+	            "This product includes software developed\n"
+	            "by the OpenSSL Project for use in the\n"
+	            "OpenSSL Toolkit (http://www.openssl.org/)\n");
+
+	QMessageBox::about(this, title, msg);
 }
 
 
@@ -1851,7 +1860,7 @@ void WpaGui::showTrayMessage(const QString &msg
 		tally.contains(QuietMode) || !QSystemTrayIcon::supportsMessages())
 		return;
 
-	tray_icon->showMessage(qAppName(), msg, type, sec * 1000);
+	tray_icon->showMessage(ProjAppName, msg, type, sec * 1000);
 }
 
 
@@ -1909,7 +1918,7 @@ void WpaGui::showTrayStatus()
 	QString title, msg, mask("%1  %2 \n");
 	int lw = 20, tw = -40;
 
-	title = QString("%1 - %2").arg(qAppName())
+	title = QString("%1 - %2").arg(ProjAppName)
 	                          .arg(tr("A %1 frontend")
 	                          .arg("wpa_supplicant"));
 
@@ -1956,7 +1965,7 @@ void WpaGui::updateTrayToolTip(const QString &msg)
 		                     .arg(ctrl_iface).arg(msg));
 	else
 		tray_icon->setToolTip(QString("%1 - %2")
-		                     .arg(qAppName()).arg(msg));
+		                     .arg(ProjAppName).arg(msg));
 }
 
 
@@ -2079,7 +2088,7 @@ void WpaGui::closeEvent(QCloseEvent *event)
 			hide();
 			showTrayMessage(tr("I will keep running in the system tray"));
 		} else {
-			QMessageBox::information(this, qAppName() +
+			QMessageBox::information(this, ProjAppName +
 						 tr(" systray"),
 						 tr("The program will keep "
 						    "running in the system "
@@ -2243,7 +2252,7 @@ private:
 ErrorMsg::ErrorMsg(QWidget *parent, DWORD last_err) :
 	QMessageBox(parent), err(last_err)
 {
-	setWindowTitle(tr("wpa_gui error"));
+	setWindowTitle(ProjAppName + tr(" error"));
 	setIcon(QMessageBox::Warning);
 }
 
@@ -2368,7 +2377,7 @@ void WpaGui::addInterface()
 #ifndef QT_NO_SESSIONMANAGER
 void WpaGui::saveState()
 {
-	QSettings settings("wpa_supplicant", "wpa_gui");
+	QSettings settings("wpa_supplicant", ProjAppName);
 	settings.beginGroup("state");
 	settings.setValue("session_id", app->sessionId());
 	settings.setValue("in_tray", tally.contains(InTray));

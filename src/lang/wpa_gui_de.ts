@@ -43,8 +43,8 @@
     <name>ErrorMsg</name>
     <message>
         <location filename="../wpagui.cpp" line="1621"/>
-        <source>wpa_gui error</source>
-        <translation>wpa_gui Fehler</translation>
+        <source> error</source>
+        <translation> Fehler</translation>
     </message>
 </context>
 <context>

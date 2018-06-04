@@ -238,7 +238,7 @@ void NetworkConfig::addNetwork()
 	if (new_network) {
 		wpagui->ctrlRequest("ADD_NETWORK", reply, &reply_len);
 		if (reply[0] == 'F') {
-			QMessageBox::warning(this, "wpa_gui",
+			QMessageBox::warning(this, ProjAppName,
 					     tr("Failed to add "
 						"network to wpa_supplicant\n"
 						"configuration."));
@@ -417,7 +417,7 @@ void NetworkConfig::addNetwork()
 	reply_len = sizeof(reply);
 	wpagui->ctrlRequest(cmd, reply, &reply_len);
 	if (strncmp(reply, "OK", 2) != 0) {
-		QMessageBox::warning(this, "wpa_gui",
+		QMessageBox::warning(this, ProjAppName,
 				     tr("Failed to enable "
 					"network in wpa_supplicant\n"
 					"configuration."));

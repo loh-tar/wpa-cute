@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>wpa_gui</string>
+   <string>wpaCute</string>
   </property>
   <property name="windowIcon">
    <iconset resource="icons.qrc">
