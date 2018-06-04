@@ -1,3 +1,26 @@
+Contributions to wpaCute
+==========================
+
+Send patches in any way you like with any identity you prefer. I use only Linux
+with KDE/Plasma and will not test code for other systems. But I have kept the
+code as it was and would accept patches for what ever system as long as it not
+break my box.
+
+  - Try to follow the existent look of the code, which not mean to be extra
+    varied
+  - I have tried to use "indent with tabs align with spaces"
+  - Don't use underscores, use camelCase
+  - Try to use only Qt stuff in new code and avoid the standard library
+  - Don't spick the code with your copyright hints. We can change the about
+    window and add there a contributer tab with your name and done work if you
+    like
+
+I keep the rest of this file as it was just for interest but none of this is
+relevant to wpaCute if you like to contribute.
+
+Lothar, Jun 2018
+
+
 Contributions to hostap.git
 ---------------------------
 

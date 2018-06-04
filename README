@@ -1,56 +1,62 @@
-wpa_supplicant and hostapd
---------------------------
+wpaCute
+=========
 
-Copyright (c) 2002-2016, Jouni Malinen <j@w1.fi> and contributors
-All Rights Reserved.
+This is a fork from wpa_gui, shipped with wpa_supplicant version 2.6, which
+has a couple of issues I have fixed in this new derivative. I did not have tried
+to send my patches upstream because of their terms and my paranoia.
 
-These programs are licensed under the BSD license (the one with
-advertisement clause removed).
+I started using wpa_gui when I was looking for a tray icon for my systemd-only
+network setup on my new laptop and realised as soon that there was not all
+roses. Beginning from wrong/missing icons to the actual wlan status, over
+baffling buttons, windows and menus up to a smashed, no longer working
+configuration after an save event, with obviously no changes mind you!
 
-If you are submitting changes to the project, please see CONTRIBUTIONS
-file for more instructions.
+
+Installation
+==============
+
+Required is now at least Qt 5.3 due to use of QSignalBlocker.
 
 
-This package may include either wpa_supplicant, hostapd, or both. See
-README file respective subdirectories (wpa_supplicant/README or
-hostapd/README) for more details.
+From Source
+-------------
 
-Source code files were moved around in v0.6.x releases and compared to
-earlier releases, the programs are now built by first going to a
-subdirectory (wpa_supplicant or hostapd) and creating build
-configuration (.config) and running 'make' there (for Linux/BSD/cygwin
-builds).
+  $ cd src
+  $ qmake-qt5
+  $ make
+
+Because there is no make install target yet
+
+  # install -Dm755 wpa-cute /usr/bin/wpa-cute
+  # install -Dm644 icons/wpa_gui.svg /usr/share/pixmaps/wpa_gui.svg
+  # install -Dm644 wpa-cute.desktop /usr/share/applications/wpa-cute.desktop
+
+
+Packages
+----------
+
+Arch Linux has an AUR
+
+
+Contributing
+==============
+
+If you intend to submit improvements to the project, please see CONTRIBUTIONS
+file for more information.
 
 
 License
--------
+=========
 
-This software may be distributed, used, and modified under the terms of
-BSD license:
+wpaCute a is licensed under the BSD license (the one with advertisement clause
+removed). See COPYING for the full license.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
+wpaCute - A graphical wpa_supplicant front end
+Copyright (C) 2018 loh.tar@googlemail.com
 
-1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
+Because wpaCute is a fork from wpa_gui there are rights of previous
+developers which are highly honored.
 
-2. Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
+wpa_gui for wpa_supplicant
+Copyright (C) 2003-2015 Jouni Malinen <j@w1.fi> and contributors
 
-3. Neither the name(s) of the above-listed copyright holder(s) nor the
-   names of its contributors may be used to endorse or promote products
-   derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
