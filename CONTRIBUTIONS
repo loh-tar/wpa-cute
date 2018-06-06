@@ -14,6 +14,8 @@ break my box.
   - Don't spick the code with your copyright hints. We can change the about
     window and add there a contributer tab with your name and done work if you
     like
+  - Hint: To build the various doc files out of the wpa-cute.sgml file I needed
+    on my Arch the packages perl-sgmls, docbook-sgml and docbook-utils
 
 I keep the rest of this file as it was just for interest but none of this is
 relevant to wpaCute if you like to contribute.

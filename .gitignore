@@ -1,3 +1,5 @@
 src/.qmake.stash
 src/Makefile
 src/wpa-cute
+doc/manpage.links
+doc/manpage.refs

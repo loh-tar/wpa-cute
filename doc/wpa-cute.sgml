@@ -1,0 +1,133 @@
+<!doctype refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+
+<refentry>
+  <refmeta>
+    <refentrytitle>wpa-cute</refentrytitle>
+    <manvolnum>8</manvolnum>
+  </refmeta>
+  <refnamediv>
+    <refname>wpaCute</refname>
+
+    <refpurpose>A graphical wpa_supplicant front end</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>wpa-cute</command>
+      <arg>-i <replaceable>ifname</replaceable></arg>
+      <arg>-m <replaceable>seconds</replaceable></arg>
+      <arg>-N</arg>
+      <arg>-P</arg>
+      <arg>-p <replaceable>path-to-ctrl-sockets</replaceable></arg>
+      <arg>-q</arg>
+      <arg>-t</arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsect1>
+    <title>Overview</title>
+
+    <para>wpaCute is a graphical Qt front end program for interacting
+    with wpa_supplicant. It's used to query current status, change
+    configuration and request interactive user input.</para>
+
+    <para>It supports (almost) all of the interactive status and
+    configuration features of the command line client, wpa_cli. Refer
+    to the wpa_cli man page for a comprehensive list of the interactive
+    mode features.</para>
+
+    <para>wpaCute is a fork from wpa_gui, shipped with wpa_supplicant
+    version 2.6</para>
+  </refsect1>
+  <refsect1>
+    <title>Command Arguments</title>
+    <variablelist>
+      <varlistentry>
+  <term>-i ifname</term>
+  <listitem><para>Specify the interface that is being
+  configured. By default, choose the first interface found with
+  a control socket in the socket path.</para></listitem>
+      </varlistentry>
+
+      <varlistentry>
+  <term>-m seconds</term>
+  <listitem><para>Set an independent update interval in seconds for the signal
+  strength meter. This value must be a positive integer.
+  Without <option>-m</option> the signal meter is only updated at each status update.
+  See also <option>-P</option> and the notes about polling and pinging  </para></listitem>
+      </varlistentry>
+
+      <varlistentry>
+  <term>-N</term>
+  <listitem><para>Force not to use QSocketNotifier, use polling instead so it
+  implies <option>-P</option>. It's more for testing purposes.</para></listitem>
+      </varlistentry>
+
+      <varlistentry>
+  <term>-p path</term>
+  <listitem><para>Change the path where control sockets should
+  be found.</para></listitem>
+      </varlistentry>
+
+      <varlistentry>
+  <term>-P</term>
+  <listitem><para>Enable polling and pinging wpa_supplicant independent to the
+  use of QSocketNotifier.</para>
+      </listitem>
+      </varlistentry>
+
+      <varlistentry>
+  <term>-q</term>
+  <listitem><para>Run program in the quiet mode - do not display tray
+  icon pop-up messages.</para></listitem>
+      </varlistentry>
+
+      <varlistentry>
+  <term>-t</term>
+  <listitem><para>Start program in the system tray only (if the window
+  manager supports it). By default the main status window is
+  shown.</para></listitem>
+      </varlistentry>
+
+    </variablelist>
+  </refsect1>
+ <refsect1><title>Polling And Pinging</title>
+  <para>QSocketNotifier is not supported on all systems but used by
+  default. On such systems is wpa_supplicant polled and pinged to fetch
+  status changes.</para>
+  <para>The polling is not done in a fixed interval but depends on
+  current status and reach from high frequent polling in 1sec, when
+  probably changes are on the way, down to 30sec in normal connected
+  mode where only is checked if all looks good.</para>
+  <para>Disconnect the adapter disables polling completely.
+  When in inactive or scanning status is polled in 9sec.
+  With the main window visible is polled in 2sec.</para>
+  </refsect1>
+
+  <refsect1>
+    <title>See Also</title>
+    <para>
+      <citerefentry>
+  <refentrytitle>wpa_cli</refentrytitle>
+  <manvolnum>8</manvolnum>
+      </citerefentry>
+      <citerefentry>
+  <refentrytitle>wpa_supplicant</refentrytitle>
+  <manvolnum>8</manvolnum>
+      </citerefentry>
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>Legal</title>
+    <para>This program is licensed under the BSD license (the one with
+    advertisement clause removed).</para>
+    <literallayout>
+wpaCute - A graphical wpa_supplicant front end
+Copyright (C) 2018 loh.tar@googlemail.com
+
+wpa_gui for wpa_supplicant
+Copyright (C) 2003-2015 Jouni Malinen <email>j@w1.fi</email> and contributors.
+</literallayout>
+  </refsect1>
+</refentry>

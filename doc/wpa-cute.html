@@ -1,0 +1,225 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>wpa-cute</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><H1
+><A
+NAME="AEN1"
+></A
+>wpa-cute</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN5"
+></A
+><H2
+>Name</H2
+>wpaCute&nbsp;--&nbsp;A graphical wpa_supplicant front end</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN8"
+></A
+><H2
+>Synopsis</H2
+><P
+><B
+CLASS="COMMAND"
+>wpa-cute</B
+>  [-i <TT
+CLASS="REPLACEABLE"
+><I
+>ifname</I
+></TT
+>] [-m <TT
+CLASS="REPLACEABLE"
+><I
+>seconds</I
+></TT
+>] [-N] [-P] [-p <TT
+CLASS="REPLACEABLE"
+><I
+>path-to-ctrl-sockets</I
+></TT
+>] [-q] [-t]</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN21"
+></A
+><H2
+>Overview</H2
+><P
+>wpaCute is a graphical Qt front end program for interacting
+    with wpa_supplicant. It's used to query current status, change
+    configuration and request interactive user input.</P
+><P
+>It supports (almost) all of the interactive status and
+    configuration features of the command line client, wpa_cli. Refer
+    to the wpa_cli man page for a comprehensive list of the interactive
+    mode features.</P
+><P
+>wpaCute is a fork from wpa_gui, shipped with wpa_supplicant
+    version 2.6</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN26"
+></A
+><H2
+>Command Arguments</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>-i ifname</DT
+><DD
+><P
+>Specify the interface that is being
+  configured. By default, choose the first interface found with
+  a control socket in the socket path.</P
+></DD
+><DT
+>-m seconds</DT
+><DD
+><P
+>Set an independent update interval in seconds for the signal
+  strength meter. This value must be a positive integer.
+  Without <CODE
+CLASS="OPTION"
+>-m</CODE
+> the signal meter is only updated at each status update.
+  See also <CODE
+CLASS="OPTION"
+>-P</CODE
+> and the notes about polling and pinging  </P
+></DD
+><DT
+>-N</DT
+><DD
+><P
+>Force not to use QSocketNotifier, use polling instead so it
+  implies <CODE
+CLASS="OPTION"
+>-P</CODE
+>. It's more for testing purposes.</P
+></DD
+><DT
+>-p path</DT
+><DD
+><P
+>Change the path where control sockets should
+  be found.</P
+></DD
+><DT
+>-P</DT
+><DD
+><P
+>Enable polling and pinging wpa_supplicant independent to the
+  use of QSocketNotifier.</P
+></DD
+><DT
+>-q</DT
+><DD
+><P
+>Run program in the quiet mode - do not display tray
+  icon pop-up messages.</P
+></DD
+><DT
+>-t</DT
+><DD
+><P
+>Start program in the system tray only (if the window
+  manager supports it). By default the main status window is
+  shown.</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN60"
+></A
+><H2
+>Polling And Pinging</H2
+><P
+>QSocketNotifier is not supported on all systems but used by
+  default. On such systems is wpa_supplicant polled and pinged to fetch
+  status changes.</P
+><P
+>The polling is not done in a fixed interval but depends on
+  current status and reach from high frequent polling in 1sec, when
+  probably changes are on the way, down to 30sec in normal connected
+  mode where only is checked if all looks good.</P
+><P
+>Disconnect the adapter disables polling completely.
+  When in inactive or scanning status is polled in 9sec.
+  With the main window visible is polled in 2sec.</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN65"
+></A
+><H2
+>See Also</H2
+><P
+>      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>wpa_cli</SPAN
+>(8)</SPAN
+>
+      <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>wpa_supplicant</SPAN
+>(8)</SPAN
+>
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN74"
+></A
+><H2
+>Legal</H2
+><P
+>This program is licensed under the BSD license (the one with
+    advertisement clause removed).</P
+><P
+CLASS="LITERALLAYOUT"
+>wpaCute&nbsp;-&nbsp;A&nbsp;graphical&nbsp;wpa_supplicant&nbsp;front&nbsp;end<br>
+Copyright&nbsp;(C)&nbsp;2018&nbsp;loh.tar@googlemail.com<br>
+<br>
+wpa_gui&nbsp;for&nbsp;wpa_supplicant<br>
+Copyright&nbsp;(C)&nbsp;2003-2015&nbsp;Jouni&nbsp;Malinen&nbsp;<CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:j@w1.fi"
+>j@w1.fi</A
+>&#62;</CODE
+>&nbsp;and&nbsp;contributors.</P
+></DIV
+></BODY
+></HTML
+>
