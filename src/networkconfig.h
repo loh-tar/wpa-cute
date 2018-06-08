@@ -1,9 +1,12 @@
 /*
+ * wpaCute - A graphical wpa_supplicant front end
+ * Copyright (C) 2018 loh.tar@googlemail.com
+ *
  * wpa_gui - NetworkConfig class
  * Copyright (c) 2005-2006, Jouni Malinen <j@w1.fi>
  *
  * This software may be distributed under the terms of the BSD license.
- * See README for more details.
+ * See COPYING for more details.
  */
 
 #ifndef NETWORKCONFIG_H
@@ -20,13 +23,13 @@ class NetworkConfig : public QDialog, public Ui::NetworkConfig
 
 public:
 	NetworkConfig(QWidget *parent = 0, const char *name = 0,
-		      bool modal = false, Qt::WindowFlags fl = 0);
+	              bool modal = false, Qt::WindowFlags fl = 0);
 	~NetworkConfig();
 
 	virtual void paramsFromScanResults(QTreeWidgetItem *sel);
 	virtual void setWpaGui(WpaGui *_wpagui);
 	virtual int setNetworkParam(int id, const char *field,
-				    const char *value, bool quote);
+	                            const char *value, bool quote);
 	virtual void paramsFromConfig(int network_id);
 	virtual void newNetwork();
 

@@ -1,9 +1,12 @@
 /*
+ * wpaCute - A graphical wpa_supplicant front end
+ * Copyright (C) 2018 loh.tar@googlemail.com
+ *
  * wpa_gui - WpaGui class
  * Copyright (c) 2005-2011, Jouni Malinen <j@w1.fi>
  *
  * This software may be distributed under the terms of the BSD license.
- * See README for more details.
+ * See COPYING for more details.
  */
 
 #ifdef CONFIG_NATIVE_WINDOWS
@@ -1140,7 +1143,7 @@ void WpaGui::helpAbout()
 	            "wpa_supplicant version 2.6\n"
 	            "\n"
 	            "wpa_gui for wpa_supplicant\n"
-	            "Copyright (C) 2003-2015 Jouni Malinen <j@w1.fi> \n"
+	            "Copyright (C) 2005-2015 Jouni Malinen <j@w1.fi> \n"
 	            "and contributors\n");
 
 	const QString msg(copyright +

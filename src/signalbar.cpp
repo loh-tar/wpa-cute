@@ -1,9 +1,12 @@
 /*
+ * wpaCute - A graphical wpa_supplicant front end
+ * Copyright (C) 2018 loh.tar@googlemail.com
+ *
  * wpa_gui - SignalBar class
  * Copyright (c) 2011, Kel Modderman <kel@otaku42.de>
  *
  * This software may be distributed under the terms of the BSD license.
- * See README for more details.
+ * See COPYING for more details.
  */
 
 #include <cstdio>
