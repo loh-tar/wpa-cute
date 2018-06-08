@@ -1,10 +1,10 @@
 TEMPLATE	= app
-TARGET = wpa-cute
+TARGET		= wpa-cute
 LANGUAGE	= C++
 TRANSLATIONS	= lang/wpa_gui_de.ts
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG	+= qt warn_on release
+CONFIG	+= qt warn_on debug_and_release
 
 DEFINES += CONFIG_CTRL_IFACE
 QMAKE_CXXFLAGS += -Wformat-truncation=0

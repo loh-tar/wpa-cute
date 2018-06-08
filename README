@@ -23,7 +23,7 @@ From Source
 
   $ cd src
   $ qmake-qt5
-  $ make
+  $ make        # To enable debug messages run: make -f Makefile.Debug
 
 Because there is no make install target yet, run on Unices
 
