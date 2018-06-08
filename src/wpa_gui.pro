@@ -65,7 +65,8 @@ FORMS	= wpagui.ui \
 	scanresults.ui \
 	userdatarequest.ui \
 	networkconfig.ui \
-	peers.ui
+	peers.ui \
+	about.ui
 
 
 unix {

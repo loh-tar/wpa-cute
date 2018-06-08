@@ -19,6 +19,8 @@
 #include <QSettings>
 #include <QScrollBar>
 
+#include "ui_about.h"
+
 #include "wpagui.h"
 #include "dirent.h"
 #include "common/wpa_ctrl.h"
@@ -1130,27 +1132,72 @@ void WpaGui::helpContents()
 
 void WpaGui::helpAbout()
 {
-	QString title(ProjAppName + tr(" - A graphical wpa_supplicant front end"));
-	QString msg(ProjAppName " version " ProjVersion " " ProjRelease "\n"
+	const QString copyright(tr("%1 - A graphical wpa_supplicant front end\n")
+	                       .arg(ProjAppName) +
 	            "Copyright (C) 2018 loh.tar@googlemail.com\n"
 	            "\n"
-	            "This is a fork from wpa_gui shipped with "
+	            ProjAppName " is a fork from wpa_gui shipped with \n"
 	            "wpa_supplicant version 2.6\n"
 	            "\n"
 	            "wpa_gui for wpa_supplicant\n"
-	            "Copyright (C) 2003-2015,\n"
-	            "Jouni Malinen <j@w1.fi>\n"
-	            "and contributors.\n"
+	            "Copyright (C) 2003-2015 Jouni Malinen <j@w1.fi> \n"
+	            "and contributors\n");
+
+	const QString msg(copyright +
 	            "\n"
 	            "This software may be distributed under\n"
 	            "the terms of the BSD license.\n"
-	            "See README for more details.\n"
 	            "\n"
 	            "This product includes software developed\n"
 	            "by the OpenSSL Project for use in the\n"
 	            "OpenSSL Toolkit (http://www.openssl.org/)\n");
 
-	QMessageBox::about(this, title, msg);
+	const QString license(copyright +
+	"\n"
+	"\n"
+	"License\n"
+	"=========\n"
+	"This software may be distributed, used, and modified under the terms of\n"
+	"BSD license:\n"
+	"\n"
+	"Redistribution and use in source and binary forms, with or without\n"
+	"modification, are permitted provided that the following conditions are\n"
+	"met:\n"
+	"\n"
+	"1. Redistributions of source code must retain the above copyright\n"
+	"   notice, this list of conditions and the following disclaimer.\n"
+	"\n"
+	"2. Redistributions in binary form must reproduce the above copyright\n"
+	"   notice, this list of conditions and the following disclaimer in the\n"
+	"   documentation and/or other materials provided with the distribution.\n"
+	"\n"
+	"3. Neither the name(s) of the above-listed copyright holder(s) nor the\n"
+	"   names of its contributors may be used to endorse or promote products\n"
+	"   derived from this software without specific prior written permission.\n"
+	"\n"
+	"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"
+	"\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"
+	"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR\n"
+	"A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT\n"
+	"OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,\n"
+	"SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT\n"
+	"LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,\n"
+	"DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\n"
+	"THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n"
+	"(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n"
+	"OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n");
+
+	QDialog msgBox(this);
+	Ui::aboutDialog ui;
+
+	ui.setupUi(&msgBox);
+	ui.appName->setText(ProjAppName);
+	ui.appVersion->setText(tr("Version %1, %2").arg(ProjVersion).arg(ProjRelease));
+	ui.aboutText->setText(msg);
+	ui.licenseText->setText(license);
+	msgBox.setWindowTitle(tr("About %1").arg(ProjAppName));
+	msgBox.exec();
+
 }
 
 
