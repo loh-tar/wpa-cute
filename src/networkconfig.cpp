@@ -197,7 +197,7 @@ void NetworkConfig::eapChanged(int sel)
 
 void NetworkConfig::addNetwork()
 {
-	char reply[10], cmd[256];
+	char reply[10];
 	size_t reply_len;
 	int id;
 	int psklen = pskEdit->text().length();
@@ -416,18 +416,7 @@ void NetworkConfig::addNetwork()
 				false);
 	}
 
-	snprintf(cmd, sizeof(cmd), "ENABLE_NETWORK %d", id);
-	reply_len = sizeof(reply);
-	wpagui->ctrlRequest(cmd, reply, &reply_len);
-	if (strncmp(reply, "OK", 2) != 0) {
-		QMessageBox::warning(this, ProjAppName,
-				     tr("Failed to enable "
-					"network in wpa_supplicant\n"
-					"configuration."));
-		/* Network was added, so continue anyway */
-	}
-
-	wpagui->updateNetworks();
+	wpagui->enableNetwork(QString::number(id));
 
 	close();
 }
