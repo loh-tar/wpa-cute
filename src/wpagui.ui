@@ -302,132 +302,162 @@
          <attribute name="title">
           <string>Networks</string>
          </attribute>
-         <layout class="QGridLayout" name="gridLayout_1">
-          <item row="0" column="0">
-           <layout class="QVBoxLayout" name="verticalLayout">
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QGroupBox" name="reloadSaveBox">
+            <layout class="QHBoxLayout" name="reloSaveLayout">
+             <property name="sizeConstraint">
+              <enum>QLayout::SetDefaultConstraint</enum>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QToolButton" name="reloadButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="saveButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTreeWidget" name="networkList">
+            <property name="rootIsDecorated">
+             <bool>false</bool>
+            </property>
+            <property name="itemsExpandable">
+             <bool>true</bool>
+            </property>
+            <property name="sortingEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="expandsOnDoubleClick">
+             <bool>true</bool>
+            </property>
+            <column>
+             <property name="text">
+              <string>ID</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>SSID</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>BSSID</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Flags</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
-             <widget class="QTreeWidget" name="networkList">
-              <property name="rootIsDecorated">
-               <bool>false</bool>
+             <widget class="QToolButton" name="removeNetworkButton">
+              <property name="text">
+               <string>Remove</string>
               </property>
-              <property name="itemsExpandable">
-               <bool>true</bool>
-              </property>
-              <property name="sortingEnabled">
-               <bool>true</bool>
-              </property>
-              <property name="expandsOnDoubleClick">
-               <bool>true</bool>
-              </property>
-              <column>
-               <property name="text">
-                <string>ID</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>SSID</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>BSSID</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>Flags</string>
-               </property>
-              </column>
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout">
-              <item>
-               <widget class="QToolButton" name="removeNetworkButton">
-                <property name="text">
-                 <string>Remove</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_3">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_2">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QToolButton" name="addNetworkButton">
-                <property name="text">
-                 <string>Add</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QToolButton" name="editNetworkButton">
-                <property name="text">
-                 <string>Edit</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QToolButton" name="disEnableNetworkButton">
-                <property name="minimumSize">
-                 <size>
-                  <width>119</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Dis-/Enable</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
             <item>
-             <widget class="QToolButton" name="saveButton">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QToolButton" name="addNetworkButton">
+              <property name="text">
+               <string>Add</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="editNetworkButton">
+              <property name="text">
+               <string>Edit</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QToolButton" name="disEnableNetworkButton">
+              <property name="minimumSize">
+               <size>
+                <width>119</width>
+                <height>0</height>
+               </size>
               </property>
               <property name="text">
-               <string>...</string>
+               <string>Dis-/Enable</string>
               </property>
              </widget>
             </item>
@@ -570,11 +600,14 @@
     </property>
     <addaction name="disconReconAction"/>
     <addaction name="separator"/>
-    <addaction name="eventHistoryAction"/>
-    <addaction name="scanAction"/>
-    <addaction name="saveConfigAction"/>
     <addaction name="wpsAction"/>
+    <addaction name="separator"/>
+    <addaction name="scanAction"/>
     <addaction name="peersAction"/>
+    <addaction name="eventHistoryAction"/>
+    <addaction name="separator"/>
+    <addaction name="saveConfigAction"/>
+    <addaction name="reloadConfigAction"/>
     <addaction name="separator"/>
     <addaction name="quitAction"/>
    </widget>
@@ -623,7 +656,10 @@
   </action>
   <action name="saveConfigAction">
    <property name="text">
-    <string>&amp;Save Configuration</string>
+    <string>&amp;Save Config</string>
+   </property>
+   <property name="toolTip">
+    <string>Save current configuration</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -632,6 +668,9 @@
   <action name="quitAction">
    <property name="text">
     <string>&amp;Quit</string>
+   </property>
+   <property name="toolTip">
+    <string>Quit Application</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
@@ -758,6 +797,17 @@
    </property>
    <property name="statusTip">
     <string>Middle click on tray icon show main window with status tab</string>
+   </property>
+  </action>
+  <action name="reloadConfigAction">
+   <property name="text">
+    <string>&amp;Reload Config</string>
+   </property>
+   <property name="toolTip">
+    <string>Reload configuration</string>
+   </property>
+   <property name="shortcut">
+    <string>F5</string>
    </property>
   </action>
  </widget>

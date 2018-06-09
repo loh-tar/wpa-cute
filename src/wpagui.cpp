@@ -88,8 +88,9 @@ WpaGui::WpaGui(QApplication *_app
 	editNetworkButton->setDefaultAction(networkEditAction);
 	removeNetworkButton->setDefaultAction(networkRemoveAction);
 	disEnableNetworkButton->setDefaultAction(networkDisEnableAction);
+	reloadButton->setDefaultAction(reloadConfigAction);
 	saveButton->setDefaultAction(saveConfigAction);
-	saveButton->hide();
+	reloadSaveBox->hide();
 
 #ifdef CONFIG_NATIVE_WINDOWS
 	fileStopServiceAction = new QAction(this);
@@ -134,6 +135,8 @@ WpaGui::WpaGui(QApplication *_app
 	      , this, SLOT(scan()));
 	connect(saveConfigAction, SIGNAL(triggered())
 	      , this, SLOT(saveConfig()));
+	connect(reloadConfigAction, SIGNAL(triggered())
+	      , this, SLOT(reloadConfig()));
 	connect(wpsAction, SIGNAL(triggered())
 	      , this, SLOT(wpsDialog()));
 	connect(peersAction, SIGNAL(triggered())
@@ -676,6 +679,7 @@ void WpaGui::setState(const WpaStateType state)
 			disconReconAction->setEnabled(false);
 			wpsAction->setEnabled(false);
 			saveConfigAction->setEnabled(false);
+			reloadConfigAction->setEnabled(false);
 			networkMenu->setEnabled(false);
 			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(networksTab), false);
 			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(wpsTab), false);
@@ -695,6 +699,7 @@ void WpaGui::setState(const WpaStateType state)
 			disconReconAction->setEnabled(false);
 			wpsAction->setEnabled(false);
 			saveConfigAction->setEnabled(false);
+			reloadConfigAction->setEnabled(false);
 			networkMenu->setEnabled(false);
 			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(networksTab), false);
 			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(wpsTab), false);
@@ -716,6 +721,7 @@ void WpaGui::setState(const WpaStateType state)
 			disconReconAction->setEnabled(true);
 			wpsAction->setEnabled(true);
 			saveConfigAction->setEnabled(true);
+			reloadConfigAction->setEnabled(true);
 			networkMenu->setEnabled(true);
 			adapterSelect->setEnabled(true);
 			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(networksTab), true);
@@ -1683,7 +1689,7 @@ void WpaGui::requestNetworkChange(const QString &req, const QString &sel)
 	ctrlRequest(cmd.toLocal8Bit().constData(), reply, &reply_len);
 
 	updateNetworks();
-	saveButton->show();
+	reloadSaveBox->show();
 }
 
 
@@ -1843,8 +1849,31 @@ void WpaGui::saveConfig()
 			   "be permitted.\n"));
 	else {
 		logHint(tr("The current configuration was saved"));
-		saveButton->hide();
+		reloadSaveBox->hide();
 	}
+}
+
+
+void WpaGui::reloadConfig()
+{
+	char buf[10];
+	size_t len;
+
+	len = sizeof(buf) - 1;
+	ctrlRequest("RECONFIGURE", buf, &len);
+
+	buf[len] = '\0';
+
+	if (str_match(buf, "FAIL")) {
+		// No tr() here, guess will never happens, but if I want an english hint
+		logHint("Failed to reload the configuration");
+		logHint("Please send a bug report how that happens");
+	}
+	else {
+		logHint(tr("The configuration was reloaded"));
+		reloadSaveBox->hide();
+	}
+	updateNetworks();
 }
 
 

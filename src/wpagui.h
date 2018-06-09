@@ -109,10 +109,12 @@ public slots:
 	virtual void updateSignalMeter();
 
 	virtual void disconnReconnect();
+	virtual void wpsDialog();
+	virtual void scan();
+	virtual void peersDialog();
 	virtual void eventHistory();
 	virtual void saveConfig();
-	virtual void wpsDialog();
-	virtual void peersDialog();
+	virtual void reloadConfig();
 
 	virtual void addNetwork();
 	virtual void editListedNetwork();
@@ -128,7 +130,6 @@ public slots:
 	virtual void helpContents();
 	virtual void helpAbout();
 
-	virtual void scan();
 	virtual void ping();
 	virtual void processMsg(char *msg);
 	virtual void processCtrlReq(const char *req);
