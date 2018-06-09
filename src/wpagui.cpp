@@ -88,6 +88,8 @@ WpaGui::WpaGui(QApplication *_app
 	editNetworkButton->setDefaultAction(networkEditAction);
 	removeNetworkButton->setDefaultAction(networkRemoveAction);
 	disEnableNetworkButton->setDefaultAction(networkDisEnableAction);
+	saveButton->setDefaultAction(saveConfigAction);
+	saveButton->hide();
 
 #ifdef CONFIG_NATIVE_WINDOWS
 	fileStopServiceAction = new QAction(this);
@@ -1681,6 +1683,7 @@ void WpaGui::requestNetworkChange(const QString &req, const QString &sel)
 	ctrlRequest(cmd.toLocal8Bit().constData(), reply, &reply_len);
 
 	updateNetworks();
+	saveButton->show();
 }
 
 
@@ -1838,11 +1841,10 @@ void WpaGui::saveConfig()
 			   "The update_config=1 configuration option\n"
 			   "must be used for configuration saving to\n"
 			   "be permitted.\n"));
-	else
-		QMessageBox::information(
-			this, tr("Saved configuration"),
-			tr("The current configuration was saved."
-			   "\n"));
+	else {
+		logHint(tr("The current configuration was saved"));
+		saveButton->hide();
+	}
 }
 
 
