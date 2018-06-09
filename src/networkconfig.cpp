@@ -251,8 +251,8 @@ void NetworkConfig::addNetwork()
 	} else
 		id = edit_network_id;
 
-	setNetworkParam(id, "ssid", ssidEdit->text().toLocal8Bit().constData(),
-			true);
+	setNetworkParam(id, "ssid", ssidEdit->text().toLocal8Bit().constData()
+	              , true);
 
 	const char *key_mgmt = NULL, *proto = NULL, *pairwise = NULL;
 	switch (auth) {
@@ -428,7 +428,6 @@ void NetworkConfig::addNetwork()
 	}
 
 	wpagui->updateNetworks();
-	wpagui->ctrlRequest("SAVE_CONFIG", reply, &reply_len);
 
 	close();
 }
@@ -812,7 +811,7 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	wepEnabled(auth == AUTH_NONE_WEP || auth == AUTH_NONE_WEP_SHARED);
 
 	removeButton->setEnabled(true);
-	addButton->setText("Save");
+	addButton->setText(tr("Apply"));
 	setWindowTitle(tr("Edit Network Block - %1").arg(network_id));
 }
 
