@@ -237,12 +237,10 @@ void NetworkConfig::addNetwork()
 	memset(buf, 0, sizeof(buf));
 
 	if (new_network) {
-		wpagui->ctrlRequest("ADD_NETWORK", buf, len);
-		if (buf[0] == 'F') {
+		if (wpagui->ctrlRequest("ADD_NETWORK", buf, len) < 0) {
 			QMessageBox::warning(this, ProjAppName,
-					     tr("Failed to add "
-						"network to wpa_supplicant\n"
-						"configuration."));
+			                     tr("Failed to add network to \n"
+			                        "wpa_supplicant configuration."));
 			return;
 		}
 		id = atoi(buf);
@@ -427,14 +425,12 @@ void NetworkConfig::setWpaGui(WpaGui *_wpagui)
 
 
 int NetworkConfig::setNetworkParam(int id, const char *field,
-				   const char *value, bool quote)
+                                   const char *value, bool quote)
 {
-	size_t len(10);
-	char buf[len], cmd[256];
+	char cmd[256];
 	snprintf(cmd, sizeof(cmd), "SET_NETWORK %d %s %s%s%s",
 		 id, field, quote ? "\"" : "", value, quote ? "\"" : "");
-	wpagui->ctrlRequest(cmd, buf, len);
-	return strncmp(buf, "OK", 2) == 0 ? 0 : -1;
+	return wpagui->ctrlRequest(cmd);
 }
 
 
@@ -497,12 +493,6 @@ void NetworkConfig::writeWepKey(int network_id, QLineEdit *edit, int id)
 }
 
 
-static int key_value_isset(const char *buf, size_t len)
-{
-    return len > 0 && (len < 4 || memcmp(buf, "FAIL", 4) != 0);
-}
-
-
 void NetworkConfig::paramsFromConfig(int network_id)
 {
 	int i, res;
@@ -513,20 +503,19 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	QString curSetting(tr("Currently Used") + ": ");
 
 	size_t len(1024); char buf[len];
-	char cmd[256], *pos;
+	char *pos;
+	QString cmd("GET_NETWORK %1 %2");
+	cmd = cmd.arg(network_id);
 
-	snprintf(cmd, sizeof(cmd), "GET_NETWORK %d ssid", network_id);
-	if (wpagui->ctrlRequest(cmd, buf, len) >= 0 &&
-	    len >= 2 && buf[0] == '"') {
+	if (wpagui->ctrlRequest(cmd.arg("ssid"), buf, len) >= 0) {
 		pos = strchr(buf + 1, '"');
 		if (pos)
 			*pos = '\0';
 		ssidEdit->setText(buf + 1);
 	}
 
-	snprintf(cmd, sizeof(cmd), "GET_NETWORK %d proto", network_id);
 	int wpa = 0;
-	if (wpagui->ctrlRequest(cmd, buf, len) >= 0) {
+	if (wpagui->ctrlRequest(cmd.arg("proto"), buf, len) >= 0) {
 		if (strstr(buf, "RSN") || strstr(buf, "WPA2"))
 			wpa = 2;
 		else if (strstr(buf, "WPA"))
@@ -534,8 +523,7 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	}
 
 	int auth = AUTH_NONE_OPEN, encr = 0;
-	snprintf(cmd, sizeof(cmd), "GET_NETWORK %d key_mgmt", network_id);
-	if (wpagui->ctrlRequest(cmd, buf, len) >= 0) {
+	if (wpagui->ctrlRequest(cmd.arg("key_mgmt"), buf, len) >= 0) {
 		authSelect->setToolTip(curSetting + buf);
 		if (strstr(buf, "WPA-PSK WPA-EAP")) {
 			auth = AUTH_DEFAULTS;
@@ -551,8 +539,7 @@ void NetworkConfig::paramsFromConfig(int network_id)
 		}
 	}
 
-	snprintf(cmd, sizeof(cmd), "GET_NETWORK %d pairwise", network_id);
-	if (wpagui->ctrlRequest(cmd, buf, len) >= 0) {
+	if (wpagui->ctrlRequest(cmd.arg("pairwise"), buf, len) >= 0) {
 		encrSelect->setToolTip(curSetting + buf);
 		if (strstr(buf, "CCMP TKIP"))
 			encr = 2;
@@ -567,40 +554,35 @@ void NetworkConfig::paramsFromConfig(int network_id)
 			encr = 0;
 	}
 
-	snprintf(cmd, sizeof(cmd), "GET_NETWORK %d psk", network_id);
-	res = wpagui->ctrlRequest(cmd, buf, len);
-	if (res >= 0 && len >= 2 && buf[0] == '"') {
+	res = wpagui->ctrlRequest(cmd.arg("psk"), buf, len);
+	if (res >= 0 && buf[0] == '"') {
 		pos = strchr(buf + 1, '"');
 		if (pos)
 			*pos = '\0';
 		pskEdit->setText(buf + 1);
-	} else if (res >= 0 && key_value_isset(buf, len)) {
+	} else if (res >= 0) {
 		pskEdit->setText(WPA_GUI_KEY_DATA);
 	}
 
-	snprintf(cmd, sizeof(cmd), "GET_NETWORK %d identity", network_id);
-	if (wpagui->ctrlRequest(cmd, buf, len) >= 0 &&
-	    len >= 2 && buf[0] == '"') {
+	if (wpagui->ctrlRequest(cmd.arg("identity"), buf, len) >= 0
+		&& buf[0] == '"') {
 		pos = strchr(buf + 1, '"');
 		if (pos)
 			*pos = '\0';
 		identityEdit->setText(buf + 1);
 	}
 
-	snprintf(cmd, sizeof(cmd), "GET_NETWORK %d password", network_id);
-	res = wpagui->ctrlRequest(cmd, buf, len);
-	if (res >= 0 && len >= 2 && buf[0] == '"') {
+	res = wpagui->ctrlRequest(cmd.arg("password"), buf, len);
+	if (res >= 0 && buf[0] == '"') {
 		pos = strchr(buf + 1, '"');
 		if (pos)
 			*pos = '\0';
 		passwordEdit->setText(buf + 1);
-	} else if (res >= 0 && key_value_isset(buf, len)) {
+	} else if (res >= 0) {
 		passwordEdit->setText(WPA_GUI_KEY_DATA);
 	}
 
-	snprintf(cmd, sizeof(cmd), "GET_NETWORK %d ca_cert", network_id);
-	if (wpagui->ctrlRequest(cmd, buf, len) >= 0 &&
-	    len >= 2 && buf[0] == '"') {
+	if (wpagui->ctrlRequest(cmd.arg("ca_cert"), buf, len) >= 0) {
 		pos = strchr(buf + 1, '"');
 		if (pos)
 			*pos = '\0';
@@ -608,9 +590,7 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	}
 
 	enum { NO_INNER, PEAP_INNER, TTLS_INNER, FAST_INNER } eap = NO_INNER;
-	snprintf(cmd, sizeof(cmd), "GET_NETWORK %d eap", network_id);
-	if (wpagui->ctrlRequest(cmd, buf, len) >= 0 &&
-	    len >= 1) {
+	if (wpagui->ctrlRequest(cmd.arg("eap"), buf, len) >= 0) {
 		for (i = 0; i < eapSelect->count(); i++) {
 			if (eapSelect->itemText(i).compare(buf) == 0) {
 				eapSelect->setCurrentIndex(i);
@@ -626,10 +606,7 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	}
 
 	if (eap != NO_INNER) {
-		snprintf(cmd, sizeof(cmd), "GET_NETWORK %d phase2",
-			 network_id);
-		if (wpagui->ctrlRequest(cmd, buf, len) >= 0 &&
-		    len >= 1) {
+		if (wpagui->ctrlRequest(cmd.arg("phase2"), buf, len) >= 0) {
 			eapChanged(eapSelect->currentIndex());
 		} else
 			eap = NO_INNER;
@@ -694,12 +671,8 @@ void NetworkConfig::paramsFromConfig(int network_id)
 			wepEdit = wep3Edit;
 			break;
 		}
-		// FIXME Since len is const tests are pointless
-		// check entire file for "len >= 2"
-		snprintf(cmd, sizeof(cmd), "GET_NETWORK %d wep_key%d",
-			 network_id, i);
-		res = wpagui->ctrlRequest(cmd, buf, len);
-		if (res >= 0 && len >= 2 && buf[0] == '"') {
+		res = wpagui->ctrlRequest(cmd.arg("wep_key%1").arg(i), buf, len);
+		if (res >= 0 && buf[0] == '"') {
 			pos = strchr(buf + 1, '"');
 			if (pos)
 				*pos = '\0';
@@ -710,7 +683,7 @@ void NetworkConfig::paramsFromConfig(int network_id)
 			}
 
 			wepEdit->setText(buf + 1);
-		} else if (res >= 0 && key_value_isset(buf, len)) {
+		} else if (res >= 0) {
 			if (auth == AUTH_NONE_OPEN || auth == AUTH_IEEE8021X) {
 				if (auth == AUTH_NONE_OPEN)
 					auth = AUTH_NONE_WEP;
@@ -721,16 +694,13 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	}
 
 	if (auth == AUTH_NONE_WEP) {
-		snprintf(cmd, sizeof(cmd), "GET_NETWORK %d auth_alg",
-			 network_id);
-		if (wpagui->ctrlRequest(cmd, buf, len) >= 0) {
+		if (wpagui->ctrlRequest(cmd.arg("auth_alg"), buf, len) >= 0) {
 			if (strcmp(buf, "SHARED") == 0)
 				auth = AUTH_NONE_WEP_SHARED;
 		}
 	}
 
-	snprintf(cmd, sizeof(cmd), "GET_NETWORK %d wep_tx_keyidx", network_id);
-	if (wpagui->ctrlRequest(cmd, buf, len) >= 0 && len >= 1)
+	if (wpagui->ctrlRequest(cmd.arg("wep_tx_keyidx"), buf, len) >= 0)
 	{
 		switch (atoi(buf)) {
 		case 0:
@@ -747,20 +717,15 @@ void NetworkConfig::paramsFromConfig(int network_id)
 			break;
 		}
 	}
-	snprintf(cmd, sizeof(cmd), "GET_NETWORK %d id_str", network_id);
-	if (wpagui->ctrlRequest(cmd, buf, len) >= 0 &&
-	    len >= 2 && buf[0] == '"') {
+	if (wpagui->ctrlRequest(cmd.arg("id_str"), buf, len) >= 0) {
 		pos = strchr(buf + 1, '"');
 		if (pos)
 			*pos = '\0';
 		idstrEdit->setText(buf + 1);
 	}
 
-	snprintf(cmd, sizeof(cmd), "GET_NETWORK %d priority", network_id);
-	if (wpagui->ctrlRequest(cmd, buf, len) >= 0 && len >= 1)
-	{
+	if (wpagui->ctrlRequest(cmd.arg("priority"), buf, len) >= 0)
 		prioritySpinBox->setValue(atoi(buf));
-	}
 
 	authSelect->setCurrentIndex(auth);
 	authChanged(auth);

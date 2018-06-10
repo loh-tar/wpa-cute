@@ -72,7 +72,7 @@ void ScanResults::updateResults()
 			break;
 
 		QString bss(buf);
-		if (bss.isEmpty() || bss.startsWith("FAIL"))
+		if (bss.isEmpty())
 			break;
 
 		QString ssid, bssid, freq, signal, flags;

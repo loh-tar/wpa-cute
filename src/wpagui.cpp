@@ -611,6 +611,10 @@ int WpaGui::ctrlRequest(const QString &cmd, char *buf, const size_t buflen)
 		debug("'%s' command failed.", cmd.toLocal8Bit().constData());
 
 	buf[len] = '\0';
+
+	if (!ret && memcmp(buf, "FAIL", 4) == 0)
+		ret = -1;
+
 	return ret;
 }
 
@@ -1790,13 +1794,10 @@ int WpaGui::getNetworkDisabled(const QString &sel)
 	cmd.prepend("GET_NETWORK ");
 	cmd.append(" disabled");
 
-	if (ctrlRequest(cmd, buf, len) >= 0
-	    && len >= 1) {
-		if (!str_match(buf, "FAIL"))
-			return atoi(buf);
-	}
+	if (ctrlRequest(cmd, buf, len) < 0)
+		return -1;
 
-	return -1;
+	return atoi(buf);
 }
 
 
@@ -1823,11 +1824,7 @@ void WpaGui::disEnableNetwork()
 
 void WpaGui::saveConfig()
 {
-	size_t len(10); char buf[len];
-
-	ctrlRequest("SAVE_CONFIG", buf, len);
-
-	if (str_match(buf, "FAIL"))
+	if (ctrlRequest("SAVE_CONFIG") < 0)
 		QMessageBox::warning(
 			this, tr("Failed to save configuration"),
 			tr("The configuration could not be saved.\n"
@@ -1844,11 +1841,7 @@ void WpaGui::saveConfig()
 
 void WpaGui::reloadConfig()
 {
-	size_t len(10); char buf[len];
-
-	ctrlRequest("RECONFIGURE", buf, len);
-
-	if (str_match(buf, "FAIL")) {
+	if (ctrlRequest("RECONFIGURE") < 0) {
 		// No tr() here, guess will never happens, but if I want an english hint
 		logHint("Failed to reload the configuration");
 		logHint("Please send a bug report how that happens");
