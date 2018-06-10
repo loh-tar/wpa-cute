@@ -466,7 +466,7 @@ void Peers::add_stations()
 		return;
 
 	do {
-		reply[reply_len] = '\0';
+
 		QString info(reply);
 		char *txt = reply;
 		while (*txt != '\0' && *txt != '\n')
@@ -496,7 +496,6 @@ void Peers::add_single_station(const char *addr)
 	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0)
 		return;
 
-	reply[reply_len] = '\0';
 	QString info(reply);
 	char *txt = reply;
 	while (*txt != '\0' && *txt != '\n')
@@ -583,7 +582,6 @@ bool Peers::add_bss(const char *cmd)
 	reply_len = sizeof(reply) - 1;
 	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0)
 		return false;
-	reply[reply_len] = '\0';
 
 	QString bss(reply);
 	if (bss.isEmpty() || bss.startsWith("FAIL"))
@@ -684,7 +682,7 @@ void Peers::add_persistent(int id, const char *ssid, const char *bssid)
 	snprintf(cmd, sizeof(cmd), "GET_NETWORK %d mode", id);
 	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0)
 		return;
-	reply[reply_len] = '\0';
+
 	mode = atoi(reply);
 
 	QString name = ssid;
@@ -722,7 +720,6 @@ void Peers::add_persistent_groups()
 	if (wpagui->ctrlRequest("LIST_NETWORKS", buf, &len) < 0)
 		return;
 
-	buf[len] = '\0';
 	start = strchr(buf, '\n');
 	if (start == NULL)
 		return;
@@ -1068,7 +1065,7 @@ void Peers::event_notify(WpaMsg msg)
 		reply_len = sizeof(reply) - 1;
 		if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0)
 			return;
-		reply[reply_len] = '\0';
+
 		QString name;
 		char *pos = strrchr(reply, '"');
 		if (pos && reply[0] == '"') {
@@ -1464,7 +1461,6 @@ void Peers::ctx_p2p_display_pin()
 		msg.exec();
 		return;
 	}
-	reply[reply_len] = '\0';
 	QMessageBox::information(this,
 				 tr("PIN for ") + ctx_item->text(),
 				 tr("Enter the following PIN on the\n"
@@ -1493,7 +1489,6 @@ void Peers::ctx_p2p_display_pin_pd()
 		msg.exec();
 		return;
 	}
-	reply[reply_len] = '\0';
 	QMessageBox::information(this,
 				 tr("PIN for ") + ctx_item->text(),
 				 tr("Enter the following PIN on the\n"
@@ -1808,7 +1803,6 @@ void Peers::ctx_p2p_show_passphrase()
 		msg.setText("Failed to get P2P group passphrase.");
 		msg.exec();
 	} else {
-		reply[reply_len] = '\0';
 		QMessageBox::information(this, tr("Passphrase"),
 					 tr("P2P group passphrase:\n") +
 					 reply);

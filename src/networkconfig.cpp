@@ -435,7 +435,7 @@ int NetworkConfig::setNetworkParam(int id, const char *field,
 	size_t reply_len;
 	snprintf(cmd, sizeof(cmd), "SET_NETWORK %d %s %s%s%s",
 		 id, field, quote ? "\"" : "", value, quote ? "\"" : "");
-	reply_len = sizeof(reply);
+	reply_len = sizeof(reply) - 1;
 	wpagui->ctrlRequest(cmd, reply, &reply_len);
 	return strncmp(reply, "OK", 2) == 0 ? 0 : -1;
 }
@@ -522,7 +522,6 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	reply_len = sizeof(reply) - 1;
 	if (wpagui->ctrlRequest(cmd, reply, &reply_len) >= 0 &&
 	    reply_len >= 2 && reply[0] == '"') {
-		reply[reply_len] = '\0';
 		pos = strchr(reply + 1, '"');
 		if (pos)
 			*pos = '\0';
@@ -533,7 +532,6 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	reply_len = sizeof(reply) - 1;
 	int wpa = 0;
 	if (wpagui->ctrlRequest(cmd, reply, &reply_len) >= 0) {
-		reply[reply_len] = '\0';
 		if (strstr(reply, "RSN") || strstr(reply, "WPA2"))
 			wpa = 2;
 		else if (strstr(reply, "WPA"))
@@ -544,7 +542,6 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	snprintf(cmd, sizeof(cmd), "GET_NETWORK %d key_mgmt", network_id);
 	reply_len = sizeof(reply) - 1;
 	if (wpagui->ctrlRequest(cmd, reply, &reply_len) >= 0) {
-		reply[reply_len] = '\0';
 		authSelect->setToolTip(curSetting + reply);
 		if (strstr(reply, "WPA-PSK WPA-EAP")) {
 			auth = AUTH_DEFAULTS;
@@ -563,7 +560,6 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	snprintf(cmd, sizeof(cmd), "GET_NETWORK %d pairwise", network_id);
 	reply_len = sizeof(reply) - 1;
 	if (wpagui->ctrlRequest(cmd, reply, &reply_len) >= 0) {
-		reply[reply_len] = '\0';
 		encrSelect->setToolTip(curSetting + reply);
 		if (strstr(reply, "CCMP TKIP"))
 			encr = 2;
@@ -582,7 +578,6 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	reply_len = sizeof(reply) - 1;
 	res = wpagui->ctrlRequest(cmd, reply, &reply_len);
 	if (res >= 0 && reply_len >= 2 && reply[0] == '"') {
-		reply[reply_len] = '\0';
 		pos = strchr(reply + 1, '"');
 		if (pos)
 			*pos = '\0';
@@ -595,7 +590,6 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	reply_len = sizeof(reply) - 1;
 	if (wpagui->ctrlRequest(cmd, reply, &reply_len) >= 0 &&
 	    reply_len >= 2 && reply[0] == '"') {
-		reply[reply_len] = '\0';
 		pos = strchr(reply + 1, '"');
 		if (pos)
 			*pos = '\0';
@@ -606,7 +600,6 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	reply_len = sizeof(reply) - 1;
 	res = wpagui->ctrlRequest(cmd, reply, &reply_len);
 	if (res >= 0 && reply_len >= 2 && reply[0] == '"') {
-		reply[reply_len] = '\0';
 		pos = strchr(reply + 1, '"');
 		if (pos)
 			*pos = '\0';
@@ -619,7 +612,6 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	reply_len = sizeof(reply) - 1;
 	if (wpagui->ctrlRequest(cmd, reply, &reply_len) >= 0 &&
 	    reply_len >= 2 && reply[0] == '"') {
-		reply[reply_len] = '\0';
 		pos = strchr(reply + 1, '"');
 		if (pos)
 			*pos = '\0';
@@ -631,7 +623,6 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	reply_len = sizeof(reply) - 1;
 	if (wpagui->ctrlRequest(cmd, reply, &reply_len) >= 0 &&
 	    reply_len >= 1) {
-		reply[reply_len] = '\0';
 		for (i = 0; i < eapSelect->count(); i++) {
 			if (eapSelect->itemText(i).compare(reply) == 0) {
 				eapSelect->setCurrentIndex(i);
@@ -722,7 +713,6 @@ void NetworkConfig::paramsFromConfig(int network_id)
 		reply_len = sizeof(reply) - 1;
 		res = wpagui->ctrlRequest(cmd, reply, &reply_len);
 		if (res >= 0 && reply_len >= 2 && reply[0] == '"') {
-			reply[reply_len] = '\0';
 			pos = strchr(reply + 1, '"');
 			if (pos)
 				*pos = '\0';
@@ -748,7 +738,6 @@ void NetworkConfig::paramsFromConfig(int network_id)
 			 network_id);
 		reply_len = sizeof(reply) - 1;
 		if (wpagui->ctrlRequest(cmd, reply, &reply_len) >= 0) {
-			reply[reply_len] = '\0';
 			if (strcmp(reply, "SHARED") == 0)
 				auth = AUTH_NONE_WEP_SHARED;
 		}
@@ -758,7 +747,6 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	reply_len = sizeof(reply) - 1;
 	if (wpagui->ctrlRequest(cmd, reply, &reply_len) >= 0 && reply_len >= 1)
 	{
-		reply[reply_len] = '\0';
 		switch (atoi(reply)) {
 		case 0:
 			wep0Radio->setChecked(true);
@@ -779,7 +767,6 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	reply_len = sizeof(reply) - 1;
 	if (wpagui->ctrlRequest(cmd, reply, &reply_len) >= 0 &&
 	    reply_len >= 2 && reply[0] == '"') {
-		reply[reply_len] = '\0';
 		pos = strchr(reply + 1, '"');
 		if (pos)
 			*pos = '\0';
@@ -790,7 +777,6 @@ void NetworkConfig::paramsFromConfig(int network_id)
 	reply_len = sizeof(reply) - 1;
 	if (wpagui->ctrlRequest(cmd, reply, &reply_len) >= 0 && reply_len >= 1)
 	{
-		reply[reply_len] = '\0';
 		prioritySpinBox->setValue(atoi(reply));
 	}
 
@@ -832,7 +818,6 @@ void NetworkConfig::getEapCapa()
 	reply_len = sizeof(reply) - 1;
 	if (wpagui->ctrlRequest("GET_CAPABILITY eap", reply, &reply_len) < 0)
 		return;
-	reply[reply_len] = '\0';
 
 	QString res(reply);
 	QStringList types = res.split(QChar(' '));

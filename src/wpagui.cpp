@@ -413,7 +413,7 @@ int WpaGui::openCtrlConnection(const char *ifname)
 
 		free(ctrl_iface);
 		ctrl_iface = NULL;
-
+		// FIXME Possible to use ctrl_conn? See commit which introduce this line
 		ctrl = wpa_ctrl_open(NULL);
 		if (ctrl) {
 			len = sizeof(buf) - 1;
@@ -565,9 +565,7 @@ int WpaGui::openCtrlConnection(const char *ifname)
 	adapterSelect->setCurrentIndex(0);
 
 	len = sizeof(buf) - 1;
-	if (wpa_ctrl_request(ctrl_conn, "INTERFACES", 10, buf, &len, NULL) >=
-	    0) {
-		buf[len] = '\0';
+	if (ctrlRequest("INTERFACES", buf, &len) >= 0) {
 		pos = buf;
 		while (*pos) {
 			pos2 = strchr(pos, '\n');
@@ -583,10 +581,7 @@ int WpaGui::openCtrlConnection(const char *ifname)
 	}
 
 	len = sizeof(buf) - 1;
-	if (wpa_ctrl_request(ctrl_conn, "GET_CAPABILITY eap", 18, buf, &len,
-			     NULL) >= 0) {
-		buf[len] = '\0';
-
+	if (ctrlRequest("GET_CAPABILITY eap", buf, &len) >= 0) {
 		QString res(buf);
 		QStringList types = res.split(QChar(' '));
 		bool wps = types.contains("WSC");
@@ -606,12 +601,15 @@ int WpaGui::ctrlRequest(const char *cmd, char *buf, size_t *buflen)
 
 	if (ctrl_conn == NULL)
 		return -3;
+
 	ret = wpa_ctrl_request(ctrl_conn, cmd, strlen(cmd), buf, buflen, NULL);
+
 	if (ret == -2)
 		debug("'%s' command timed out.", cmd);
 	else if (ret < 0)
 		debug("'%s' command failed.", cmd);
 
+	buf[*buflen] = '\0';
 	return ret;
 }
 
@@ -865,8 +863,6 @@ void WpaGui::updateStatus(bool changed/* = true*/)
 	}
 	debug(" updateStatus >>>>>>");
 
-	buf[len] = '\0';
-
 	char *pairwise_cipher = NULL, *group_cipher = NULL;
 	char *mode = NULL;
 
@@ -981,7 +977,6 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 		return;
 
 	debug(" updateNetworks() >>>>");
-	buf[len] = '\0';
 	start = strchr(buf, '\n');
 	if (start == NULL)
 		return;
@@ -1215,7 +1210,7 @@ void WpaGui::helpAbout()
 void WpaGui::disconnReconnect()
 {
 	char reply[10];
-	size_t reply_len = sizeof(reply);
+	size_t reply_len = sizeof(reply) - 1;
 
 	disconReconAction->setEnabled(false);
 
@@ -1373,7 +1368,7 @@ void WpaGui::ping()
 void WpaGui::updateSignalMeter()
 {
 	char reply[128];
-	size_t reply_len = sizeof(reply);
+	size_t reply_len = sizeof(reply) - 1;
 	char *rssi;
 	int rssi_value;
 
@@ -1675,7 +1670,7 @@ void WpaGui::requestNetworkChange(const QString &req, const QString &sel)
 {
 	QString cmd(sel);
 	char reply[10];
-	size_t reply_len = sizeof(reply);
+	size_t reply_len = sizeof(reply) - 1;
 
 	if (cmd.compare("all") != 0) {
 		if (!QRegExp("^\\d+").exactMatch(cmd)) {
@@ -1799,7 +1794,6 @@ int WpaGui::getNetworkDisabled(const QString &sel)
 
 	if (ctrlRequest(cmd.toLocal8Bit().constData(), reply, &reply_len) >= 0
 	    && reply_len >= 1) {
-		reply[reply_len] = '\0';
 		if (!str_match(reply, "FAIL"))
 			return atoi(reply);
 	}
@@ -1837,8 +1831,6 @@ void WpaGui::saveConfig()
 	len = sizeof(buf) - 1;
 	ctrlRequest("SAVE_CONFIG", buf, &len);
 
-	buf[len] = '\0';
-
 	if (str_match(buf, "FAIL"))
 		QMessageBox::warning(
 			this, tr("Failed to save configuration"),
@@ -1861,8 +1853,6 @@ void WpaGui::reloadConfig()
 
 	len = sizeof(buf) - 1;
 	ctrlRequest("RECONFIGURE", buf, &len);
-
-	buf[len] = '\0';
 
 	if (str_match(buf, "FAIL")) {
 		// No tr() here, guess will never happens, but if I want an english hint
@@ -2230,7 +2220,7 @@ void WpaGui::tabChanged(int index)
 void WpaGui::wpsPbc()
 {
 	char reply[20];
-	size_t reply_len = sizeof(reply);
+	size_t reply_len = sizeof(reply) - 1;
 
 	if (ctrlRequest("WPS_PBC", reply, &reply_len) < 0)
 		return;
@@ -2256,8 +2246,6 @@ void WpaGui::wpsGeneratePin()
 
 	if (ctrlRequest("WPS_PIN any", reply, &reply_len) < 0)
 		return;
-
-	reply[reply_len] = '\0';
 
 	wpsPinEdit->setText(reply);
 	wpsPinEdit->setEnabled(true);
@@ -2290,7 +2278,7 @@ void WpaGui::wpsApPinChanged(const QString &text)
 void WpaGui::wpsApPin()
 {
 	char reply[20];
-	size_t reply_len = sizeof(reply);
+	size_t reply_len = sizeof(reply) - 1;
 
 	QString cmd("WPS_REG " + bssFromScan + " " + wpsApPinEdit->text());
 	if (ctrlRequest(cmd.toLocal8Bit().constData(), reply, &reply_len) < 0)

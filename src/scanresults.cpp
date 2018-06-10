@@ -72,7 +72,6 @@ void ScanResults::updateResults()
 		reply_len = sizeof(reply) - 1;
 		if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0)
 			break;
-		reply[reply_len] = '\0';
 
 		QString bss(reply);
 		if (bss.isEmpty() || bss.startsWith("FAIL"))
