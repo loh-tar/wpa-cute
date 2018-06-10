@@ -81,8 +81,6 @@ int UserDataRequest::setParams(WpaGui *_wpagui, const char *reqMsg)
 
 void UserDataRequest::sendReply()
 {
-	size_t len(10); char buf[len];
-
 	if (wpagui == NULL) {
 		reject();
 		return;
@@ -91,6 +89,6 @@ void UserDataRequest::sendReply()
 	QString cmd = QString(WPA_CTRL_RSP) + field + '-' +
 		QString::number(networkid) + ':' +
 		queryEdit->text();
-	wpagui->ctrlRequest(cmd, buf, len);
+	wpagui->ctrlRequest(cmd);
 	accept();
 }

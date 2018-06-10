@@ -615,6 +615,13 @@ int WpaGui::ctrlRequest(const QString &cmd, char *buf, const size_t buflen)
 }
 
 
+int WpaGui::ctrlRequest(const QString &cmd)
+{
+	size_t len(100); char buf[len];
+	return ctrlRequest(cmd, buf, len);
+}
+
+
 void WpaGui::wpaStateTranslate(const char *state)
 {
 	if (!strcmp(state, "DISCONNECTED")) {
@@ -1209,18 +1216,16 @@ void WpaGui::helpAbout()
 
 void WpaGui::disconnReconnect()
 {
-	size_t len(10); char buf[len];
-
 	disconReconAction->setEnabled(false);
 
 	if (WpaDisconnected == wpaState) {
 		logHint("User requests network reconnect");
-		ctrlRequest("REASSOCIATE", buf, len);
+		ctrlRequest("REASSOCIATE");
 	} else if (WpaCompleted == wpaState || WpaScanning  == wpaState ||
 		       WpaInactive == wpaState)
 	{
 		logHint("User requests network disconnect");
-		ctrlRequest("DISCONNECT", buf, len);
+		ctrlRequest("DISCONNECT");
 		stopWpsRun(false);
 	}
 
@@ -1264,8 +1269,6 @@ void WpaGui::eventHistory()
 
 void WpaGui::ping()
 {
-	char  buf[10];
-	size_t len(sizeof(buf) - 1);
 	static WpaStateType oldState(WpaUnknown);
 
 	debug("PING! >>>>> state: %d / %d",oldState, wpaState);
@@ -1333,7 +1336,7 @@ void WpaGui::ping()
 			break;
 		case WpaAssociated:
 		case WpaCompleted:
-			if (ctrlRequest("PING", buf, len) < 0) {
+			if (ctrlRequest("PING") < 0) {
 				logHint(tr("PING failed - trying to reconnect"));
 				dog = PomDog;
 				setState(WpaUnknown);
@@ -1667,7 +1670,6 @@ void WpaGui::disableNetwork(const QString &sel)
 void WpaGui::requestNetworkChange(const QString &req, const QString &sel)
 {
 	QString cmd(sel);
-	size_t len(10); char buf[len];
 
 	if (cmd.compare("all") != 0) {
 		if (!QRegExp("^\\d+").exactMatch(cmd)) {
@@ -1678,7 +1680,7 @@ void WpaGui::requestNetworkChange(const QString &req, const QString &sel)
 		}
 	}
 	cmd.prepend(req);
-	ctrlRequest(cmd, buf, len);
+	ctrlRequest(cmd);
 
 	updateNetworks();
 	reloadSaveBox->show();
@@ -2211,9 +2213,7 @@ void WpaGui::tabChanged(int index)
 
 void WpaGui::wpsPbc()
 {
-	size_t len(20); char buf[len];
-
-	if (ctrlRequest("WPS_PBC", buf, len) < 0)
+	if (ctrlRequest("WPS_PBC") < 0)
 		return;
 
 	wpsPinEdit->setEnabled(false);
@@ -2267,10 +2267,8 @@ void WpaGui::wpsApPinChanged(const QString &text)
 
 void WpaGui::wpsApPin()
 {
-	size_t len(20); char buf[len];
-
 	QString cmd("WPS_REG " + bssFromScan + " " + wpsApPinEdit->text());
-	if (ctrlRequest(cmd, buf, len) < 0)
+	if (ctrlRequest(cmd) < 0)
 		return;
 
 	logHint(tr("Waiting for AP/Enrollee"));

@@ -113,12 +113,10 @@ void ScanResults::updateResults()
 
 void ScanResults::scanRequest()
 {
-	size_t len(10); char buf[len];
-    
 	if (wpagui == NULL)
 		return;
     
-	wpagui->ctrlRequest("SCAN", buf, len);
+	wpagui->ctrlRequest("SCAN");
 }
 
 
