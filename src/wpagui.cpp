@@ -363,8 +363,8 @@ int WpaGui::openCtrlConnection(const char *ifname)
 {
 	char *cfile;
 	int flen;
-	char buf[2048], *pos, *pos2;
-	size_t len;
+	size_t len(2048); char buf[len];
+	char *pos, *pos2;
 
 	if (ifname) {
 		if (ifname != ctrl_iface) {
@@ -418,7 +418,7 @@ int WpaGui::openCtrlConnection(const char *ifname)
 		if (ctrl) {
 			len = sizeof(buf) - 1;
 			ret = wpa_ctrl_request(ctrl, "INTERFACES", 10, buf,
-					       &len, NULL);
+					       len, NULL);
 			if (ret >= 0) {
 				tally.insert(connectedToService);
 				buf[len] = '\0';
@@ -564,8 +564,7 @@ int WpaGui::openCtrlConnection(const char *ifname)
 	adapterSelect->addItem(ctrl_iface);
 	adapterSelect->setCurrentIndex(0);
 
-	len = sizeof(buf) - 1;
-	if (ctrlRequest("INTERFACES", buf, &len) >= 0) {
+	if (ctrlRequest("INTERFACES", buf, len) >= 0) {
 		pos = buf;
 		while (*pos) {
 			pos2 = strchr(pos, '\n');
@@ -580,8 +579,7 @@ int WpaGui::openCtrlConnection(const char *ifname)
 		}
 	}
 
-	len = sizeof(buf) - 1;
-	if (ctrlRequest("GET_CAPABILITY eap", buf, &len) >= 0) {
+	if (ctrlRequest("GET_CAPABILITY eap", buf, len) >= 0) {
 		QString res(buf);
 		QStringList types = res.split(QChar(' '));
 		bool wps = types.contains("WSC");
@@ -595,23 +593,24 @@ int WpaGui::openCtrlConnection(const char *ifname)
 }
 
 
-int WpaGui::ctrlRequest(const QString &cmd, char *buf, size_t *buflen)
+int WpaGui::ctrlRequest(const QString &cmd, char *buf, const size_t buflen)
 {
 	int ret;
+	size_t len = buflen;
 
 	if (ctrl_conn == NULL)
 		return -3;
 
 	ret = wpa_ctrl_request(ctrl_conn, cmd.toLocal8Bit().constData()
 	                     , strlen(cmd.toLocal8Bit().constData())
-	                     , buf, buflen, NULL);
+	                     , buf, &len, NULL);
 
 	if (ret == -2)
 		debug("'%s' command timed out.", cmd.toLocal8Bit().constData());
 	else if (ret < 0)
 		debug("'%s' command failed.", cmd.toLocal8Bit().constData());
 
-	buf[*buflen] = '\0';
+	buf[len] = '\0';
 	return ret;
 }
 
@@ -812,8 +811,8 @@ void WpaGui::setState(const WpaStateType state)
 
 void WpaGui::updateStatus(bool changed/* = true*/)
 {
-	char buf[2048], *start, *end, *pos;
-	size_t len(sizeof(buf) - 1);
+	size_t len(2048); char buf[len];
+	char *start, *end, *pos;
 
 	debug(" updateStatus ??");
 
@@ -839,7 +838,7 @@ void WpaGui::updateStatus(bool changed/* = true*/)
 	}
 	debug(" updateStatus >>>>");
 
-	if (ctrlRequest("STATUS", buf, &len) < 0) {
+	if (ctrlRequest("STATUS", buf, len) < 0) {
 		logHint(tr("Could not get status from wpa_supplicant"));
 		updateTrayToolTip(tr("No status information"));
 #ifndef CONFIG_NATIVE_WINDOWS
@@ -949,8 +948,8 @@ void WpaGui::updateStatus(bool changed/* = true*/)
 
 void WpaGui::updateNetworks(bool changed/* = true*/)
 {
-	char buf[4096], *start, *end, *id, *ssid, *bssid, *flags;
-	size_t len;
+	size_t len(4096); char buf[len];
+	char *start, *end, *id, *ssid, *bssid, *flags;
 	int was_selected = -1;
 
 	debug(" updateNetworks() ??");
@@ -974,8 +973,7 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 		return;
 
 	debug(" updateNetworks() >>");
-	len = sizeof(buf) - 1;
-	if (ctrlRequest("LIST_NETWORKS", buf, &len) < 0)
+	if (ctrlRequest("LIST_NETWORKS", buf, len) < 0)
 		return;
 
 	debug(" updateNetworks() >>>>");
@@ -1211,19 +1209,18 @@ void WpaGui::helpAbout()
 
 void WpaGui::disconnReconnect()
 {
-	char reply[10];
-	size_t reply_len = sizeof(reply) - 1;
+	size_t len(10); char buf[len];
 
 	disconReconAction->setEnabled(false);
 
 	if (WpaDisconnected == wpaState) {
 		logHint("User requests network reconnect");
-		ctrlRequest("REASSOCIATE", reply, &reply_len);
+		ctrlRequest("REASSOCIATE", buf, len);
 	} else if (WpaCompleted == wpaState || WpaScanning  == wpaState ||
 		       WpaInactive == wpaState)
 	{
 		logHint("User requests network disconnect");
-		ctrlRequest("DISCONNECT", reply, &reply_len);
+		ctrlRequest("DISCONNECT", buf, len);
 		stopWpsRun(false);
 	}
 
@@ -1336,7 +1333,7 @@ void WpaGui::ping()
 			break;
 		case WpaAssociated:
 		case WpaCompleted:
-			if (ctrlRequest("PING", buf, &len) < 0) {
+			if (ctrlRequest("PING", buf, len) < 0) {
 				logHint(tr("PING failed - trying to reconnect"));
 				dog = PomDog;
 				setState(WpaUnknown);
@@ -1369,21 +1366,20 @@ void WpaGui::ping()
 
 void WpaGui::updateSignalMeter()
 {
-	char reply[128];
-	size_t reply_len = sizeof(reply) - 1;
+	size_t len(128); char buf[len];
 	char *rssi;
 	int rssi_value;
 
 	if (WpaCompleted != wpaState)
 		return;
 
-	ctrlRequest("SIGNAL_POLL", reply, &reply_len);
+	ctrlRequest("SIGNAL_POLL", buf, len);
 
 	/* In order to eliminate signal strength fluctuations, try
 	 * to obtain averaged RSSI value in the first place. */
-	if ((rssi = strstr(reply, "AVG_RSSI=")) != NULL)
+	if ((rssi = strstr(buf, "AVG_RSSI=")) != NULL)
 		rssi_value = atoi(&rssi[sizeof("AVG_RSSI")]);
-	else if ((rssi = strstr(reply, "RSSI=")) != NULL)
+	else if ((rssi = strstr(buf, "RSSI=")) != NULL)
 		rssi_value = atoi(&rssi[sizeof("RSSI")]);
 	else {
 		logHint(tr("Failed to get RSSI value"));
@@ -1671,8 +1667,7 @@ void WpaGui::disableNetwork(const QString &sel)
 void WpaGui::requestNetworkChange(const QString &req, const QString &sel)
 {
 	QString cmd(sel);
-	char reply[10];
-	size_t reply_len = sizeof(reply) - 1;
+	size_t len(10); char buf[len];
 
 	if (cmd.compare("all") != 0) {
 		if (!QRegExp("^\\d+").exactMatch(cmd)) {
@@ -1683,7 +1678,7 @@ void WpaGui::requestNetworkChange(const QString &req, const QString &sel)
 		}
 	}
 	cmd.prepend(req);
-	ctrlRequest(cmd, reply, &reply_len);
+	ctrlRequest(cmd, buf, len);
 
 	updateNetworks();
 	reloadSaveBox->show();
@@ -1781,8 +1776,7 @@ void WpaGui::removeAllNetworks()
 int WpaGui::getNetworkDisabled(const QString &sel)
 {
 	QString cmd(sel);
-	char reply[10];
-	size_t reply_len = sizeof(reply) - 1;
+	size_t len(10); char buf[len];
 
 	if (cmd.compare("all") != 0) {
 		if (!QRegExp("^\\d+").exactMatch(cmd)) {
@@ -1794,10 +1788,10 @@ int WpaGui::getNetworkDisabled(const QString &sel)
 	cmd.prepend("GET_NETWORK ");
 	cmd.append(" disabled");
 
-	if (ctrlRequest(cmd, reply, &reply_len) >= 0
-	    && reply_len >= 1) {
-		if (!str_match(reply, "FAIL"))
-			return atoi(reply);
+	if (ctrlRequest(cmd, buf, len) >= 0
+	    && len >= 1) {
+		if (!str_match(buf, "FAIL"))
+			return atoi(buf);
 	}
 
 	return -1;
@@ -1827,11 +1821,9 @@ void WpaGui::disEnableNetwork()
 
 void WpaGui::saveConfig()
 {
-	char buf[10];
-	size_t len;
+	size_t len(10); char buf[len];
 
-	len = sizeof(buf) - 1;
-	ctrlRequest("SAVE_CONFIG", buf, &len);
+	ctrlRequest("SAVE_CONFIG", buf, len);
 
 	if (str_match(buf, "FAIL"))
 		QMessageBox::warning(
@@ -1850,11 +1842,9 @@ void WpaGui::saveConfig()
 
 void WpaGui::reloadConfig()
 {
-	char buf[10];
-	size_t len;
+	size_t len(10); char buf[len];
 
-	len = sizeof(buf) - 1;
-	ctrlRequest("RECONFIGURE", buf, &len);
+	ctrlRequest("RECONFIGURE", buf, len);
 
 	if (str_match(buf, "FAIL")) {
 		// No tr() here, guess will never happens, but if I want an english hint
@@ -2221,10 +2211,9 @@ void WpaGui::tabChanged(int index)
 
 void WpaGui::wpsPbc()
 {
-	char reply[20];
-	size_t reply_len = sizeof(reply) - 1;
+	size_t len(20); char buf[len];
 
-	if (ctrlRequest("WPS_PBC", reply, &reply_len) < 0)
+	if (ctrlRequest("WPS_PBC", buf, len) < 0)
 		return;
 
 	wpsPinEdit->setEnabled(false);
@@ -2243,13 +2232,12 @@ void WpaGui::wpsPbc()
 
 void WpaGui::wpsGeneratePin()
 {
-	char reply[20];
-	size_t reply_len = sizeof(reply) - 1;
+	size_t len(20); char buf[len];
 
-	if (ctrlRequest("WPS_PIN any", reply, &reply_len) < 0)
+	if (ctrlRequest("WPS_PIN any", buf, len) < 0)
 		return;
 
-	wpsPinEdit->setText(reply);
+	wpsPinEdit->setText(buf);
 	wpsPinEdit->setEnabled(true);
 	wpsInstructions->setText(tr("Enter the generated PIN into the Registrar "
 				 "(either the internal one in the AP or an "
@@ -2279,11 +2267,10 @@ void WpaGui::wpsApPinChanged(const QString &text)
 
 void WpaGui::wpsApPin()
 {
-	char reply[20];
-	size_t reply_len = sizeof(reply) - 1;
+	size_t len(20); char buf[len];
 
 	QString cmd("WPS_REG " + bssFromScan + " " + wpsApPinEdit->text());
-	if (ctrlRequest(cmd, reply, &reply_len) < 0)
+	if (ctrlRequest(cmd, buf, len) < 0)
 		return;
 
 	logHint(tr("Waiting for AP/Enrollee"));

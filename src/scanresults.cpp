@@ -56,8 +56,7 @@ void ScanResults::setWpaGui(WpaGui *_wpagui)
 
 void ScanResults::updateResults()
 {
-	char reply[2048];
-	size_t reply_len;
+	size_t len(2048); char buf[len];
 	int index;
 	char cmd[20];
 
@@ -69,11 +68,10 @@ void ScanResults::updateResults()
 		if (index > 1000)
 			break;
 
-		reply_len = sizeof(reply) - 1;
-		if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0)
+		if (wpagui->ctrlRequest(cmd, buf, len) < 0)
 			break;
 
-		QString bss(reply);
+		QString bss(buf);
 		if (bss.isEmpty() || bss.startsWith("FAIL"))
 			break;
 
@@ -115,13 +113,12 @@ void ScanResults::updateResults()
 
 void ScanResults::scanRequest()
 {
-	char reply[10];
-	size_t reply_len = sizeof(reply);
+	size_t len(10); char buf[len];
     
 	if (wpagui == NULL)
 		return;
     
-	wpagui->ctrlRequest("SCAN", reply, &reply_len);
+	wpagui->ctrlRequest("SCAN", buf, len);
 }
 
 

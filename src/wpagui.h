@@ -90,7 +90,7 @@ public:
 	       Qt::WindowFlags fl = 0);
 	~WpaGui();
 
-	virtual int ctrlRequest(const QString &cmd, char *buf, size_t *buflen);
+	virtual int ctrlRequest(const QString &cmd, char *buf, const size_t buflen);
 	virtual void editNetwork(const QString &sel);
 	virtual void removeNetwork(const QString &sel);
 	virtual void enableNetwork(const QString &sel);

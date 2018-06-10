@@ -321,8 +321,7 @@ void Peers::enter_pin()
 		return;
 
 	char cmd[100];
-	char reply[100];
-	size_t reply_len;
+	size_t len(100); char buf[len];
 
 	if (peer_type == PEER_TYPE_WPS_ER_ENROLLEE) {
 		snprintf(cmd, sizeof(cmd), "WPS_ER_PIN %s %s %s",
@@ -334,8 +333,7 @@ void Peers::enter_pin()
 			 addr.toLocal8Bit().constData(),
 			 input.get_string().toLocal8Bit().constData());
 	}
-	reply_len = sizeof(reply) - 1;
-	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0) {
+	if (wpagui->ctrlRequest(cmd, buf, len) < 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
 		msg.setText(tr("Failed to set the WPS PIN."));
@@ -352,11 +350,10 @@ void Peers::ctx_refresh()
 
 void Peers::ctx_p2p_start()
 {
-	char reply[20];
-	size_t reply_len;
-	reply_len = sizeof(reply) - 1;
-	if (wpagui->ctrlRequest("P2P_FIND", reply, &reply_len) < 0 ||
-	    memcmp(reply, "FAIL", 4) == 0) {
+	size_t len(20); char buf[len];
+
+	if (wpagui->ctrlRequest("P2P_FIND", buf, len) < 0 ||
+	    memcmp(buf, "FAIL", 4) == 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
 		msg.setText("Failed to start P2P discovery.");
@@ -367,20 +364,18 @@ void Peers::ctx_p2p_start()
 
 void Peers::ctx_p2p_stop()
 {
-	char reply[20];
-	size_t reply_len;
-	reply_len = sizeof(reply) - 1;
-	wpagui->ctrlRequest("P2P_STOP_FIND", reply, &reply_len);
+	size_t len(20); char buf[len];
+
+	wpagui->ctrlRequest("P2P_STOP_FIND", buf, len);
 }
 
 
 void Peers::ctx_p2p_listen()
 {
-	char reply[20];
-	size_t reply_len;
-	reply_len = sizeof(reply) - 1;
-	if (wpagui->ctrlRequest("P2P_LISTEN 3600", reply, &reply_len) < 0 ||
-	    memcmp(reply, "FAIL", 4) == 0) {
+	size_t len(20); char buf[len];
+
+	if (wpagui->ctrlRequest("P2P_LISTEN 3600", buf, len) < 0 ||
+	    memcmp(buf, "FAIL", 4) == 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
 		msg.setText("Failed to start P2P listen.");
@@ -391,11 +386,10 @@ void Peers::ctx_p2p_listen()
 
 void Peers::ctx_p2p_start_group()
 {
-	char reply[20];
-	size_t reply_len;
-	reply_len = sizeof(reply) - 1;
-	if (wpagui->ctrlRequest("P2P_GROUP_ADD", reply, &reply_len) < 0 ||
-	    memcmp(reply, "FAIL", 4) == 0) {
+	size_t len(20); char buf[len];
+
+	if (wpagui->ctrlRequest("P2P_GROUP_ADD", buf, len) < 0 ||
+	    memcmp(buf, "FAIL", 4) == 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
 		msg.setText("Failed to start P2P group.");
@@ -456,53 +450,48 @@ void Peers::add_station(QString info)
 
 void Peers::add_stations()
 {
-	char reply[2048];
-	size_t reply_len;
+	size_t len(2048); char buf[len];
 	char cmd[30];
 	int res;
 
-	reply_len = sizeof(reply) - 1;
-	if (wpagui->ctrlRequest("STA-FIRST", reply, &reply_len) < 0)
+	if (wpagui->ctrlRequest("STA-FIRST", buf, len) < 0)
 		return;
 
 	do {
 
-		QString info(reply);
-		char *txt = reply;
+		QString info(buf);
+		char *txt = buf;
 		while (*txt != '\0' && *txt != '\n')
 			txt++;
 		*txt++ = '\0';
-		if (strncmp(reply, "FAIL", 4) == 0 ||
-		    strncmp(reply, "UNKNOWN", 7) == 0)
+		if (strncmp(buf, "FAIL", 4) == 0 ||
+		    strncmp(buf, "UNKNOWN", 7) == 0)
 			break;
 
 		add_station(info);
 
-		reply_len = sizeof(reply) - 1;
-		snprintf(cmd, sizeof(cmd), "STA-NEXT %s", reply);
-		res = wpagui->ctrlRequest(cmd, reply, &reply_len);
+		snprintf(cmd, sizeof(cmd), "STA-NEXT %s", buf);
+		res = wpagui->ctrlRequest(cmd, buf, len);
 	} while (res >= 0);
 }
 
 
 void Peers::add_single_station(const char *addr)
 {
-	char reply[2048];
-	size_t reply_len;
+	size_t len(2048); char buf[len];
 	char cmd[30];
 
-	reply_len = sizeof(reply) - 1;
 	snprintf(cmd, sizeof(cmd), "STA %s", addr);
-	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0)
+	if (wpagui->ctrlRequest(cmd, buf, len) < 0)
 		return;
 
-	QString info(reply);
-	char *txt = reply;
+	QString info(buf);
+	char *txt = buf;
 	while (*txt != '\0' && *txt != '\n')
 		txt++;
 	*txt++ = '\0';
-	if (strncmp(reply, "FAIL", 4) == 0 ||
-	    strncmp(reply, "UNKNOWN", 7) == 0)
+	if (strncmp(buf, "FAIL", 4) == 0 ||
+	    strncmp(buf, "UNKNOWN", 7) == 0)
 		return;
 
 	add_station(info);
@@ -573,17 +562,15 @@ void Peers::remove_bss(int id)
 
 bool Peers::add_bss(const char *cmd)
 {
-	char reply[2048];
-	size_t reply_len;
+	size_t len(2048); char buf[len];
 
 	if (hide_ap)
 		return false;
 
-	reply_len = sizeof(reply) - 1;
-	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0)
+	if (wpagui->ctrlRequest(cmd, buf, len) < 0)
 		return false;
 
-	QString bss(reply);
+	QString bss(buf);
 	if (bss.isEmpty() || bss.startsWith("FAIL"))
 		return false;
 
@@ -675,15 +662,14 @@ void Peers::add_scan_results()
 void Peers::add_persistent(int id, const char *ssid, const char *bssid)
 {
 	char cmd[100];
-	char reply[100];
-	size_t reply_len;
+	size_t len(100); char buf[len];
 	int mode;
 
 	snprintf(cmd, sizeof(cmd), "GET_NETWORK %d mode", id);
-	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0)
+	if (wpagui->ctrlRequest(cmd, buf, len) < 0)
 		return;
 
-	mode = atoi(reply);
+	mode = atoi(buf);
 
 	QString name = ssid;
 	name = '[' + name + ']';
@@ -713,11 +699,10 @@ void Peers::add_persistent(int id, const char *ssid, const char *bssid)
 
 void Peers::add_persistent_groups()
 {
-	char buf[2048], *start, *end, *id, *ssid, *bssid, *flags;
-	size_t len;
+	size_t len(2048);
+	char buf[len], *start, *end, *id, *ssid, *bssid, *flags;
 
-	len = sizeof(buf) - 1;
-	if (wpagui->ctrlRequest("LIST_NETWORKS", buf, &len) < 0)
+	if (wpagui->ctrlRequest("LIST_NETWORKS", buf, len) < 0)
 		return;
 
 	start = strchr(buf, '\n');
@@ -766,9 +751,8 @@ void Peers::update_peers()
 	if (wpagui == NULL)
 		return;
 
-	char reply[20];
-	size_t replylen = sizeof(reply) - 1;
-	wpagui->ctrlRequest("WPS_ER_START", reply, &replylen);
+	size_t len(20); char buf[len];
+	wpagui->ctrlRequest("WPS_ER_START", buf, len);
 
 	add_stations();
 	add_scan_results();
@@ -1058,21 +1042,19 @@ void Peers::event_notify(WpaMsg msg)
 		int id = items[2].mid(11).toInt();
 
 		char cmd[100];
-		char reply[100];
-		size_t reply_len;
+		size_t len(100); char buf[len];
 
 		snprintf(cmd, sizeof(cmd), "GET_NETWORK %d ssid", id);
-		reply_len = sizeof(reply) - 1;
-		if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0)
+		if (wpagui->ctrlRequest(cmd, buf, len) < 0)
 			return;
 
 		QString name;
-		char *pos = strrchr(reply, '"');
-		if (pos && reply[0] == '"') {
+		char *pos = strrchr(buf, '"');
+		if (pos && buf[0] == '"') {
 			*pos = '\0';
-			name = reply + 1;
+			name = buf + 1;
 		} else
-			name = reply;
+			name = buf;
 
 		QStandardItem *item;
 		item = find_addr_type(addr, PEER_TYPE_P2P_INVITATION);
@@ -1347,13 +1329,13 @@ void Peers::ctx_p2p_connect()
 	if (method == SEL_METHOD_PIN_LOCAL_DISPLAY) {
 		arg = ctx_item->data(peer_role_selected_pin).toString();
 		char cmd[100];
-		char reply[100];
-		size_t reply_len;
+		size_t len(100); char buf[len];
+
 		snprintf(cmd, sizeof(cmd), "P2P_CONNECT %s %s display",
 			 addr.toLocal8Bit().constData(),
 			 arg.toLocal8Bit().constData());
-		reply_len = sizeof(reply) - 1;
-		if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0) {
+
+		if (wpagui->ctrlRequest(cmd, buf, len) < 0) {
 			QMessageBox msg;
 			msg.setIcon(QMessageBox::Warning);
 			msg.setText("Failed to initiate P2P connect.");
@@ -1381,13 +1363,13 @@ void Peers::ctx_p2p_connect()
 	}
 
 	char cmd[100];
-	char reply[100];
-	size_t reply_len;
+	size_t len(100); char buf[len];
+
 	snprintf(cmd, sizeof(cmd), "P2P_CONNECT %s %s",
 		 addr.toLocal8Bit().constData(),
 		 arg.toLocal8Bit().constData());
-	reply_len = sizeof(reply) - 1;
-	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0) {
+
+	if (wpagui->ctrlRequest(cmd, buf, len) < 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
 		msg.setText("Failed to initiate P2P connect.");
@@ -1405,12 +1387,12 @@ void Peers::ctx_p2p_req_pin()
 			  peer_role_requested_method);
 
 	char cmd[100];
-	char reply[100];
-	size_t reply_len;
+	size_t len(100); char buf[len];
+
 	snprintf(cmd, sizeof(cmd), "P2P_PROV_DISC %s display",
 		 addr.toLocal8Bit().constData());
-	reply_len = sizeof(reply) - 1;
-	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0) {
+
+	if (wpagui->ctrlRequest(cmd, buf, len) < 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
 		msg.setText(tr("Failed to request PIN from peer."));
@@ -1428,12 +1410,12 @@ void Peers::ctx_p2p_show_pin()
 			  peer_role_requested_method);
 
 	char cmd[100];
-	char reply[100];
-	size_t reply_len;
+	size_t len(100); char buf[len];
+
 	snprintf(cmd, sizeof(cmd), "P2P_PROV_DISC %s keypad",
 		 addr.toLocal8Bit().constData());
-	reply_len = sizeof(reply) - 1;
-	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0) {
+
+	if (wpagui->ctrlRequest(cmd, buf, len) < 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
 		msg.setText(tr("Failed to request peer to enter PIN."));
@@ -1449,12 +1431,12 @@ void Peers::ctx_p2p_display_pin()
 	QString addr = ctx_item->data(peer_role_address).toString();
 
 	char cmd[100];
-	char reply[100];
-	size_t reply_len;
+	size_t len(100); char buf[len];
+
 	snprintf(cmd, sizeof(cmd), "P2P_CONNECT %s pin",
 		 addr.toLocal8Bit().constData());
-	reply_len = sizeof(reply) - 1;
-	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0) {
+
+	if (wpagui->ctrlRequest(cmd, buf, len) < 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
 		msg.setText("Failed to initiate P2P connect.");
@@ -1464,7 +1446,7 @@ void Peers::ctx_p2p_display_pin()
 	QMessageBox::information(this,
 				 tr("PIN for ") + ctx_item->text(),
 				 tr("Enter the following PIN on the\n"
-				    "peer device: ") + reply);
+				    "peer device: ") + buf);
 }
 
 
@@ -1476,13 +1458,13 @@ void Peers::ctx_p2p_display_pin_pd()
 	QString arg = ctx_item->data(peer_role_selected_pin).toString();
 
 	char cmd[100];
-	char reply[100];
-	size_t reply_len;
+	size_t len(100); char buf[len];
+
 	snprintf(cmd, sizeof(cmd), "P2P_CONNECT %s %s display",
 		 addr.toLocal8Bit().constData(),
 		 arg.toLocal8Bit().constData());
-	reply_len = sizeof(reply) - 1;
-	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0) {
+
+	if (wpagui->ctrlRequest(cmd, buf, len) < 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
 		msg.setText("Failed to initiate P2P connect.");
@@ -1510,13 +1492,13 @@ void Peers::ctx_p2p_enter_pin()
 	arg = input.get_string();
 
 	char cmd[100];
-	char reply[100];
-	size_t reply_len;
+	size_t len(100); char buf[len];
+
 	snprintf(cmd, sizeof(cmd), "P2P_CONNECT %s %s keypad",
 		 addr.toLocal8Bit().constData(),
 		 arg.toLocal8Bit().constData());
-	reply_len = sizeof(reply) - 1;
-	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0) {
+
+	if (wpagui->ctrlRequest(cmd, buf, len) < 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
 		msg.setText("Failed to initiate P2P connect.");
@@ -1529,14 +1511,15 @@ void Peers::ctx_p2p_remove_group()
 {
 	if (ctx_item == NULL)
 		return;
+
 	char cmd[100];
-	char reply[100];
-	size_t reply_len;
+	size_t len(100); char buf[len];
+
 	snprintf(cmd, sizeof(cmd), "P2P_GROUP_REMOVE %s",
 		 ctx_item->data(peer_role_ifname).toString().toLocal8Bit().
 		 constData());
-	reply_len = sizeof(reply) - 1;
-	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0) {
+
+	if (wpagui->ctrlRequest(cmd, buf, len) < 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
 		msg.setText("Failed to remove P2P Group.");
@@ -1547,10 +1530,9 @@ void Peers::ctx_p2p_remove_group()
 
 void Peers::closeEvent(QCloseEvent *)
 {
+	size_t len(20); char buf[len];
 	if (wpagui) {
-		char reply[20];
-		size_t replylen = sizeof(reply) - 1;
-		wpagui->ctrlRequest("WPS_ER_STOP", reply, &replylen);
+		wpagui->ctrlRequest("WPS_ER_STOP", buf, len);
 	}
 }
 
@@ -1705,8 +1687,7 @@ void Peers::connect_pbc()
 		return;
 
 	char cmd[100];
-	char reply[100];
-	size_t reply_len;
+	size_t len(100); char buf[len];
 
 	int peer_type = ctx_item->data(peer_role_type).toInt();
 	if (peer_type == PEER_TYPE_WPS_ER_ENROLLEE) {
@@ -1721,8 +1702,7 @@ void Peers::connect_pbc()
 	} else {
 		snprintf(cmd, sizeof(cmd), "WPS_PBC");
 	}
-	reply_len = sizeof(reply) - 1;
-	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0) {
+	if (wpagui->ctrlRequest(cmd, buf, len) < 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
 		msg.setText(tr("Failed to start WPS PBC."));
@@ -1744,14 +1724,12 @@ void Peers::learn_ap_config()
 		return;
 
 	char cmd[100];
-	char reply[100];
-	size_t reply_len;
+	size_t len(100); char buf[len];
 
 	snprintf(cmd, sizeof(cmd), "WPS_ER_LEARN %s %s",
 		 uuid.toLocal8Bit().constData(),
 		 input.get_string().toLocal8Bit().constData());
-	reply_len = sizeof(reply) - 1;
-	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0) {
+	if (wpagui->ctrlRequest(cmd, buf, len) < 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
 		msg.setText(tr("Failed to start learning AP configuration."));
@@ -1792,12 +1770,10 @@ void Peers::ctx_show_ap()
 
 void Peers::ctx_p2p_show_passphrase()
 {
-	char reply[64];
-	size_t reply_len;
+	size_t len(64); char buf[len];
 
-	reply_len = sizeof(reply) - 1;
-	if (wpagui->ctrlRequest("P2P_GET_PASSPHRASE", reply, &reply_len) < 0 ||
-	    memcmp(reply, "FAIL", 4) == 0) {
+	if (wpagui->ctrlRequest("P2P_GET_PASSPHRASE", buf, len) < 0 ||
+	    memcmp(buf, "FAIL", 4) == 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
 		msg.setText("Failed to get P2P group passphrase.");
@@ -1805,7 +1781,7 @@ void Peers::ctx_p2p_show_passphrase()
 	} else {
 		QMessageBox::information(this, tr("Passphrase"),
 					 tr("P2P group passphrase:\n") +
-					 reply);
+					 buf);
 	}
 }
 
@@ -1816,13 +1792,12 @@ void Peers::ctx_p2p_start_persistent()
 		return;
 
 	char cmd[100];
-	char reply[100];
-	size_t reply_len;
+	size_t len(100); char buf[len];
 
 	snprintf(cmd, sizeof(cmd), "P2P_GROUP_ADD persistent=%d",
 		 ctx_item->data(peer_role_network_id).toInt());
-	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0 ||
-	    memcmp(reply, "FAIL", 4) == 0) {
+	if (wpagui->ctrlRequest(cmd, buf, len) < 0 ||
+	    memcmp(buf, "FAIL", 4) == 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
 		msg.setText(tr("Failed to start persistent P2P Group."));
@@ -1839,13 +1814,12 @@ void Peers::ctx_p2p_invite()
 		return;
 
 	char cmd[100];
-	char reply[100];
-	size_t reply_len;
+	size_t len(100); char buf[len];
 
 	snprintf(cmd, sizeof(cmd), "P2P_INVITE persistent=%d",
 		 ctx_item->data(peer_role_network_id).toInt());
-	if (wpagui->ctrlRequest(cmd, reply, &reply_len) < 0 ||
-	    memcmp(reply, "FAIL", 4) == 0) {
+	if (wpagui->ctrlRequest(cmd, buf, len) < 0 ||
+	    memcmp(buf, "FAIL", 4) == 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
 		msg.setText(tr("Failed to invite peer to start persistent "
