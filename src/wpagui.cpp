@@ -595,19 +595,21 @@ int WpaGui::openCtrlConnection(const char *ifname)
 }
 
 
-int WpaGui::ctrlRequest(const char *cmd, char *buf, size_t *buflen)
+int WpaGui::ctrlRequest(const QString &cmd, char *buf, size_t *buflen)
 {
 	int ret;
 
 	if (ctrl_conn == NULL)
 		return -3;
 
-	ret = wpa_ctrl_request(ctrl_conn, cmd, strlen(cmd), buf, buflen, NULL);
+	ret = wpa_ctrl_request(ctrl_conn, cmd.toLocal8Bit().constData()
+	                     , strlen(cmd.toLocal8Bit().constData())
+	                     , buf, buflen, NULL);
 
 	if (ret == -2)
-		debug("'%s' command timed out.", cmd);
+		debug("'%s' command timed out.", cmd.toLocal8Bit().constData());
 	else if (ret < 0)
-		debug("'%s' command failed.", cmd);
+		debug("'%s' command failed.", cmd.toLocal8Bit().constData());
 
 	buf[*buflen] = '\0';
 	return ret;
@@ -1681,7 +1683,7 @@ void WpaGui::requestNetworkChange(const QString &req, const QString &sel)
 		}
 	}
 	cmd.prepend(req);
-	ctrlRequest(cmd.toLocal8Bit().constData(), reply, &reply_len);
+	ctrlRequest(cmd, reply, &reply_len);
 
 	updateNetworks();
 	reloadSaveBox->show();
@@ -1792,7 +1794,7 @@ int WpaGui::getNetworkDisabled(const QString &sel)
 	cmd.prepend("GET_NETWORK ");
 	cmd.append(" disabled");
 
-	if (ctrlRequest(cmd.toLocal8Bit().constData(), reply, &reply_len) >= 0
+	if (ctrlRequest(cmd, reply, &reply_len) >= 0
 	    && reply_len >= 1) {
 		if (!str_match(reply, "FAIL"))
 			return atoi(reply);
@@ -2281,7 +2283,7 @@ void WpaGui::wpsApPin()
 	size_t reply_len = sizeof(reply) - 1;
 
 	QString cmd("WPS_REG " + bssFromScan + " " + wpsApPinEdit->text());
-	if (ctrlRequest(cmd.toLocal8Bit().constData(), reply, &reply_len) < 0)
+	if (ctrlRequest(cmd, reply, &reply_len) < 0)
 		return;
 
 	logHint(tr("Waiting for AP/Enrollee"));
