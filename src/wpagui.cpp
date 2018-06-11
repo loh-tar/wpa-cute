@@ -361,8 +361,7 @@ void WpaGui::parse_argv()
 
 int WpaGui::openCtrlConnection(const char *ifname)
 {
-	char *cfile;
-	int flen;
+	QString cfile;
 	size_t len(2048); char buf[len];
 	char *pos, *pos2;
 
@@ -453,17 +452,9 @@ int WpaGui::openCtrlConnection(const char *ifname)
 	}
 
 #ifdef CONFIG_CTRL_IFACE_UNIX
-	flen = strlen(ctrl_iface_dir) + strlen(ctrl_iface) + 2;
-	cfile = (char *) malloc(flen);
-	if (cfile == NULL)
-		throw 2;
-	snprintf(cfile, flen, "%s/%s", ctrl_iface_dir, ctrl_iface);
+	cfile = QString("%1/%2").arg(ctrl_iface_dir).arg(ctrl_iface);
 #else /* CONFIG_CTRL_IFACE_UNIX */
-	flen = strlen(ctrl_iface) + 1;
-	cfile = (char *) malloc(flen);
-	if (cfile == NULL)
-		throw 2;
-	snprintf(cfile, flen, "%s", ctrl_iface);
+	cfile = ctrl_iface;
 #endif /* CONFIG_CTRL_IFACE_UNIX */
 
 	if (ctrl_conn) {
@@ -481,16 +472,14 @@ int WpaGui::openCtrlConnection(const char *ifname)
 
 	logHint(tr("Connection to wpa_supplicant..."));
 
-	ctrl_conn = wpa_ctrl_open(cfile);
+	ctrl_conn = wpa_ctrl_open(cfile.toLocal8Bit().constData());
 	if (ctrl_conn == NULL) {
-		free(cfile);
 		throw 3;
 	}
 
 	logHint(tr("...successful! Using interface %1").arg(ctrl_iface));
 
-	monitor_conn = wpa_ctrl_open(cfile);
-	free(cfile);
+	monitor_conn = wpa_ctrl_open(cfile.toLocal8Bit().constData());
 	if (monitor_conn == NULL) {
 		wpa_ctrl_close(ctrl_conn);
 		ctrl_conn = NULL;
@@ -515,11 +504,6 @@ int WpaGui::openCtrlConnection(const char *ifname)
 				dbgTxt = "Failed to open control connection to wpa_supplicant.";
 				errTxt = tr("No running wpa_supplicant found");
 				setState(WpaNotRunning);
-				break;
-			case 2:
-				dbgTxt = "Malloc of cfile fails";
-				errTxt.append(dbgTxt);
-				setState(WpaFatal);
 				break;
 			case 3:
 				dbgTxt = "Failed to open control connection to wpa_supplicant on adapter ";
