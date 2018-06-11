@@ -457,9 +457,7 @@ void NetworkConfig::wepEnabled(bool enabled)
 
 void NetworkConfig::writeWepKey(int network_id, QLineEdit *edit, int id)
 {
-	char buf[10];
 	bool hex;
-	const char *txt, *pos;
 	size_t len;
 
 	if (!edit->isEnabled())
@@ -469,25 +467,16 @@ void NetworkConfig::writeWepKey(int network_id, QLineEdit *edit, int id)
 	 * Assume hex key if only hex characters are present and length matches
 	 * with 40, 104, or 128-bit key
 	 */
-	txt = edit->text().toLocal8Bit().constData();
-	if (strcmp(txt, WPA_GUI_KEY_DATA) == 0)
+	QString val = edit->text();
+	if (val.compare(WPA_GUI_KEY_DATA) == 0)
 		return;
-	len = strlen(txt);
-	pos = txt;
-	hex = true;
-	while (*pos) {
-		if (!((*pos >= '0' && *pos <= '9') ||
-		      (*pos >= 'a' && *pos <= 'f') ||
-		      (*pos >= 'A' && *pos <= 'F'))) {
-			hex = false;
-			break;
-		}
-		pos++;
-	}
+	len = val.size();
+	hex = val.contains(QRegExp("^[0-9A-F]+$"));
+
 	if (hex && len != 10 && len != 26 && len != 32)
 		hex = false;
-	snprintf(buf, sizeof(buf), "wep_key%d", id);
-	setNetworkParam(network_id, buf, txt, !hex);
+	QString var("wep_key%1");
+	setNetworkParam(network_id, var.arg(id), val, !hex);
 }
 
 
