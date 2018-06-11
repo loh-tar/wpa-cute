@@ -52,9 +52,10 @@
       <varlistentry>
   <term>-m seconds</term>
   <listitem><para>Set an independent update interval in seconds for the signal
-  strength meter. This value must be a positive integer.
-  Without <option>-m</option> the signal meter is only updated at each status update.
-  See also <option>-P</option> and the notes about polling and pinging  </para></listitem>
+  strength meter.</para>
+  <para>This value must be a positive integer. Without <option>-m</option> the
+  signal meter is only updated at each status update.
+  See also <option>-P</option> and the notes about polling and pinging.</para></listitem>
       </varlistentry>
 
       <varlistentry>
@@ -73,7 +74,10 @@
   <term>-P</term>
   <listitem><para>Enable polling and pinging wpa_supplicant independent to the
   use of QSocketNotifier.</para>
-      </listitem>
+  <para>This may useful when you have more than one wpa_supplicant front end
+  running because the wpa_supplicant does not send a message when the configured
+  networks are changed, the status changes to Inactive or from
+  Scanning/Inactive to Disconnected.</para></listitem>
       </varlistentry>
 
       <varlistentry>
@@ -91,35 +95,84 @@
 
     </variablelist>
   </refsect1>
- <refsect1><title>Polling And Pinging</title>
+
+  <refsect1><title>Things Of Interest</title>
+
+  <refsect2><title>Polling And Pinging</title>
+
   <para>QSocketNotifier is not supported on all systems but used by
   default. On such systems is wpa_supplicant polled and pinged to fetch
-  status changes.</para>
+  status changes.
+  </para>
   <para>The polling is not done in a fixed interval but depends on
   current status and reach from high frequent polling in 1sec, when
-  probably changes are on the way, down to 30sec in normal connected
-  mode where only is checked if all looks good.</para>
-  <para>Disconnect the adapter disables polling completely.
-  When in inactive or scanning status is polled in 9sec.
-  With the main window visible is polled in 2sec.</para>
-  </refsect1>
+  probably changes are on the way, down to 20sec in normal Connected
+  mode where only is checked if all looks good.
+  </para>
+  <para>With the main window visible is polled in 2.5sec.
+  When in Inactive or Scanning status is polled in 9sec.
+  Will the adapter disconnected is still polled in 20sec.
+  In case of an fatal error is polling halted.
+  </para>
+  </refsect2>
 
-  <refsect1>
-    <title>See Also</title>
+  <refsect2><title>Edit Network</title>
+
+  <para>The window morphs its look to show always only what is needed, or can be
+  used, to some selections you made. If you encounter some misbehaviour please
+  report.
+  </para>
+  <para>Entered secrets will not shown again when you edit a network. Only a
+  hint that there is a password or key saved. I'm not a friend of that because
+  while messing around to get a connect you can't check if you miss typed the
+  password or something different is the problem.
+  </para>
+  <para>When you add, delete or modify a network are these changes only made in
+  a temporary manner inside the running wpa_supplicant. They take effect as long
+  as the wpa_supplicant is not terminated or triggered to reload its
+  configuration. You have to save the changes explicit. This is different from
+  the original wpa_gui.
+  </para>
+  <para>Right now is the behaviour, which data are changed (send to
+  wpa_supplicant) not coherend. It depends sometimes if they are visible when
+  you "Apply" or not. Your removed data are not everytime forced to remove by
+  wpa_supplicant. It's a little messi, sorry. Needs love and reports.
+  </para>
+  <para>Right now will no data explicit removed when they are not visible. The
+  wpa_supplicant documentation describes that you can have a pretty mix of
+  possible settings which are all tested when wpa_supplicant tries to connect
+  to some accesspoint. I'm not sure if this is really a smart decison.
+  </para>
+  <para>Long story, short sense: Don't expect to have a "clean" configured
+  network block in your config file after you have clicked around to find a
+  working setup.
+  </para>
+  </refsect2>
+
+  <refsect2><title>Peers</title>
+  <para>While transforming some code from old-school C/C++ to a more Qt like
+  style, I noticed some wpa control request that are not, or in a different way,
+  supported by wpa_cli. So you may encounter some disappointments. I haven't
+  played much with the peers window.
+  </para>
+  </refsect2>
+
+  </refsect1>
+  <refsect1><title>See Also</title>
+
     <para>
       <citerefentry>
-  <refentrytitle>wpa_cli</refentrytitle>
-  <manvolnum>8</manvolnum>
+        <refentrytitle>wpa_cli</refentrytitle>
+        <manvolnum>8</manvolnum>
       </citerefentry>
       <citerefentry>
-  <refentrytitle>wpa_supplicant</refentrytitle>
-  <manvolnum>8</manvolnum>
+        <refentrytitle>wpa_supplicant</refentrytitle>
+        <manvolnum>8</manvolnum>
       </citerefentry>
     </para>
   </refsect1>
 
-  <refsect1>
-    <title>Legal</title>
+  <refsect1><title>Legal</title>
     <para>This program is licensed under the BSD license (the one with
     advertisement clause removed).</para>
     <literallayout>

@@ -99,15 +99,17 @@ CLASS="VARIABLELIST"
 ><DD
 ><P
 >Set an independent update interval in seconds for the signal
-  strength meter. This value must be a positive integer.
-  Without <CODE
+  strength meter.</P
+><P
+>This value must be a positive integer. Without <CODE
 CLASS="OPTION"
 >-m</CODE
-> the signal meter is only updated at each status update.
+> the
+  signal meter is only updated at each status update.
   See also <CODE
 CLASS="OPTION"
 >-P</CODE
-> and the notes about polling and pinging  </P
+> and the notes about polling and pinging.</P
 ></DD
 ><DT
 >-N</DT
@@ -132,6 +134,11 @@ CLASS="OPTION"
 ><P
 >Enable polling and pinging wpa_supplicant independent to the
   use of QSocketNotifier.</P
+><P
+>This may useful when you have more than one wpa_supplicant front end
+  running because the wpa_supplicant does not send a message when the configured
+  networks are changed, the status changes to Inactive or from
+  Scanning/Inactive to Disconnected.</P
 ></DD
 ><DT
 >-q</DT
@@ -154,28 +161,97 @@ CLASS="OPTION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN60"
+NAME="AEN62"
 ></A
 ><H2
->Polling And Pinging</H2
+>Things Of Interest</H2
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN64"
+></A
+><H3
+>Polling And Pinging</H3
 ><P
 >QSocketNotifier is not supported on all systems but used by
   default. On such systems is wpa_supplicant polled and pinged to fetch
-  status changes.</P
+  status changes.
+  </P
 ><P
 >The polling is not done in a fixed interval but depends on
   current status and reach from high frequent polling in 1sec, when
-  probably changes are on the way, down to 30sec in normal connected
-  mode where only is checked if all looks good.</P
+  probably changes are on the way, down to 20sec in normal Connected
+  mode where only is checked if all looks good.
+  </P
 ><P
->Disconnect the adapter disables polling completely.
-  When in inactive or scanning status is polled in 9sec.
-  With the main window visible is polled in 2sec.</P
+>With the main window visible is polled in 2.5sec.
+  When in Inactive or Scanning status is polled in 9sec.
+  Will the adapter disconnected is still polled in 20sec.
+  In case of an fatal error is polling halted.
+  </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN69"
+></A
+><H3
+>Edit Network</H3
+><P
+>The window morphs its look to show always only what is needed, or can be
+  used, to some selections you made. If you encounter some misbehaviour please
+  report.
+  </P
+><P
+>Entered secrets will not shown again when you edit a network. Only a
+  hint that there is a password or key saved. I'm not a friend of that because
+  while messing around to get a connect you can't check if you miss typed the
+  password or something different is the problem.
+  </P
+><P
+>When you add, delete or modify a network are these changes only made in
+  a temporary manner inside the running wpa_supplicant. They take effect as long
+  as the wpa_supplicant is not terminated or triggered to reload its
+  configuration. You have to save the changes explicit. This is different from
+  the original wpa_gui.
+  </P
+><P
+>Right now is the behaviour, which data are changed (send to
+  wpa_supplicant) not coherend. It depends sometimes if they are visible when
+  you "Apply" or not. Your removed data are not everytime forced to remove by
+  wpa_supplicant. It's a little messi, sorry. Needs love and reports.
+  </P
+><P
+>Right now will no data explicit removed when they are not visible. The
+  wpa_supplicant documentation describes that you can have a pretty mix of
+  possible settings which are all tested when wpa_supplicant tries to connect
+  to some accesspoint. I'm not sure if this is really a smart decison.
+  </P
+><P
+>Long story, short sense: Don't expect to have a "clean" configured
+  network block in your config file after you have clicked around to find a
+  working setup.
+  </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN77"
+></A
+><H3
+>Peers</H3
+><P
+>While transforming some code from old-school C/C++ to a more Qt like
+  style, I noticed some wpa control request that are not, or in a different way,
+  supported by wpa_cli. So you may encounter some disappointments. I haven't
+  played much with the peers window.
+  </P
+></DIV
 ></DIV
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN65"
+NAME="AEN80"
 ></A
 ><H2
 >See Also</H2
@@ -199,7 +275,7 @@ CLASS="REFENTRYTITLE"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN74"
+NAME="AEN89"
 ></A
 ><H2
 >Legal</H2
