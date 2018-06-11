@@ -28,8 +28,8 @@ public:
 
 	virtual void paramsFromScanResults(QTreeWidgetItem *sel);
 	virtual void setWpaGui(WpaGui *_wpagui);
-	virtual int setNetworkParam(int id, const char *field,
-	                            const char *value, bool quote);
+	virtual  int setNetworkParam(int id, const QString &variable,
+                               const QString &value, bool quote = false);
 	virtual void paramsFromConfig(int network_id);
 	virtual void newNetwork();
 

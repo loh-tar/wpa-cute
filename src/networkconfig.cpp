@@ -28,6 +28,7 @@ enum {
 };
 
 #define WPA_GUI_KEY_DATA "[key is configured]"
+#define InQuotes true
 
 
 NetworkConfig::NetworkConfig(QWidget *parent, const char *, bool,
@@ -247,8 +248,7 @@ void NetworkConfig::addNetwork()
 	} else
 		id = edit_network_id;
 
-	setNetworkParam(id, "ssid", ssidEdit->text().toLocal8Bit().constData()
-	              , true);
+	setNetworkParam(id, "ssid", ssidEdit->text(), InQuotes);
 
 	const char *key_mgmt = NULL, *proto = NULL, *pairwise = NULL;
 	switch (auth) {
@@ -279,9 +279,9 @@ void NetworkConfig::addNetwork()
 	}
 
 	if (auth == AUTH_NONE_WEP_SHARED)
-		setNetworkParam(id, "auth_alg", "SHARED", false);
+		setNetworkParam(id, "auth_alg", "SHARED");
 	else
-		setNetworkParam(id, "auth_alg", "OPEN", false);
+		setNetworkParam(id, "auth_alg", "OPEN");
 
 	if (auth == AUTH_WPA_PSK || auth == AUTH_WPA_EAP ||
 	    auth == AUTH_WPA2_PSK || auth == AUTH_WPA2_EAP) {
@@ -293,30 +293,29 @@ void NetworkConfig::addNetwork()
 	}
 
 	if (proto)
-		setNetworkParam(id, "proto", proto, false);
+		setNetworkParam(id, "proto", proto);
 	if (key_mgmt)
-		setNetworkParam(id, "key_mgmt", key_mgmt, false);
+		setNetworkParam(id, "key_mgmt", key_mgmt);
 	if (pairwise) {
-		setNetworkParam(id, "pairwise", pairwise, false);
-		setNetworkParam(id, "group", "TKIP CCMP WEP104 WEP40", false);
+		setNetworkParam(id, "pairwise", pairwise);
+		setNetworkParam(id, "group", "TKIP CCMP WEP104 WEP40");
 	}
 	if (pskBox->isVisible() &&
 	    strcmp(pskEdit->text().toLocal8Bit().constData(),
 		   WPA_GUI_KEY_DATA) != 0)
-		setNetworkParam(id, "psk",
-				pskEdit->text().toLocal8Bit().constData(),
-				psklen != 64);
+		setNetworkParam(id, "psk", pskEdit->text(), psklen != 64);
+
 	if (eapSelect->isEnabled()) {
 		const char *eap =
 			eapSelect->currentText().toLocal8Bit().constData();
-		setNetworkParam(id, "eap", eap, false);
+		setNetworkParam(id, "eap", eap);
 		if (strcmp(eap, "SIM") == 0 || strcmp(eap, "AKA") == 0)
-			setNetworkParam(id, "pcsc", "", true);
+			setNetworkParam(id, "pcsc", "", InQuotes);
 		else
-			setNetworkParam(id, "pcsc", "NULL", false);
+			setNetworkParam(id, "pcsc", "NULL");
 	}
 		else
-			setNetworkParam(id, "eap", "NULL", false);
+			setNetworkParam(id, "eap", "NULL");
 	if (phase2Select->isEnabled()) {
 		QString eap = eapSelect->currentText();
 		QString inner = phase2Select->currentText();
@@ -350,66 +349,52 @@ void NetworkConfig::addNetwork()
 			} else
 				provisioning = "fast_provisioning=3";
 			if (provisioning) {
-				char blob[32];
-				setNetworkParam(id, "phase1", provisioning,
-						true);
-				snprintf(blob, sizeof(blob),
-					 "blob://fast-pac-%d", id);
-				setNetworkParam(id, "pac_file", blob, true);
+				setNetworkParam(id, "phase1", provisioning, InQuotes);
+				QString blob("blob://fast-pac-%1");
+				setNetworkParam(id, "pac_file", blob.arg(id), InQuotes);
 			}
 		}
 		if (phase2[0])
-			setNetworkParam(id, "phase2", phase2, true);
+			setNetworkParam(id, "phase2", phase2, InQuotes);
 		else
-			setNetworkParam(id, "phase2", "NULL", false);
+			setNetworkParam(id, "phase2", "NULL");
 	} else
-		setNetworkParam(id, "phase2", "NULL", false);
+		setNetworkParam(id, "phase2", "NULL");
 	if (identityEdit->isEnabled() && identityEdit->text().length() > 0)
-		setNetworkParam(id, "identity",
-				identityEdit->text().toLocal8Bit().constData(),
-				true);
+		setNetworkParam(id, "identity", identityEdit->text(), InQuotes);
 	else
-		setNetworkParam(id, "identity", "NULL", false);
+		setNetworkParam(id, "identity", "NULL");
 	if (passwordEdit->isEnabled() && passwordEdit->text().length() > 0 &&
 	    strcmp(passwordEdit->text().toLocal8Bit().constData(),
 		   WPA_GUI_KEY_DATA) != 0)
-		setNetworkParam(id, "password",
-				passwordEdit->text().toLocal8Bit().constData(),
-				true);
+		setNetworkParam(id, "password", passwordEdit->text(), InQuotes);
 	else if (passwordEdit->text().length() == 0)
-		setNetworkParam(id, "password", "NULL", false);
+		setNetworkParam(id, "password", "NULL");
 	if (cacertEdit->isEnabled() && cacertEdit->text().length() > 0)
-		setNetworkParam(id, "ca_cert",
-				cacertEdit->text().toLocal8Bit().constData(),
-				true);
+		setNetworkParam(id, "ca_cert", cacertEdit->text(), InQuotes);
 	else
-		setNetworkParam(id, "ca_cert", "NULL", false);
+		setNetworkParam(id, "ca_cert", "NULL");
 	writeWepKey(id, wep0Edit, 0);
 	writeWepKey(id, wep1Edit, 1);
 	writeWepKey(id, wep2Edit, 2);
 	writeWepKey(id, wep3Edit, 3);
 
 	if (wep0Radio->isEnabled() && wep0Radio->isChecked())
-		setNetworkParam(id, "wep_tx_keyidx", "0", false);
+		setNetworkParam(id, "wep_tx_keyidx", "0");
 	else if (wep1Radio->isEnabled() && wep1Radio->isChecked())
-		setNetworkParam(id, "wep_tx_keyidx", "1", false);
+		setNetworkParam(id, "wep_tx_keyidx", "1");
 	else if (wep2Radio->isEnabled() && wep2Radio->isChecked())
-		setNetworkParam(id, "wep_tx_keyidx", "2", false);
+		setNetworkParam(id, "wep_tx_keyidx", "2");
 	else if (wep3Radio->isEnabled() && wep3Radio->isChecked())
-		setNetworkParam(id, "wep_tx_keyidx", "3", false);
+		setNetworkParam(id, "wep_tx_keyidx", "3");
 
 	if (idstrEdit->isEnabled() && idstrEdit->text().length() > 0)
-		setNetworkParam(id, "id_str",
-				idstrEdit->text().toLocal8Bit().constData(),
-				true);
+		setNetworkParam(id, "id_str", idstrEdit->text(), InQuotes);
 	else
-		setNetworkParam(id, "id_str", "NULL", false);
+		setNetworkParam(id, "id_str", "NULL");
 
 	if (prioritySpinBox->isEnabled()) {
-		QString prio;
-		prio = prio.setNum(prioritySpinBox->value());
-		setNetworkParam(id, "priority", prio.toLocal8Bit().constData(),
-				false);
+		setNetworkParam(id, "priority", prioritySpinBox->cleanText());
 	}
 
 	wpagui->enableNetwork(QString::number(id));
@@ -424,13 +409,16 @@ void NetworkConfig::setWpaGui(WpaGui *_wpagui)
 }
 
 
-int NetworkConfig::setNetworkParam(int id, const char *field,
-                                   const char *value, bool quote)
+int NetworkConfig::setNetworkParam(int id, const QString &variable,
+                                   const QString &value, bool quote/* = false*/)
 {
-	char cmd[256];
-	snprintf(cmd, sizeof(cmd), "SET_NETWORK %d %s %s%s%s",
-		 id, field, quote ? "\"" : "", value, quote ? "\"" : "");
-	return wpagui->ctrlRequest(cmd);
+	QString cmd;
+	if (quote)
+		cmd = "SET_NETWORK %1 %2 \"%3\"";
+	else
+		cmd = "SET_NETWORK %1 %2 %3";
+
+	return wpagui->ctrlRequest(cmd.arg(id).arg(variable).arg(value));
 }
 
 
