@@ -462,7 +462,7 @@ void NetworkConfig::writeWepKey(int network_id, QLineEdit *edit, int id)
 	const char *txt, *pos;
 	size_t len;
 
-	if (!edit->isEnabled() || edit->text().isEmpty())
+	if (!edit->isEnabled())
 		return;
 
 	/*
@@ -473,8 +473,6 @@ void NetworkConfig::writeWepKey(int network_id, QLineEdit *edit, int id)
 	if (strcmp(txt, WPA_GUI_KEY_DATA) == 0)
 		return;
 	len = strlen(txt);
-	if (len == 0)
-		return;
 	pos = txt;
 	hex = true;
 	while (*pos) {
