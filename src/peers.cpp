@@ -308,30 +308,29 @@ void Peers::enter_pin()
 	if (ctx_item == NULL)
 		return;
 
-	int peer_type = ctx_item->data(peer_role_type).toInt();
-	QString uuid;
-	QString addr;
-	addr = ctx_item->data(peer_role_address).toString();
-	if (peer_type == PEER_TYPE_WPS_ER_ENROLLEE)
-		uuid = ctx_item->data(peer_role_uuid).toString();
-
 	StringQuery input(tr("PIN:"));
 	input.setWindowTitle(tr("PIN for ") + ctx_item->text());
 	if (input.exec() != QDialog::Accepted)
 		return;
 
-	char cmd[100];
+	QString cmd;
+	QString addr(ctx_item->data(peer_role_address).toString());
+	QString pin(input.get_string());
+	int peer_type = ctx_item->data(peer_role_type).toInt();
 
 	if (peer_type == PEER_TYPE_WPS_ER_ENROLLEE) {
-		snprintf(cmd, sizeof(cmd), "WPS_ER_PIN %s %s %s",
-			 uuid.toLocal8Bit().constData(),
-			 input.get_string().toLocal8Bit().constData(),
-			 addr.toLocal8Bit().constData());
+		// FIXME wpa_cli says there are only two arguments
+		// > help wps_er_pin
+		// commands:
+		// wps_er_pin <UUID> <PIN> = add an Enrollee PIN to External Registrar
+		cmd = "WPS_ER_PIN %1 %2 %3";
+		cmd = cmd.arg(ctx_item->data(peer_role_uuid).toString())
+		         .arg(pin).arg(addr);
 	} else {
-		snprintf(cmd, sizeof(cmd), "WPS_PIN %s %s",
-			 addr.toLocal8Bit().constData(),
-			 input.get_string().toLocal8Bit().constData());
+		cmd = "WPS_PIN %1 %2";
+		cmd = cmd.arg(addr).arg(pin);
 	}
+
 	if (wpagui->ctrlRequest(cmd) < 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
@@ -439,14 +438,12 @@ void Peers::add_station(QString info)
 void Peers::add_stations()
 {
 	size_t len(2048); char buf[len];
-	char cmd[30];
-	int res;
+	QString cmd("STA-NEXT %1");
 
 	if (wpagui->ctrlRequest("STA-FIRST", buf, len) < 0)
 		return;
 
 	do {
-
 		QString info(buf);
 		char *txt = buf;
 		while (*txt != '\0' && *txt != '\n')
@@ -457,22 +454,20 @@ void Peers::add_stations()
 
 		add_station(info);
 
-		snprintf(cmd, sizeof(cmd), "STA-NEXT %s", buf);
-		res = wpagui->ctrlRequest(cmd, buf, len);
-	} while (res >= 0);
+	} while (wpagui->ctrlRequest(cmd.arg(buf), buf, len) >= 0);
 }
 
 
 void Peers::add_single_station(const char *addr)
 {
 	size_t len(2048); char buf[len];
-	char cmd[30];
+	QString cmd("STA %1");
 
-	snprintf(cmd, sizeof(cmd), "STA %s", addr);
-	if (wpagui->ctrlRequest(cmd, buf, len) < 0)
+	if (wpagui->ctrlRequest(cmd.arg(addr), buf, len) < 0)
 		return;
 
 	QString info(buf);
+	// FIXME Really? Is if(info == "UNKNOWN") not sufficient?
 	char *txt = buf;
 	while (*txt != '\0' && *txt != '\n')
 		txt++;
@@ -546,7 +541,7 @@ void Peers::remove_bss(int id)
 }
 
 
-bool Peers::add_bss(const char *cmd)
+bool Peers::add_bss(const QString &cmd)
 {
 	size_t len(2048); char buf[len];
 
@@ -631,15 +626,14 @@ bool Peers::add_bss(const char *cmd)
 void Peers::add_scan_results()
 {
 	int index;
-	char cmd[20];
+	QString cmd("BSS %1");
 
 	index = 0;
 	while (wpagui) {
-		snprintf(cmd, sizeof(cmd), "BSS %d", index++);
 		if (index > 1000)
 			break;
 
-		if (!add_bss(cmd))
+		if (!add_bss(cmd.arg(index++)))
 			break;
 	}
 }
@@ -647,12 +641,11 @@ void Peers::add_scan_results()
 
 void Peers::add_persistent(int id, const char *ssid, const char *bssid)
 {
-	char cmd[100];
 	size_t len(100); char buf[len];
 	int mode;
 
-	snprintf(cmd, sizeof(cmd), "GET_NETWORK %d mode", id);
-	if (wpagui->ctrlRequest(cmd, buf, len) < 0)
+	QString cmd("GET_NETWORK %1 mode");
+	if (wpagui->ctrlRequest(cmd.arg(id), buf, len) < 0)
 		return;
 
 	mode = atoi(buf);
@@ -1026,11 +1019,9 @@ void Peers::event_notify(WpaMsg msg)
 		QString addr = items[1].mid(3);
 		int id = items[2].mid(11).toInt();
 
-		char cmd[100];
 		size_t len(100); char buf[len];
-
-		snprintf(cmd, sizeof(cmd), "GET_NETWORK %d ssid", id);
-		if (wpagui->ctrlRequest(cmd, buf, len) < 0)
+		QString cmd("GET_NETWORK %1 ssid");
+		if (wpagui->ctrlRequest(cmd.arg(id), buf, len) < 0)
 			return;
 
 		QString name;
@@ -1282,9 +1273,9 @@ void Peers::event_notify(WpaMsg msg)
 		QStringList items = text.split(' ');
 		if (items.size() < 2)
 			return;
-		char cmd[20];
-		snprintf(cmd, sizeof(cmd), "BSS ID-%d", items[1].toInt());
-		add_bss(cmd);
+
+		QString cmd("BSS ID-%1");
+		add_bss(cmd.arg(items[1].toInt()));
 		return;
 	}
 
@@ -1312,12 +1303,9 @@ void Peers::ctx_p2p_connect()
 	if (var.isValid())
 		method = (enum selected_method) var.toInt();
 	if (method == SEL_METHOD_PIN_LOCAL_DISPLAY) {
+		QString cmd("P2P_CONNECT %1 %2 display");
 		arg = ctx_item->data(peer_role_selected_pin).toString();
-		char cmd[100];
-
-		snprintf(cmd, sizeof(cmd), "P2P_CONNECT %s %s display",
-			 addr.toLocal8Bit().constData(),
-			 arg.toLocal8Bit().constData());
+		cmd = cmd.arg(addr).arg(arg);
 
 		if (wpagui->ctrlRequest(cmd) < 0) {
 			QMessageBox msg;
@@ -1346,11 +1334,8 @@ void Peers::ctx_p2p_connect()
 		arg = input.get_string();
 	}
 
-	char cmd[100];
-
-	snprintf(cmd, sizeof(cmd), "P2P_CONNECT %s %s",
-		 addr.toLocal8Bit().constData(),
-		 arg.toLocal8Bit().constData());
+	QString cmd("P2P_CONNECT %1 %2");
+	cmd = cmd.arg(addr).arg(arg);
 
 	if (wpagui->ctrlRequest(cmd) < 0) {
 		QMessageBox msg;
@@ -1365,14 +1350,12 @@ void Peers::ctx_p2p_req_pin()
 {
 	if (ctx_item == NULL)
 		return;
-	QString addr = ctx_item->data(peer_role_address).toString();
-	ctx_item->setData(SEL_METHOD_PIN_PEER_DISPLAY,
-			  peer_role_requested_method);
 
-	char cmd[100];
+	ctx_item->setData(SEL_METHOD_PIN_PEER_DISPLAY
+	                , peer_role_requested_method);
 
-	snprintf(cmd, sizeof(cmd), "P2P_PROV_DISC %s display",
-		 addr.toLocal8Bit().constData());
+	QString cmd("P2P_PROV_DISC %1 display");
+	cmd = cmd.arg(ctx_item->data(peer_role_address).toString());
 
 	if (wpagui->ctrlRequest(cmd) < 0) {
 		QMessageBox msg;
@@ -1387,14 +1370,12 @@ void Peers::ctx_p2p_show_pin()
 {
 	if (ctx_item == NULL)
 		return;
-	QString addr = ctx_item->data(peer_role_address).toString();
+
 	ctx_item->setData(SEL_METHOD_PIN_LOCAL_DISPLAY,
-			  peer_role_requested_method);
+	                  peer_role_requested_method);
 
-	char cmd[100];
-
-	snprintf(cmd, sizeof(cmd), "P2P_PROV_DISC %s keypad",
-		 addr.toLocal8Bit().constData());
+	QString cmd("P2P_PROV_DISC %s keypad");
+	cmd = cmd.arg(ctx_item->data(peer_role_address).toString());
 
 	if (wpagui->ctrlRequest(cmd) < 0) {
 		QMessageBox msg;
@@ -1409,13 +1390,10 @@ void Peers::ctx_p2p_display_pin()
 {
 	if (ctx_item == NULL)
 		return;
-	QString addr = ctx_item->data(peer_role_address).toString();
 
-	char cmd[100];
 	size_t len(100); char buf[len];
-
-	snprintf(cmd, sizeof(cmd), "P2P_CONNECT %s pin",
-		 addr.toLocal8Bit().constData());
+	QString cmd("P2P_CONNECT %1 pin");
+	cmd = cmd.arg(ctx_item->data(peer_role_address).toString());
 
 	if (wpagui->ctrlRequest(cmd, buf, len) < 0) {
 		QMessageBox msg;
@@ -1435,14 +1413,11 @@ void Peers::ctx_p2p_display_pin_pd()
 {
 	if (ctx_item == NULL)
 		return;
-	QString addr = ctx_item->data(peer_role_address).toString();
-	QString arg = ctx_item->data(peer_role_selected_pin).toString();
 
-	char cmd[100];
-
-	snprintf(cmd, sizeof(cmd), "P2P_CONNECT %s %s display",
-		 addr.toLocal8Bit().constData(),
-		 arg.toLocal8Bit().constData());
+	QString cmd("P2P_CONNECT %1 %2 display");
+	QString pin = ctx_item->data(peer_role_selected_pin).toString();
+	cmd = cmd.arg(ctx_item->data(peer_role_address).toString())
+	         .arg(pin);
 
 	if (wpagui->ctrlRequest(cmd) < 0) {
 		QMessageBox msg;
@@ -1454,7 +1429,7 @@ void Peers::ctx_p2p_display_pin_pd()
 	QMessageBox::information(this,
 				 tr("PIN for ") + ctx_item->text(),
 				 tr("Enter the following PIN on the\n"
-				    "peer device: ") + arg);
+				    "peer device: ") + pin);
 }
 
 
@@ -1462,20 +1437,15 @@ void Peers::ctx_p2p_enter_pin()
 {
 	if (ctx_item == NULL)
 		return;
-	QString addr = ctx_item->data(peer_role_address).toString();
-	QString arg;
 
 	StringQuery input(tr("PIN from peer:"));
 	input.setWindowTitle(tr("PIN for ") + ctx_item->text());
 	if (input.exec() != QDialog::Accepted)
 		return;
-	arg = input.get_string();
 
-	char cmd[100];
-
-	snprintf(cmd, sizeof(cmd), "P2P_CONNECT %s %s keypad",
-		 addr.toLocal8Bit().constData(),
-		 arg.toLocal8Bit().constData());
+	QString cmd("P2P_CONNECT %1 %2 keypad");
+	cmd = cmd.arg(ctx_item->data(peer_role_address).toString())
+	         .arg(input.get_string());
 
 	if (wpagui->ctrlRequest(cmd) < 0) {
 		QMessageBox msg;
@@ -1491,11 +1461,8 @@ void Peers::ctx_p2p_remove_group()
 	if (ctx_item == NULL)
 		return;
 
-	char cmd[100];
-
-	snprintf(cmd, sizeof(cmd), "P2P_GROUP_REMOVE %s",
-		 ctx_item->data(peer_role_ifname).toString().toLocal8Bit().
-		 constData());
+	QString cmd("P2P_GROUP_REMOVE %1");
+	cmd = cmd.arg(ctx_item->data(peer_role_ifname).toString());
 
 	if (wpagui->ctrlRequest(cmd) < 0) {
 		QMessageBox msg;
@@ -1663,20 +1630,18 @@ void Peers::connect_pbc()
 	if (ctx_item == NULL)
 		return;
 
-	char cmd[100];
+	QString cmd;
 
 	int peer_type = ctx_item->data(peer_role_type).toInt();
 	if (peer_type == PEER_TYPE_WPS_ER_ENROLLEE) {
-		snprintf(cmd, sizeof(cmd), "WPS_ER_PBC %s",
-			 ctx_item->data(peer_role_uuid).toString().toLocal8Bit().
-			 constData());
+		cmd =  "WPS_ER_PBC %1";
+		cmd = cmd.arg(ctx_item->data(peer_role_uuid).toString());
 	} else if (peer_type == PEER_TYPE_P2P ||
 		   peer_type == PEER_TYPE_P2P_CLIENT) {
-		snprintf(cmd, sizeof(cmd), "P2P_CONNECT %s pbc",
-			 ctx_item->data(peer_role_address).toString().
-			 toLocal8Bit().constData());
+		cmd = "P2P_CONNECT %1 pbc";
+		cmd = cmd.arg( ctx_item->data(peer_role_address).toString());
 	} else {
-		snprintf(cmd, sizeof(cmd), "WPS_PBC");
+		cmd = "WPS_PBC";
 	}
 	if (wpagui->ctrlRequest(cmd) < 0) {
 		QMessageBox msg;
@@ -1699,11 +1664,9 @@ void Peers::learn_ap_config()
 	if (input.exec() != QDialog::Accepted)
 		return;
 
-	char cmd[100];
+	QString cmd("WPS_ER_LEARN %1 %1");
+	cmd = cmd.arg(uuid).arg(input.get_string());
 
-	snprintf(cmd, sizeof(cmd), "WPS_ER_LEARN %s %s",
-		 uuid.toLocal8Bit().constData(),
-		 input.get_string().toLocal8Bit().constData());
 	if (wpagui->ctrlRequest(cmd) < 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
@@ -1765,17 +1728,16 @@ void Peers::ctx_p2p_start_persistent()
 	if (ctx_item == NULL)
 		return;
 
-	char cmd[100];
+	QString cmd( "P2P_GROUP_ADD persistent=%1");
+	cmd = cmd.arg(ctx_item->data(peer_role_network_id).toInt());
 
-	snprintf(cmd, sizeof(cmd), "P2P_GROUP_ADD persistent=%d",
-		 ctx_item->data(peer_role_network_id).toInt());
 	if (wpagui->ctrlRequest(cmd) < 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
 		msg.setText(tr("Failed to start persistent P2P Group."));
 		msg.exec();
-	} else if (ctx_item->data(peer_role_type).toInt() ==
-		   PEER_TYPE_P2P_INVITATION)
+	} else if (ctx_item->data(peer_role_type).toInt()
+		       == PEER_TYPE_P2P_INVITATION)
 		model.removeRow(ctx_item->row());
 }
 
@@ -1785,15 +1747,13 @@ void Peers::ctx_p2p_invite()
 	if (ctx_item == NULL)
 		return;
 
-	char cmd[100];
+	QString cmd("P2P_INVITE persistent=%1");
+	cmd = cmd.arg(ctx_item->data(peer_role_network_id).toInt());
 
-	snprintf(cmd, sizeof(cmd), "P2P_INVITE persistent=%d",
-		 ctx_item->data(peer_role_network_id).toInt());
 	if (wpagui->ctrlRequest(cmd) < 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
-		msg.setText(tr("Failed to invite peer to start persistent "
-			       "P2P Group."));
+		msg.setText(tr("Failed to invite peer to start persistent P2P Group."));
 		msg.exec();
 	}
 }

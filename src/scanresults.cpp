@@ -58,17 +58,13 @@ void ScanResults::updateResults()
 {
 	size_t len(2048); char buf[len];
 	int index;
-	char cmd[20];
+	QString cmd("BSS %1");
 
 	scanResultsWidget->clear();
 
 	index = 0;
-	while (wpagui) {
-		snprintf(cmd, sizeof(cmd), "BSS %d", index++);
-		if (index > 1000)
-			break;
-
-		if (wpagui->ctrlRequest(cmd, buf, len) < 0)
+	while (wpagui && index < 1000) {
+		if (wpagui->ctrlRequest(cmd.arg(index++), buf, len) < 0)
 			break;
 
 		QString bss(buf);

@@ -306,55 +306,51 @@ void NetworkConfig::addNetwork()
 		setNetworkParam(id, "psk", pskEdit->text(), psklen != 64);
 
 	if (eapSelect->isEnabled()) {
-		const char *eap =
-			eapSelect->currentText().toLocal8Bit().constData();
+		QString eap = eapSelect->currentText();
 		setNetworkParam(id, "eap", eap);
-		if (strcmp(eap, "SIM") == 0 || strcmp(eap, "AKA") == 0)
+		// FIXME These two actions are looking questionable
+		if ("SIM" == eap || "AKA" == eap)
 			setNetworkParam(id, "pcsc", "", InQuotes);
 		else
 			setNetworkParam(id, "pcsc", "NULL");
 	}
 		else
 			setNetworkParam(id, "eap", "NULL");
+
 	if (phase2Select->isEnabled()) {
 		QString eap = eapSelect->currentText();
 		QString inner = phase2Select->currentText();
-		char phase2[32];
-		phase2[0] = '\0';
+		QString phase2;
 		if (eap.compare("PEAP") == 0) {
-			if (inner.startsWith("EAP-"))
-				snprintf(phase2, sizeof(phase2), "auth=%s",
-					 inner.right(inner.size() - 4).
-					 toLocal8Bit().constData());
+			if (inner.startsWith("EAP-")) {
+				phase2 = QString("auth=%1").arg(inner.right(inner.size() - 4));
+			}
 		} else if (eap.compare("TTLS") == 0) {
-			if (inner.startsWith("EAP-"))
-				snprintf(phase2, sizeof(phase2), "autheap=%s",
-					 inner.right(inner.size() - 4).
-					 toLocal8Bit().constData());
-			else
-				snprintf(phase2, sizeof(phase2), "auth=%s",
-					 inner.toLocal8Bit().constData());
+			if (inner.startsWith("EAP-")) {
+				phase2 = QString("autheap=%1").arg(inner.right(inner.size() - 4));
+			}
+			else {
+				phase2 = QString("auth=%1").arg(inner);
+			}
 		} else if (eap.compare("FAST") == 0) {
 			const char *provisioning = NULL;
 			if (inner.startsWith("EAP-")) {
-				snprintf(phase2, sizeof(phase2), "auth=%s",
-					 inner.right(inner.size() - 4).
-					 toLocal8Bit().constData());
+				phase2 = QString("auth=%1").arg(inner.right(inner.size() - 4));
 				provisioning = "fast_provisioning=2";
-			} else if (inner.compare("GTC(auth) + MSCHAPv2(prov)")
-				   == 0) {
-				snprintf(phase2, sizeof(phase2),
-					 "auth=GTC auth=MSCHAPV2");
+			} else if (inner.compare("GTC(auth) + MSCHAPv2(prov)") == 0) {
+				phase2 = "auth=GTC auth=MSCHAPV2";
 				provisioning = "fast_provisioning=1";
 			} else
 				provisioning = "fast_provisioning=3";
+
 			if (provisioning) {
 				setNetworkParam(id, "phase1", provisioning, InQuotes);
-				QString blob("blob://fast-pac-%1");
-				setNetworkParam(id, "pac_file", blob.arg(id), InQuotes);
+				setNetworkParam(id, "pac_file"
+				              , QString("blob://fast-pac-%1").arg(id)
+				              , InQuotes);
 			}
 		}
-		if (phase2[0])
+		if (!phase2.isEmpty())
 			setNetworkParam(id, "phase2", phase2, InQuotes);
 		else
 			setNetworkParam(id, "phase2", "NULL");
@@ -374,6 +370,7 @@ void NetworkConfig::addNetwork()
 		setNetworkParam(id, "ca_cert", cacertEdit->text(), InQuotes);
 	else
 		setNetworkParam(id, "ca_cert", "NULL");
+
 	writeWepKey(id, wep0Edit, 0);
 	writeWepKey(id, wep1Edit, 1);
 	writeWepKey(id, wep2Edit, 2);
