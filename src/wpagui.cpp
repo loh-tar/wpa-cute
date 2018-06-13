@@ -727,7 +727,7 @@ void WpaGui::setState(const WpaStateType state)
 			break;
 		case WpaAuthenticating:
 			wpaState = WpaAuthenticating;
-			stateText = tr("Authenticating");
+			stateText = tr("Authenticating...");
 			icon = TrayIconAcquiring;
 			break;
 		case WpaAssociating:
@@ -765,7 +765,7 @@ void WpaGui::setState(const WpaStateType state)
 		case WpaScanning:
 			wpaState = WpaScanning;
 			icon = TrayIconScanning;
-			stateText = tr("Scanning");
+			stateText = tr("Scanning...");
 			disconReconAction->setText(DiscActTxt);
 			disconReconAction->setToolTip(DiscActTTTxt);
 			disconReconAction->setEnabled(true);
@@ -1518,6 +1518,11 @@ void WpaGui::processMsg(char *msg)
 		} else {
 			debug("WARNING disconnect reason not handled/ignored");
 		}
+	} else if (str_match(pos, "SME: Trying to authenticate")) {
+		pos = strstr(pos, "SSID='") + 6;
+		*strstr(pos, "\' freq") = '\0';
+		logHint(tr("...found network: %1").arg(pos));
+		setState(WpaAuthenticating);
 	} else if (str_match(pos, WPA_EVENT_CONNECTED)) {
 		setState(WpaCompleted);
 		// Needed to ensure IP is read
