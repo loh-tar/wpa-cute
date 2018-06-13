@@ -90,6 +90,8 @@ WpaGui::WpaGui(QApplication *_app
 	disEnableNetworkButton->setDefaultAction(networkDisEnableAction);
 	reloadButton->setDefaultAction(reloadConfigAction);
 	saveButton->setDefaultAction(saveConfigAction);
+	// FIXME Find a better place or solution for this box or its intention,
+	// disabled now and never show(), search the commit log for "magic"
 	reloadSaveBox->hide();
 
 #ifdef CONFIG_NATIVE_WINDOWS
@@ -1671,7 +1673,10 @@ void WpaGui::requestNetworkChange(const QString &req, const QString &sel)
 	ctrlRequest(cmd);
 
 	updateNetworks();
-	reloadSaveBox->show();
+	// reloadSaveBox->show();
+	networksTab->setStatusTip(tr("Changes are not yet saved"));
+	wpaguiTab->setTabIcon(wpaguiTab->indexOf(networksTab)
+	                    , QIcon::fromTheme("emblem-warning"));
 }
 
 
@@ -1818,7 +1823,9 @@ void WpaGui::saveConfig()
 			   "be permitted.\n"));
 	else {
 		logHint(tr("The current configuration was saved"));
-		reloadSaveBox->hide();
+		// reloadSaveBox->hide();
+		networksTab->setStatusTip("");
+		wpaguiTab->setTabIcon(wpaguiTab->indexOf(networksTab), QIcon());
 	}
 }
 
@@ -1832,7 +1839,9 @@ void WpaGui::reloadConfig()
 	}
 	else {
 		logHint(tr("The configuration was reloaded"));
-		reloadSaveBox->hide();
+		// reloadSaveBox->hide();
+		networksTab->setStatusTip("");
+		wpaguiTab->setTabIcon(wpaguiTab->indexOf(networksTab), QIcon());
 	}
 	updateNetworks();
 }
