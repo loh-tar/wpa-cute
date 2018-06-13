@@ -37,6 +37,9 @@
 #define debug(M, ...) do {} while (0)
 #endif
 
+
+#define LogThis true
+
 enum TallyType {
 	AckTrayIcon,
 	ConnectedToService,     // FIXME Windows only, using wpaState possible ?
@@ -75,7 +78,7 @@ WpaGui::WpaGui(QApplication *_app
 // receiveMsgs();
 // #endif /* CONFIG_CTRL_IFACE_NAMED_PIPE */
 #if !defined(CONFIG_CTRL_IFACE_UNIX) && !defined(CONFIG_CTRL_IFACE_UDP)
-	logHint("QSocketNotifier not supported, polling is mandatory");
+	logHint(tr("QSocketNotifier not supported, polling is mandatory"));
 	enablePollingAction->setEnabled(false);
 	enablePollingAction->setChecked(true);
 	disableNotifierAction->setEnabled(false);
@@ -350,12 +353,12 @@ void WpaGui::parse_argv()
 			disableNotifierAction->setChecked(true);
 			enablePollingAction->setChecked(true);
 			enablePollingAction->setEnabled(false);
-			logHint("QSocketNotifier disabled by command line option -N");
+			logHint(tr("QSocketNotifier disabled by command line option -N"));
 		}
 	} else if(hasP) {
 		if (enablePollingAction->isEnabled()) {
 			enablePollingAction->setChecked(true);
-			logHint("Polling enabled by command line -P");
+			logHint(tr("Polling enabled by command line -P"));
 		}
 	}
 }
@@ -539,7 +542,7 @@ int WpaGui::openCtrlConnection(const char *ifname)
 	}
 
 	if (disableNotifierAction->isChecked()) {
-		logHint("Use polling to fetch news from wpa_supplicant");
+		logHint(tr("Use polling to fetch news from wpa_supplicant"));
 	} else {
 		msgNotifier = new QSocketNotifier(wpa_ctrl_get_fd(monitor_conn),
 		                                  QSocketNotifier::Read, this);
@@ -931,8 +934,7 @@ void WpaGui::updateStatus(bool changed/* = true*/)
 
 	if (tally.contains(FreshConnected)) {
 		tally.remove(FreshConnected);
-		showTrayMessage(tr("Connection to %1 established")
-		               .arg(textSsid->text()));
+		trayMessage(tr("Connection to %1 established").arg(textSsid->text()));
 	}
 
 	if (!signalMeterInterval)
@@ -1070,9 +1072,9 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 void WpaGui::disableNotifier(bool yes)
 {
 	if (yes)
-		logHint("User requests to disable QSocketNotifier");
+		logHint(tr("User requests to disable QSocketNotifier"));
 	else
-		logHint("User requests to enable QSocketNotifier");
+		logHint(tr("User requests to enable QSocketNotifier"));
 
 	// So much effort only to block the log hint
 	const QSignalBlocker blocker(enablePollingAction);
@@ -1113,9 +1115,9 @@ void WpaGui::letTheDogOut(bool yes/* = true*/)
 void WpaGui::enablePolling(bool yes)
 {
 	if (yes)
-		logHint("User requests to enable polling");
+		logHint(tr("User requests to enable polling"));
 	else
-		logHint("User requests to disable polling");
+		logHint(tr("User requests to disable polling"));
 
 	letTheDogOut(PomDog, yes);
 }
@@ -1209,12 +1211,12 @@ void WpaGui::disconnReconnect()
 	disconReconAction->setEnabled(false);
 
 	if (WpaDisconnected == wpaState) {
-		logHint("User requests network reconnect");
+		logHint(tr("User requests network reconnect"));
 		ctrlRequest("REASSOCIATE");
 	} else if (WpaCompleted == wpaState || WpaScanning  == wpaState ||
 		       WpaInactive == wpaState)
 	{
-		logHint("User requests network disconnect");
+		logHint(tr("User requests network disconnect"));
 		ctrlRequest("DISCONNECT");
 		stopWpsRun(false);
 	}
@@ -1487,13 +1489,13 @@ void WpaGui::processMsg(char *msg)
 		logHint(tr("Scan results available"));
 		scanres->updateResults();
 	} else if (str_match(pos, WPA_EVENT_NETWORK_NOT_FOUND)) {
-		logHint("Network not found");
+		logHint(tr("Network not found"));
 		tally.insert(NetworkNeedsUpdate);
 	} else if (str_match(pos, WPA_EVENT_DISCONNECTED)) {
 		if (strstr(pos, "reason=3")) {
 			if (WpaDisconnected != wpaState) {
-				showTrayMessage(tr("Disconnected from %1")
-				               .arg(textSsid->text()));
+				trayMessage(tr("Disconnected from %1")
+				           .arg(textSsid->text()), LogThis);
 				// Unclear situation, possible supplicant shut down where
 				// any ctrlRequest() would fail, So ensure not to update
 				// status or network until some clarifying message, see below.
@@ -1503,16 +1505,16 @@ void WpaGui::processMsg(char *msg)
 				// If WPA_EVENT_TERMINATING not arrive check networks anyway
 			    QTimer::singleShot(BorderCollie, this, SLOT(updateNetworks()));
 			} else {
-				showTrayMessage(tr("Disconnected from network"));
+				trayMessage(tr("Disconnected from network"));
 			}
 			// Needed to get inactive status (if so) or if
 			// WPA_EVENT_TERMINATING not arrive check anyway
 			QTimer::singleShot(BorderCollie, this, SLOT(updateStatus()));
 		} else if (strstr(pos, "reason=4")) {
 			setState(WpaLostSignal);
-			showTrayMessage(tr("Lost signal from %1")
-			               .arg(textSsid->text())
-			              , QSystemTrayIcon::Warning);
+			trayMessage(tr("Lost signal from %1")
+			           .arg(textSsid->text())
+			          , LogThis, QSystemTrayIcon::Warning);
 		} else {
 			debug("WARNING disconnect reason not handled/ignored");
 		}
@@ -1522,8 +1524,8 @@ void WpaGui::processMsg(char *msg)
 		QTimer::singleShot(BorderCollie, this, SLOT(updateStatus()));
 	} else if (str_match(pos, WPA_EVENT_TERMINATING)) {
 		setState(WpaNotRunning);
-		showTrayMessage(tr("The wpa_supplicant is terminated")
-		              , QSystemTrayIcon::Critical);
+		trayMessage(tr("The wpa_supplicant is terminated")
+		          , LogThis, QSystemTrayIcon::Critical);
 	} else if (str_match(pos, WPS_EVENT_AP_AVAILABLE_PBC)) {
 		logHint(tr("WPS AP in active PBC mode found"));
 		if (WpaInactive == wpaState || WpaDisconnected == wpaState) {
@@ -1537,9 +1539,8 @@ void WpaGui::processMsg(char *msg)
 		if (WpaInactive == wpaState || WpaDisconnected == wpaState)
 			wpaguiTab->setCurrentWidget(wpsTab);
 	} else if (str_match(pos, WPS_EVENT_AP_AVAILABLE_AUTH)) {
-		showTrayMessage("Wi-Fi Protected Setup (WPS) AP\n"
-		                "indicating this client is authorized");
-		logHint("WPS AP indicating this client is authorized");
+		trayMessage(tr("Wi-Fi Protected Setup (WPS) AP\n"
+		               "indicating this client is authorized"), LogThis);
 		if (WpaInactive == wpaState || WpaDisconnected == wpaState)
 			wpaguiTab->setCurrentWidget(wpsTab);
 	} else if (str_match(pos, WPS_EVENT_AP_AVAILABLE)) {
@@ -1901,11 +1902,13 @@ void WpaGui::createTrayIcon(bool trayOnly)
 }
 
 
-void WpaGui::showTrayMessage(const QString &msg
+void WpaGui::trayMessage(const QString &msg
+	       , bool logIt/* = false*/
 	       , QSystemTrayIcon::MessageIcon type/* = QSystemTrayIcon::Information*/
 	       , int sec/* = 5*/)
 {
-	logHint(msg);
+	if (logIt)
+		logHint(msg);
 
 	if (isVisible() || !tray_icon || !tray_icon->isVisible() ||
 		tally.contains(QuietMode) || !QSystemTrayIcon::supportsMessages())
@@ -2137,13 +2140,11 @@ void WpaGui::closeEvent(QCloseEvent *event)
 		/* give user a visual hint that the tray icon exists */
 		if (QSystemTrayIcon::supportsMessages()) {
 			hide();
-			showTrayMessage(tr("I will keep running in the system tray"));
+			trayMessage(tr("I will keep running in the system tray"));
 		} else {
-			QMessageBox::information(this, ProjAppName +
-						 tr(" systray"),
-						 tr("The program will keep "
-						    "running in the system "
-						    "tray"));
+			QMessageBox::information(this, tr("%1 systray").arg(ProjAppName)
+			                       , tr("The program will keep "
+			                            "running in the system tray"));
 		}
 		tally.insert(AckTrayIcon);
 	}
