@@ -732,7 +732,7 @@ void WpaGui::setState(const WpaStateType state)
 			break;
 		case WpaAssociating:
 			wpaState = WpaAssociating;
-			stateText = tr("Associating");
+			stateText = tr("Associating...");
 			icon = TrayIconAcquiring;
 			break;
 		case WpaAssociated:
@@ -1493,7 +1493,10 @@ void WpaGui::processMsg(char *msg)
 		tally.insert(NetworkNeedsUpdate);
 	} else if (str_match(pos, WPA_EVENT_DISCONNECTED)) {
 		if (strstr(pos, "reason=3")) {
-			if (WpaDisconnected != wpaState) {
+			if (WpaAssociated == wpaState) {
+				setState(WpaDisconnected);
+				logHint(tr("Oops!?"));
+			} else if (WpaDisconnected != wpaState) {
 				trayMessage(tr("Disconnected from %1")
 				           .arg(textSsid->text()), LogThis);
 				// Unclear situation, possible supplicant shut down where
@@ -1523,6 +1526,19 @@ void WpaGui::processMsg(char *msg)
 		*strstr(pos, "\' freq") = '\0';
 		logHint(tr("...found network: %1").arg(pos));
 		setState(WpaAuthenticating);
+	} else if (str_match(pos, "Trying to associate with")) {
+		setState(WpaAssociating);
+	} else if (str_match(pos, "Associated with")) {
+		setState(WpaAssociated);
+	} else if (str_match(pos, "CTRL-EVENT-SSID-TEMP-DISABLED")) {
+		if (strstr(pos, "WRONG_KEY")) {
+			pos = strstr(pos, "ssid=\"") + 6;
+			*strstr(pos, "\" auth") = '\0';
+			trayMessage(tr("Error: Wrong key for network %1").arg(pos)
+			          , LogThis, QSystemTrayIcon::Critical);
+		} else {
+			debug("Message noticed but not handled");
+		}
 	} else if (str_match(pos, WPA_EVENT_CONNECTED)) {
 		setState(WpaCompleted);
 		// Needed to ensure IP is read
