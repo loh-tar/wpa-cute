@@ -65,6 +65,7 @@ public:
 		WpaFatal = 0,
 		WpaUnknown,
 		WpaNotRunning,
+		WpaObscure,
 		WpaRunning,
 		WpaAuthenticating,
 		WpaAssociating,
@@ -160,6 +161,7 @@ public slots:
 #endif /* CONFIG_NATIVE_WINDOWS */
 
 protected slots:
+	        void assistanceDogOffice();
 	virtual void showTrayStatus();
 	virtual void languageChange();
 	virtual void trayActivated(QSystemTrayIcon::ActivationReason how);
@@ -173,6 +175,7 @@ private:
 	virtual void letTheDogOut(int dog, bool yes);
 	virtual void letTheDogOut(int dog = PomDog);
 	virtual void letTheDogOut(bool yes = true);
+	        void assistanceDogNeeded(bool needed = true);
 
 	        void wpaStateTranslate(const char *state);
 	        void setState(const WpaStateType state);
@@ -184,11 +187,13 @@ private:
 	ScanResults *scanres;
 	Peers *peers;
 
+	QTimer*                    assistanceDog;
+	QTimer*                    watchdogTimer;
+
 	char *ctrl_iface;
 	EventHistory *eh;
 	struct wpa_ctrl *ctrl_conn;
 	QSocketNotifier *msgNotifier;
-	QTimer *watchdogTimer;
 	WpaMsgList msgs;
 	char *ctrl_iface_dir;
 	struct wpa_ctrl *monitor_conn;

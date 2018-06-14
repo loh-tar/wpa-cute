@@ -49,6 +49,8 @@ enum TallyType {
 	QuietMode,
 	StartInTray,
 	StatusNeedsUpdate,
+	AssistanceDogAtWork,
+	WpsReassoiciate,
 	WpsRunning,
 };
 
@@ -59,6 +61,11 @@ WpaGui::WpaGui(QApplication *_app
 {
 	setupUi(this);
 	this->setWindowFlags(Qt::Dialog);
+
+	assistanceDog = new QTimer(this);
+	assistanceDog->setSingleShot(true);
+	connect(assistanceDog, SIGNAL(timeout()), SLOT(assistanceDogOffice()));
+
 	logHint(tr("Start-up at %1")
 	       .arg(QDateTime::currentDateTime()
 	       .toString("dddd, yyyy-MM-dd")));
@@ -664,10 +671,23 @@ void WpaGui::setState(const WpaStateType state)
 	const QString RecActTxt(tr("Reconnect"));
 	const QString RecActTTTxt(tr("Enable WLAN networking"));
 
-	if (state == oldState)
+	if (state == oldState) {
+		if (WpaScanning == state)
+			// Don't forget our emergency dressing
+			assistanceDogNeeded();
 		return;
+	}
 
-	oldState = state;
+	if (tally.contains(WpsRunning)) {
+		debug("New state blocked: %d", state);
+		return;
+	}
+
+	assistanceDogNeeded(false);
+
+	if (WpaObscure  == oldState || WpaDisconnected == oldState)
+		tally.insert(NetworkNeedsUpdate);
+
 	tally.insert(StatusNeedsUpdate);
 
 	switch (state) {
@@ -683,12 +703,25 @@ void WpaGui::setState(const WpaStateType state)
 			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(networksTab), false);
 			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(wpsTab), false);
 			wpaguiTab->setCurrentWidget(eventTab);
+			rssiBar->hide();
 			break;
 		case WpaUnknown:
 			wpaState = WpaUnknown;
 // 			icon = ;
 			stateText = tr("Unknown");
+			tally.insert(NetworkNeedsUpdate);
 			rssiBar->hide();
+			break;
+		case WpaObscure:
+			wpaState = WpaObscure;
+			stateText = tr("Obscure");
+			// Unclear situation, possible supplicant shut down where any
+			// ctrlRequest() would fail, So ensure not to update status or
+			// network until WPA_EVENT_TERMINATING message arrive...
+			tally.remove(StatusNeedsUpdate);
+			tally.remove(NetworkNeedsUpdate);
+			// ...but if that doesn't come, ensure not to hang
+			assistanceDogNeeded();
 			break;
 		case WpaNotRunning:
 			wpaState = WpaNotRunning;
@@ -697,6 +730,9 @@ void WpaGui::setState(const WpaStateType state)
 			stopWpsRun(true);
 			disconReconAction->setEnabled(false);
 			wpsAction->setEnabled(false);
+			scanAction->setEnabled(false);
+			peersAction->setEnabled(false);
+			eventHistoryAction->setEnabled(false);
 			saveConfigAction->setEnabled(false);
 			reloadConfigAction->setEnabled(false);
 			networkMenu->setEnabled(false);
@@ -712,6 +748,9 @@ void WpaGui::setState(const WpaStateType state)
 				wpa_ctrl_close(ctrl_conn);
 				ctrl_conn = NULL;
 			}
+			rssiBar->hide();
+			// Now, polling is mandatory
+			letTheDogOut(PomDog);
 			break;
 		case WpaRunning:
 			wpaState = WpaRunning;
@@ -719,11 +758,16 @@ void WpaGui::setState(const WpaStateType state)
 			stateText = tr("wpa_supplicant is running");
 			disconReconAction->setEnabled(true);
 			wpsAction->setEnabled(true);
+			scanAction->setEnabled(true);
+			peersAction->setEnabled(true);
+			eventHistoryAction->setEnabled(true);
 			saveConfigAction->setEnabled(true);
 			reloadConfigAction->setEnabled(true);
 			networkMenu->setEnabled(true);
-			adapterSelect->setEnabled(true);
 			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(networksTab), true);
+			adapterSelect->setEnabled(true);
+			// Disable polling when not needed
+			letTheDogOut(enablePollingAction->isChecked());
 			break;
 		case WpaAuthenticating:
 			wpaState = WpaAuthenticating;
@@ -761,6 +805,13 @@ void WpaGui::setState(const WpaStateType state)
 			disconReconAction->setText(DiscActTxt);
 			disconReconAction->setToolTip(DiscActTTTxt);
 			disconReconAction->setEnabled(true);
+			tally.insert(NetworkNeedsUpdate);
+			rssiBar->hide();
+			// The wpa_supplicant doesn't report the change
+			// inactive -> disconnected, so we need a work around,
+			// but I like to avoid to enable polling
+			if (oldState != WpaDisconnected && oldState != WpaRunning)
+				assistanceDogNeeded();
 			break;
 		case WpaScanning:
 			wpaState = WpaScanning;
@@ -769,6 +820,11 @@ void WpaGui::setState(const WpaStateType state)
 			disconReconAction->setText(DiscActTxt);
 			disconReconAction->setToolTip(DiscActTTTxt);
 			disconReconAction->setEnabled(true);
+			rssiBar->hide();
+			// The wpa_supplicant doesn't report the change
+			// scanning -> disconnected, so we need a work around
+			// but I like to avoid to enable polling as long as possible
+			assistanceDogNeeded();
 			break;
 		case WpaDisconnected:
 			wpaState = WpaDisconnected;
@@ -779,6 +835,11 @@ void WpaGui::setState(const WpaStateType state)
 			disconReconAction->setEnabled(true);
 			tally.insert(NetworkNeedsUpdate);
 			rssiBar->hide();
+			// The wpa_supplicant doesn't report the change
+			// disconnected -> inactive, so we need a work around because that
+			// happens when you disable your connected network with no alternatives left
+			if (oldState != WpaInactive  && oldState != WpaRunning)
+				assistanceDogNeeded();
 			break;
 		case WpaLostSignal:
 			wpaState = WpaLostSignal;
@@ -802,6 +863,8 @@ void WpaGui::setState(const WpaStateType state)
 	}
 
 	debug("#### New state: %s", stateText.toLocal8Bit().constData());
+
+	oldState = state;
 
 	textStatus->setText(stateText);
 	updateTrayToolTip(stateText);
@@ -832,10 +895,9 @@ void WpaGui::updateStatus(bool changed/* = true*/)
 	textBssid->clear();
 	textIpAddress->clear();
 
-	if (WpaNotRunning == wpaState) {
-		letTheDogOut(BorderCollie);
+	if (WpaNotRunning == wpaState)
 		return;
-	}
+
 	debug(" updateStatus >>>>");
 
 	if (ctrlRequest("STATUS", buf, len) < 0) {
@@ -937,11 +999,17 @@ void WpaGui::updateStatus(bool changed/* = true*/)
 		trayMessage(tr("Connection to %1 established").arg(textSsid->text()));
 	}
 
+	// wpa_supplicant will not send a message when IP is set
+	if (WpaCompleted == wpaState && textIpAddress->text().isEmpty())
+		assistanceDogNeeded();
+
 	if (!signalMeterInterval)
 		updateSignalMeter();
 
+	updateNetworks(tally.contains(NetworkNeedsUpdate));
+
 	tally.remove(StatusNeedsUpdate);
-	debug(" updateStatus <<<<<<");
+	debug("updateStatus <<<<<<");
 }
 
 
@@ -951,7 +1019,7 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 	char *start, *end, *id, *ssid, *bssid, *flags;
 	int was_selected = -1;
 
-	debug(" updateNetworks() ??");
+	debug("updateNetworks() ??");
 
 	if (!changed)
 		return;
@@ -971,17 +1039,17 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 	if (ctrl_conn == NULL)
 		return;
 
-	debug(" updateNetworks() >>");
+	debug("updateNetworks() >>");
 	if (ctrlRequest("LIST_NETWORKS", buf, len) < 0)
 		return;
 
-	debug(" updateNetworks() >>>>");
+	debug("updateNetworks() >>>>");
 	start = strchr(buf, '\n');
 	if (start == NULL)
 		return;
 	start++;
 
-	debug(" updateNetworks() >>>>>>");
+	debug("updateNetworks() >>>>>>");
 
 	while (*start) {
 		bool last = false;
@@ -1088,9 +1156,10 @@ void WpaGui::disableNotifier(bool yes)
 
 void WpaGui::letTheDogOut(int dog, bool yes)
 {
-	if (yes && dog >= PomDog) {
-		if (watchdogTimer->interval() != dog)
+	if (yes) {
+		if (watchdogTimer->interval() != dog || !watchdogTimer->isActive())
 			debug("New dog on patrol %d", dog);
+
 		watchdogTimer->start(dog);
 	}
 	else if (watchdogTimer->isActive()) {
@@ -1108,7 +1177,40 @@ void WpaGui::letTheDogOut(int dog/* = PomDog*/)
 
 void WpaGui::letTheDogOut(bool yes/* = true*/)
 {
-	letTheDogOut(watchdogTimer->interval(), yes);
+	letTheDogOut(PomDog, yes);
+}
+
+
+void WpaGui::assistanceDogOffice() {
+
+	tally.insert(AssistanceDogAtWork);
+	debug("WUFF>");
+	updateStatus();
+	debug("WUFF<");
+	tally.remove(AssistanceDogAtWork);
+}
+
+
+void WpaGui::assistanceDogNeeded(bool needed/* = true*/) {
+
+	// Several people who has some disabilities trust on such a good friend to
+	// master there everyday life, so as we do now with wpa_supplicant's faults
+	if (enablePollingAction->isChecked())
+		return;
+
+	if (needed) {
+		if (tally.contains(AssistanceDogAtWork))
+			return;
+		if (!assistanceDog->isActive())
+			debug("Assistance dog called");
+
+		assistanceDog->start(BorderCollie);
+	} else if (!assistanceDog->isActive()) {
+		return;
+	} else {
+		debug("Relax, assistance dog");
+		assistanceDog->stop();
+	}
 }
 
 
@@ -1219,6 +1321,7 @@ void WpaGui::disconnReconnect()
 		logHint(tr("User requests network disconnect"));
 		ctrlRequest("DISCONNECT");
 		stopWpsRun(false);
+		assistanceDogNeeded();
 	}
 
 	updateStatus();
@@ -1311,16 +1414,20 @@ void WpaGui::ping()
 		case WpaDisconnected:
 // 			maxDog = SnoozingDog;
 			break;
+		case WpaObscure:
+			stateChanged = true;
+			break;
 		case WpaInactive:
 		case WpaScanning:
+			// The wpa_supplicant doesn't report the change from inactive or
+			// scanning to disconnected, so we must force status updates
+			stateChanged = true;
 			maxDog = BassetHound;
 			break;
 		case WpaUnknown:
 		case WpaNotRunning:
 			if (openCtrlConnection(ctrl_iface) == 0) {
 				updateStatus();
-				updateNetworks();
-				letTheDogOut(enablePollingAction->isChecked());
 				debug("PING! <<<-<");
 				return;
 			}
@@ -1335,8 +1442,6 @@ void WpaGui::ping()
 			} else {
 				debug("Play ping-pong");
 				updateStatus();
-				if (isVisible())
-					updateNetworks();
 			}
 			break;
 		default :
@@ -1484,10 +1589,12 @@ void WpaGui::processMsg(char *msg)
 	if (str_match(pos, WPA_CTRL_REQ)) {
 		processCtrlReq(pos + strlen(WPA_CTRL_REQ));
 	} else if (str_match(pos, WPA_EVENT_SCAN_STARTED)) {
-		setState(WpaScanning);
-	} else if (str_match(pos, WPA_EVENT_SCAN_RESULTS) && scanres) {
-		logHint(tr("Scan results available"));
-		scanres->updateResults();
+		setState(WpaScanning); // Ensures assistance dog is called
+		if (!tally.contains(WpsRunning))
+			logHint(tr("Scan started..."));
+	} else if (str_match(pos, WPA_EVENT_SCAN_RESULTS)) {
+		if (!tally.contains(WpsRunning))
+			logHint(tr("...scan results available"));
 	} else if (str_match(pos, WPA_EVENT_NETWORK_NOT_FOUND)) {
 		logHint(tr("Network not found"));
 		tally.insert(NetworkNeedsUpdate);
@@ -1496,23 +1603,18 @@ void WpaGui::processMsg(char *msg)
 			if (WpaAssociated == wpaState) {
 				setState(WpaDisconnected);
 				logHint(tr("Oops!?"));
-			} else if (WpaDisconnected != wpaState) {
-				trayMessage(tr("Disconnected from %1")
-				           .arg(textSsid->text()), LogThis);
-				// Unclear situation, possible supplicant shut down where
-				// any ctrlRequest() would fail, So ensure not to update
-				// status or network until some clarifying message, see below.
-				setState(WpaUnknown);
-				tally.remove(StatusNeedsUpdate);
-				tally.remove(NetworkNeedsUpdate);
-				// If WPA_EVENT_TERMINATING not arrive check networks anyway
-			    QTimer::singleShot(BorderCollie, this, SLOT(updateNetworks()));
+			} else if (tally.contains(WpsRunning)) {
+				// Silently ignored
 			} else {
-				trayMessage(tr("Disconnected from network"));
+				if (WpaCompleted == wpaState) {
+					trayMessage(tr("Disconnected from %1")
+					                .arg(textSsid->text()), LogThis);
+					// Unclear situation, possible supplicant shut down where
+					// any ctrlRequest() would fail, So ensure not to update
+					// status or network until some clarifying message, see below.
+					setState(WpaObscure);
+				}
 			}
-			// Needed to get inactive status (if so) or if
-			// WPA_EVENT_TERMINATING not arrive check anyway
-			QTimer::singleShot(BorderCollie, this, SLOT(updateStatus()));
 		} else if (strstr(pos, "reason=4")) {
 			setState(WpaLostSignal);
 			trayMessage(tr("Lost signal from %1")
@@ -1536,13 +1638,12 @@ void WpaGui::processMsg(char *msg)
 			*strstr(pos, "\" auth") = '\0';
 			trayMessage(tr("Error: Wrong key for network %1").arg(pos)
 			          , LogThis, QSystemTrayIcon::Critical);
+			tally.insert(StatusNeedsUpdate);
 		} else {
 			debug("Message noticed but not handled");
 		}
 	} else if (str_match(pos, WPA_EVENT_CONNECTED)) {
 		setState(WpaCompleted);
-		// Needed to ensure IP is read
-		QTimer::singleShot(BorderCollie, this, SLOT(updateStatus()));
 	} else if (str_match(pos, WPA_EVENT_TERMINATING)) {
 		setState(WpaNotRunning);
 		trayMessage(tr("The wpa_supplicant is terminated")
@@ -1587,7 +1688,7 @@ void WpaGui::processMsg(char *msg)
 	} else if (str_match(pos, WPA_EVENT_BSS_REMOVED)) {
 		// Needed to catch these or the next has not the desired effect to...
 		debug("Message noticed but so far ignored");
-	} else if (WpaUnknown == wpaState) {
+	} else if (WpaObscure == wpaState) {
 		// ...catch the buggy wpa_supplicant behavior when shut down
 		setState(WpaRunning);
 	} else {
@@ -1630,10 +1731,7 @@ void WpaGui::receiveMsgs()
 		}
 	}
 	debug("receiveMsgs() >>>>>>");
-
-	updateStatus(tally.contains(StatusNeedsUpdate));
-	updateNetworks(tally.contains(NetworkNeedsUpdate));
-
+	updateStatus(tally.contains(StatusNeedsUpdate) || tally.contains(NetworkNeedsUpdate));
 	debug("receiveMsgs() <<<<<<");
 }
 
@@ -1676,6 +1774,11 @@ void WpaGui::enableNetwork(const QString &sel)
 void WpaGui::disableNetwork(const QString &sel)
 {
 	requestNetworkChange("DISABLE_NETWORK ", sel);
+	if (WpaScanning == wpaState)
+		// After some time the supplicant goes in some deep sleep where he
+		// doesn't notice a network change, so trigger scan an he do
+		// This ensurs also that he not silently goes Inactive/Disconnect
+		ctrlRequest("SCAN");
 }
 
 
@@ -1828,8 +1931,6 @@ void WpaGui::disEnableNetwork()
 		logHint("Oops?! Error after getNetworkDisabled() call");
 		break;
 	}
-
-	updateStatus();
 }
 
 
