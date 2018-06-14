@@ -11,6 +11,24 @@ roses. Beginning from wrong/missing icons to the actual wlan status, over
 baffling buttons, windows and menus up to a smashed, no longer working
 configuration after an save event, with obviously no changes mind you!
 
+First I concentrated on fixing the most annoying issues, but at some point I
+started to "fix unbroken things" just because I didn't like how the code looks.
+So, sorry experts, if I may have trash some of your super effective tricks and
+replaced that with some "bloated" Qt class. However, I think the code not only
+looks better now, but works much better too.
+
+Furthermore I add some new stuff where I think it's an improvement and probably
+I have introduced some new bugs too which you will find faster than it is dear
+to me. For details please read the commit log or just check it out!
+
+I'm an average user and haven't tested much more than to connect to my own WLAN,
+not even tested some WPS, P2P never mind some expert needs.
+
+I use only Arch Linux but tried my best not to broke the code for other systems.
+
+
+Last, and very first, version is 0.7 Jun, 2018
+
 
 Installation
 ==============
