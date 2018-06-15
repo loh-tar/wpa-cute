@@ -33,7 +33,7 @@ void SignalBar::paint(QPainter *painter,
 	QStyleOptionProgressBar opts;
 	int signal;
 
-	if (index.column() != 3) {
+	if (index.column() != 2) {
 		QStyledItemDelegate::paint(painter, option, index);
 		return;
 	}

@@ -10,6 +10,7 @@
  */
 
 #include <cstdio>
+#include <algorithm>
 
 #include "scanresults.h"
 #include "signalbar.h"
@@ -57,12 +58,12 @@ void ScanResults::setWpaGui(WpaGui *_wpagui)
 void ScanResults::updateResults()
 {
 	size_t len(2048); char buf[len];
-	int index;
+	int index(0);
 	QString cmd("BSS %1");
+	QList<int> ssidTextWidth;
 
 	scanResultsWidget->clear();
 
-	index = 0;
 	while (wpagui && index < 1000) {
 		if (wpagui->ctrlRequest(cmd.arg(index++), buf, len) < 0)
 			break;
@@ -92,18 +93,37 @@ void ScanResults::updateResults()
 				ssid = (*it).mid(pos);
 		}
 
+		ssidTextWidth << scanResultsWidget->fontMetrics().width(ssid);
+
 		ScanResultsItem *item = new ScanResultsItem(scanResultsWidget);
 		if (item) {
 			item->setText(0, ssid);
 			item->setText(1, bssid);
-			item->setText(2, freq);
-			item->setText(3, signal);
+			item->setText(2, signal);
+			item->setText(3, freq);
 			item->setText(4, flags);
 		}
-
 		if (bssid.isEmpty())
 			break;
 	}
+
+	// Because the result of this resizing...
+	for (int i = 0; i < scanResultsWidget->columnCount(); ++i)
+		scanResultsWidget->resizeColumnToContents(i);
+
+	// ...looks for me not so charming, I do some effort to pleasure my eyes
+	// WTF!? qSort is deprecated
+	std::sort(ssidTextWidth.begin(), ssidTextWidth.end());
+	QHeaderView* h = scanResultsWidget->header();
+	int idx(0);
+	if (!ssidTextWidth.size())
+		ssidTextWidth << h->defaultSectionSize();
+	else
+		idx = std::max(0, (85 * ssidTextWidth.size() / 100) -1 );
+
+	h->resizeSection(0, ssidTextWidth.at(idx));        // SSID
+
+	h->setSectionResizeMode(2 , QHeaderView::Stretch); // Signal Bar
 }
 
 
