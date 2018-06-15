@@ -1335,7 +1335,7 @@ void WpaGui::scan()
 		delete scanres;
 	}
 
-	scanres = new ScanResults();
+	scanres = new ScanResults(this);
 	if (scanres == NULL)
 		return;
 	scanres->setWpaGui(this);
@@ -1352,7 +1352,7 @@ void WpaGui::eventHistory()
 		delete eh;
 	}
 
-	eh = new EventHistory();
+	eh = new EventHistory(this);
 	if (eh == NULL)
 		return;
 	eh->addEvents(msgs);
@@ -2297,7 +2297,7 @@ void WpaGui::peersDialog()
 		delete peers;
 	}
 
-	peers = new Peers();
+	peers = new Peers(this);
 	if (peers == NULL)
 		return;
 	peers->setWpaGui(this);
