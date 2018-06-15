@@ -54,10 +54,11 @@ enum TallyType {
 	WpsRunning,
 };
 
-WpaGui::WpaGui(QApplication *_app
+WpaGui::WpaGui(WpaGuiApp *app
              , QWidget *parent, const char *
              , Qt::WindowFlags)
-      : QMainWindow(parent), app(_app)
+
+      : QMainWindow(parent)
 {
 	setupUi(this);
 	this->setWindowFlags(Qt::Dialog);
@@ -214,7 +215,7 @@ WpaGui::WpaGui(QApplication *_app
 	ctrl_iface_dir = strdup("/var/run/wpa_supplicant");
 	signalMeterInterval = 0;
 
-	parse_argv();
+	parseArgCV(app);
 
 	connect(disableNotifierAction, SIGNAL(toggled(bool))
 	      , this, SLOT(disableNotifier(bool)));
@@ -315,15 +316,11 @@ void WpaGui::languageChange()
 }
 
 
-void WpaGui::parse_argv()
+void WpaGui::parseArgCV(WpaGuiApp *app)
 {
 	int c;
 	bool hasN(false), hasP(false);
-	WpaGuiApp *app = qobject_cast<WpaGuiApp*>(qApp);
-	for (;;) {
-		c = getopt(app->argc, app->argv, "i:m:p:tqNP");
-		if (c < 0)
-			break;
+	while( (c = getopt(app->argc, app->argv, "i:m:p:tqNP"))  > 0) {
 		switch (c) {
 		case 'i':
 			free(ctrl_iface);
@@ -2544,7 +2541,7 @@ void WpaGui::saveState()
 {
 	QSettings settings("wpa_supplicant", ProjAppName);
 	settings.beginGroup("state");
-	settings.setValue("session_id", app->sessionId());
+	settings.setValue("session_id", qApp->sessionId());
 	settings.setValue("in_tray", tally.contains(InTray));
 	settings.endGroup();
 }

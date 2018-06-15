@@ -29,15 +29,15 @@ class WpaGuiApp : public QApplication
 {
 	Q_OBJECT
 public:
-	WpaGuiApp(int &argc, char **argv);
+	WpaGuiApp(int& argc, char** argv);
 
 #if !defined(QT_NO_SESSIONMANAGER) && QT_VERSION < 0x050000
-	virtual void saveState(QSessionManager &manager);
+	virtual void saveState(QSessionManager& manager);
 #endif
 
-	WpaGui *w;
-	int argc;
-	char **argv;
+	int     argc;
+	char**  argv;
+	WpaGui* mainWindow;
 };
 
 class WpaGui : public QMainWindow, public Ui::WpaGui
@@ -87,8 +87,11 @@ public:
 		SnoozingDog    = 20 * 1000
 	};
 
-	WpaGui(QApplication *app, QWidget *parent = 0, const char *name = 0,
-	       Qt::WindowFlags fl = 0);
+	WpaGui(WpaGuiApp *app
+	     , QWidget *parent = 0
+	     , const char *name = 0
+	     , Qt::WindowFlags fl = 0);
+
 	~WpaGui();
 
 	virtual int ctrlRequest(const QString &cmd, char *buf, const size_t buflen);
@@ -105,8 +108,6 @@ public:
 #endif
 
 public slots:
-	virtual void parse_argv();
-
 	virtual void updateStatus(bool changed = true);
 	virtual void updateNetworks(bool changed = true);
 	virtual void updateSignalMeter();
@@ -180,6 +181,8 @@ private:
 	        void wpaStateTranslate(const char *state);
 	        void setState(const WpaStateType state);
 
+	        void parseArgCV(WpaGuiApp *app);
+
 
 	QSet<int> tally;
 	WpaStateType wpaState;
@@ -220,8 +223,6 @@ private:
 	QAction *addInterfaceAction;
 	AddInterface *add_iface;
 #endif /* CONFIG_NATIVE_WINDOWS */
-
-	QApplication *app;
 };
 
 #endif /* WPAGUI_H */

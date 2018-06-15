@@ -17,19 +17,19 @@
 #include <QtCore/QTranslator>
 #include "wpagui.h"
 
-WpaGuiApp::WpaGuiApp(int &argc, char **argv) :
-	QApplication(argc, argv),
-	argc(argc),
-	argv(argv)
+WpaGuiApp::WpaGuiApp(int& argc, char** argv)
+         : QApplication(argc, argv)
+         , argc(argc)
+         , argv(argv)
+         , mainWindow(NULL)
 {
-	w = NULL;
 }
 
 #if !defined(QT_NO_SESSIONMANAGER) && QT_VERSION < 0x050000
-void WpaGuiApp::saveState(QSessionManager &manager)
+void WpaGuiApp::saveState(QSessionManager& manager)
 {
 	QApplication::saveState(manager);
-	w->saveState();
+	mainWindow->saveState();
 }
 #endif
 
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 	}
 #endif /* CONFIG_NATIVE_WINDOWS */
 
-	app.w = &w;
+	app.mainWindow = &w;
 
 	ret = app.exec();
 
