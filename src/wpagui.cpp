@@ -263,50 +263,25 @@ WpaGui::~WpaGui()
 	if (monitor_conn) {
 		wpa_ctrl_detach(monitor_conn);
 		wpa_ctrl_close(monitor_conn);
-		monitor_conn = NULL;
 	}
 	if (ctrl_conn) {
 		wpa_ctrl_close(ctrl_conn);
-		ctrl_conn = NULL;
-	}
-
-	if (eh) {
-		eh->close();
-		delete eh;
-		eh = NULL;
-	}
-
-	if (scanres) {
-		scanres->close();
-		delete scanres;
-		scanres = NULL;
-	}
-
-	if (peers) {
-		peers->close();
-		delete peers;
-		peers = NULL;
 	}
 
 #ifdef CONFIG_NATIVE_WINDOWS
 	if (add_iface) {
 		add_iface->close();
 		delete add_iface;
-		add_iface = NULL;
 	}
 #endif /* CONFIG_NATIVE_WINDOWS */
 
 	if (udr) {
 		udr->close();
 		delete udr;
-		udr = NULL;
 	}
 
 	free(ctrl_iface);
-	ctrl_iface = NULL;
-
 	free(ctrl_iface_dir);
-	ctrl_iface_dir = NULL;
 }
 
 
