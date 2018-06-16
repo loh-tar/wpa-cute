@@ -16,20 +16,22 @@
 
 #include <cstdio>
 #include <unistd.h>
-#include <QMessageBox>
 #include <QCloseEvent>
 #include <QImageReader>
-#include <QSettings>
+#include <QMessageBox>
 #include <QScrollBar>
+#include <QSettings>
 
 #include "ui_about.h"
 
-#include "wpagui.h"
-#include "dirent.h"
 #include "common/wpa_ctrl.h"
-#include "userdatarequest.h"
+#include "dirent.h"
+#include "eventhistory.h"
 #include "networkconfig.h"
-
+#include "peers.h"
+#include "scanresults.h"
+#include "userdatarequest.h"
+#include "wpagui.h"
 
 #ifndef QT_NO_DEBUG
 #define debug(M, ...) qDebug("DEBUG %d: " M, __LINE__, ##__VA_ARGS__)
@@ -53,6 +55,7 @@ enum TallyType {
 	WpsReassoiciate,
 	WpsRunning,
 };
+
 
 WpaGui::WpaGui(WpaGuiApp *app
              , QWidget *parent, const char *

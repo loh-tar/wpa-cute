@@ -825,14 +825,6 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <includes>
-  <include location="global">qtimer.h</include>
-  <include location="global">qsocketnotifier.h</include>
-  <include location="local">wpamsg.h</include>
-  <include location="local">eventhistory.h</include>
-  <include location="local">scanresults.h</include>
-  <include location="local">peers.h</include>
- </includes>
  <resources>
   <include location="icons.qrc"/>
  </resources>

@@ -12,18 +12,27 @@
 #ifndef WPAGUI_H
 #define WPAGUI_H
 
-#include <QSystemTrayIcon>
 #include <QObject>
+#include <QPointer>
+#include <QSocketNotifier>
+#include <QSystemTrayIcon>
+#include <QTimer>
+
 #include "ui_wpagui.h"
+#include "wpamsg.h"
+
+class AddInterface;
+class EventHistory;
+class Peers;
+class ScanResults;
+class UserDataRequest;
+class WpaGui;
 
 
 #define ProjAppName "wpaCute"
 #define ProjVersion "0.7"
 #define ProjRelease "Jun 2018"
 
-
-class UserDataRequest;
-class AddInterface;
 
 class WpaGuiApp : public QApplication
 {
