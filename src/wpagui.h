@@ -25,7 +25,6 @@ class AddInterface;
 class EventHistory;
 class Peers;
 class ScanResults;
-class UserDataRequest;
 class WpaGui;
 
 
@@ -147,7 +146,7 @@ public slots:
 
 	virtual void ping();
 	virtual void processMsg(char *msg);
-	virtual void processCtrlReq(const char *req);
+	virtual void processCtrlReq(const QString& req);
 	virtual void receiveMsgs();
 	virtual void networkSelectionChanged();
 
@@ -220,7 +219,6 @@ private:
 	WpaMsgList msgs;
 	char *ctrl_iface_dir;
 	struct wpa_ctrl *monitor_conn;
-	UserDataRequest *udr;
 	QMenu *tray_menu;
 	QSystemTrayIcon *tray_icon;
 	TrayIconType currentIconType;

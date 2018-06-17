@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <QCloseEvent>
 #include <QImageReader>
+#include <QInputDialog>
 #include <QMessageBox>
 #include <QScrollBar>
 #include <QSettings>
@@ -30,7 +31,6 @@
 #include "networkconfig.h"
 #include "peers.h"
 #include "scanresults.h"
-#include "userdatarequest.h"
 #include "wpagui.h"
 
 #ifndef QT_NO_DEBUG
@@ -205,7 +205,6 @@ WpaGui::WpaGui(WpaGuiApp *app
 	connect(wpsApPinButton, SIGNAL(clicked())
 	      , this, SLOT(wpsApPin()));
 
-	udr = NULL;
 	tray_icon = NULL;
 	ctrl_iface = NULL;
 	ctrl_conn = NULL;
@@ -277,11 +276,6 @@ WpaGui::~WpaGui()
 		delete add_iface;
 	}
 #endif /* CONFIG_NATIVE_WINDOWS */
-
-	if (udr) {
-		udr->close();
-		delete udr;
-	}
 
 	free(ctrl_iface);
 	free(ctrl_iface_dir);
@@ -1317,11 +1311,6 @@ void WpaGui::ping()
 	bool stateChanged(wpaState != oldState);
 	oldState = wpaState;
 
-	if (udr && !udr->isVisible()) {
-		delete udr;
-		udr = NULL;
-	}
-
 	int dog(watchdogTimer->interval());
 	int maxDog(SnoozingDog);
 
@@ -1633,22 +1622,63 @@ void WpaGui::processMsg(char *msg)
 }
 
 
-void WpaGui::processCtrlReq(const char *req)
+void WpaGui::processCtrlReq(const QString& req)
 {
-	if (udr) {
-		udr->close();
-		delete udr;
-	}
-	udr = new UserDataRequest();
-	if (udr == NULL)
+	// The request message looks like "CTRL-REQ-<type>-<id>:<text>"
+	// e.g. "CTRL-REQ-PASSWORD-1:Password needed for SSID foobar"
+	// or   "CTRL-REQ-OTP-2:Challenge 1235663 needed for SSID foobar"
+	// See wpa_supplicant README, but from req is already the
+	// "CTRL-REQ-" part removed, see processMsg()
+
+	QString type = req.section('-', 0, 0);
+	QString id   = req.section('-', 1, 1).section(':', 0, 0);
+	QString txt  = req.section(':', 1, 1);
+
+	bool ok; id.toInt(&ok);
+	if (!ok) {
+		logHint("Hint : " + req);
+		logHint("FATAL: Bad request data");
 		return;
-	if (udr->setParams(this, req) < 0) {
-		delete udr;
-		udr = NULL;
+	}
+
+	QString prettyType = type;
+	QLineEdit::EchoMode mode = QLineEdit::Password;
+	if (type.compare("PASSWORD") == 0) {
+		prettyType = tr("the password");
+	} else if (type.compare("NEW_PASSWORD") == 0) {
+		prettyType = tr("a new password");
+	} else if (type.compare("IDENTITY") == 0) {
+		prettyType = tr("the identity");
+		mode = QLineEdit::Normal;
+	} else if (type.compare("PASSPHRASE") == 0) {
+		prettyType = tr("the private key passphrase");
+	} else if (type.compare("OTP") == 0) {
+		prettyType = tr("the one time password");
+	} else
+		logHint(tr("Please report this not known request: %1").arg(type));
+
+	logHint(tr("CtrlReq Network %1: %2").arg(id).arg(txt));
+
+	QString reply;
+	reply = QInputDialog::getText(this
+	                , tr("Credentials Required")
+	                , tr("\nNetwork:%1\nRequest:%2\t\t\n\nPlease enter %3")
+	                     .arg(id).arg(txt).arg(prettyType)
+	                , mode, "", &ok);
+
+	if (!ok) {
+		logHint("User aborted");
 		return;
 	}
-	udr->show();
-	udr->exec();
+
+	logHint(tr("User supplied data"));
+
+	// Regarding above examples, cmd has to be
+	// "CTRL-RSP-password-1:mysecretpassword"
+	// "CTRL-RSP-otp-2:9876"
+	QString cmd = WPA_CTRL_RSP + type + '-' + id + ':' + reply;
+
+	ctrlRequest(cmd);
 }
 
 
@@ -2160,11 +2190,6 @@ QIcon WpaGui::loadThemedIcon(const QStringList &names,
 
 void WpaGui::closeEvent(QCloseEvent *event)
 {
-	if (udr) {
-		udr->close();
-		delete udr;
-		udr = NULL;
-	}
 	closeDialog(scanWindow);
 	closeDialog(peersWindow);
 	closeDialog(eventHistoryWindow);

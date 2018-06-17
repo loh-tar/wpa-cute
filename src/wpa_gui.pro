@@ -39,7 +39,6 @@ HEADERS	+= wpamsg.h \
 	scanresults.h \
 	scanresultsitem.h \
 	signalbar.h \
-	userdatarequest.h \
 	networkconfig.h \
 	addinterface.h \
 	peers.h \
@@ -51,7 +50,6 @@ SOURCES	+= main.cpp \
 	scanresults.cpp \
 	scanresultsitem.cpp \
 	signalbar.cpp \
-	userdatarequest.cpp \
 	networkconfig.cpp \
 	addinterface.cpp \
 	peers.cpp \
@@ -63,7 +61,6 @@ RESOURCES += icons.qrc
 FORMS	= wpagui.ui \
 	eventhistory.ui \
 	scanresults.ui \
-	userdatarequest.ui \
 	networkconfig.ui \
 	peers.ui \
 	about.ui
