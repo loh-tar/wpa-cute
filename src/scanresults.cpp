@@ -18,22 +18,25 @@
 #include "networkconfig.h"
 #include "scanresultsitem.h"
 
-
-ScanResults::ScanResults(QWidget *parent, const char *, bool, Qt::WindowFlags)
-	: QDialog(parent)
+ScanResults::ScanResults(WpaGui *_wpagui)
+           : QDialog(0) // No parent so wpagui can above us
+           , wpagui(_wpagui)
 {
 	setupUi(this);
 
 	connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
 	connect(scanButton, SIGNAL(clicked()), this, SLOT(scanRequest()));
-	connect(scanResultsWidget,
-		SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this,
-		SLOT(bssSelected(QTreeWidgetItem *)));
+	connect(scanResultsWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int))
+	      , this, SLOT(bssSelected(QTreeWidgetItem *)));
 
-	wpagui = NULL;
 	scanResultsWidget->setItemsExpandable(false);
 	scanResultsWidget->setRootIsDecorated(false);
 	scanResultsWidget->setItemDelegate(new SignalBar(scanResultsWidget));
+
+	// No parent, ensure we have the icon
+	setWindowIcon(wpagui->windowIcon());
+
+	updateResults();
 }
 
 
@@ -45,13 +48,6 @@ ScanResults::~ScanResults()
 void ScanResults::languageChange()
 {
 	retranslateUi(this);
-}
-
-
-void ScanResults::setWpaGui(WpaGui *_wpagui)
-{
-	wpagui = _wpagui;
-	updateResults();
 }
 
 
@@ -131,7 +127,7 @@ void ScanResults::scanRequest()
 {
 	if (wpagui == NULL)
 		return;
-    
+
 	wpagui->ctrlRequest("SCAN");
 }
 
@@ -144,11 +140,7 @@ void ScanResults::getResults()
 
 void ScanResults::bssSelected(QTreeWidgetItem *sel)
 {
-	NetworkConfig *nc = new NetworkConfig();
-	if (nc == NULL)
-		return;
-	nc->setWpaGui(wpagui);
-	nc->paramsFromScanResults(sel);
-	nc->show();
-	nc->exec();
+	NetworkConfig nc(wpagui);
+	nc.paramsFromScanResults(sel);
+	nc.exec();
 }

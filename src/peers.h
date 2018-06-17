@@ -24,10 +24,9 @@ class Peers : public QDialog, public Ui::Peers
 	Q_OBJECT
 
 public:
-	Peers(QWidget *parent = 0, const char *name = 0,
-		    bool modal = false, Qt::WindowFlags fl = 0);
+	Peers(WpaGui *_wpagui);
 	~Peers();
-	void setWpaGui(WpaGui *_wpagui);
+
 	void event_notify(WpaMsg msg);
 
 public slots:

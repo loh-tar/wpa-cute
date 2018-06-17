@@ -21,14 +21,14 @@ class EventListModel : public QAbstractTableModel
 	Q_OBJECT
 
 public:
-	EventListModel(QObject *parent = 0)
-		: QAbstractTableModel(parent) {}
+	EventListModel(QObject *parent)	: QAbstractTableModel(parent) {};
 
-        int rowCount(const QModelIndex &parent = QModelIndex()) const;
-        int columnCount(const QModelIndex &parent = QModelIndex()) const;
-        QVariant data(const QModelIndex &index, int role) const;
-        QVariant headerData(int section, Qt::Orientation orientation,
-                            int role = Qt::DisplayRole) const;
+	int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	int columnCount(const QModelIndex &parent = QModelIndex()) const;
+	QVariant data(const QModelIndex &index, int role) const;
+	QVariant headerData(int section, Qt::Orientation orientation,
+	                    int role = Qt::DisplayRole) const;
+
 	void addEvent(QString time, QString msg);
 
 private:
@@ -42,8 +42,7 @@ class EventHistory : public QDialog, public Ui::EventHistory
 	Q_OBJECT
 
 public:
-	EventHistory(QWidget *parent = 0, const char *name = 0,
-		     bool modal = false, Qt::WindowFlags fl = 0);
+	EventHistory(QWidget *widget);
 	~EventHistory();
 
 public slots:

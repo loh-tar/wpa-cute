@@ -145,20 +145,19 @@ WpaGui::WpaGui(WpaGuiApp *app
 
 	connect(disconReconAction, SIGNAL(triggered())
 	      , this, SLOT(disconnReconnect()));
-	connect(eventHistoryAction, SIGNAL(triggered())
-	      , this, SLOT(eventHistory()));
-	connect(scanAction, SIGNAL(triggered())
-	      , this, SLOT(scan()));
 	connect(saveConfigAction, SIGNAL(triggered())
 	      , this, SLOT(saveConfig()));
 	connect(reloadConfigAction, SIGNAL(triggered())
 	      , this, SLOT(reloadConfig()));
-	connect(wpsAction, SIGNAL(triggered())
-	      , this, SLOT(wpsDialog()));
-	connect(peersAction, SIGNAL(triggered())
-	      , this, SLOT(peersDialog()));
 	connect(quitAction, SIGNAL(triggered())
 	      , qApp, SLOT(quit()));
+
+	connect(scanAction, SIGNAL(triggered())
+	      , this, SLOT(showScanWindow()));
+	connect(peersAction, SIGNAL(triggered())
+	      , this, SLOT(showPeersWindow()));
+	connect(eventHistoryAction, SIGNAL(triggered())
+	      , this, SLOT(showEventHistoryWindow()));
 
 	connect(networkAddAction, SIGNAL(triggered())
 	      , this, SLOT(addNetwork()));
@@ -186,17 +185,17 @@ WpaGui::WpaGui(WpaGuiApp *app
 
 	connect(adapterSelect, SIGNAL(activated(const QString&))
 	      , this, SLOT(selectAdapter(const QString&)));
-
+	connect(wpaguiTab, SIGNAL(currentChanged(int))
+	      , this, SLOT(tabChanged(int)));
 	connect(networkList, SIGNAL(itemSelectionChanged())
 	      , this, SLOT(networkSelectionChanged()));
 	connect(networkList, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int))
 	      , this, SLOT(editListedNetwork()));
-
 	connect(eventList, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int))
 	      , eventList, SLOT(scrollToBottom()));
 
-	connect(wpaguiTab, SIGNAL(currentChanged(int))
-	      , this, SLOT(tabChanged(int)));
+	connect(wpsAction, SIGNAL(triggered())
+	      , this, SLOT(wpsDialog()));
 	connect(wpsPbcButton, SIGNAL(clicked())
 	      , this, SLOT(wpsPbc()));
 	connect(wpsPinButton, SIGNAL(clicked())
@@ -206,9 +205,6 @@ WpaGui::WpaGui(WpaGuiApp *app
 	connect(wpsApPinButton, SIGNAL(clicked())
 	      , this, SLOT(wpsApPin()));
 
-	eh = NULL;
-	scanres = NULL;
-	peers = NULL;
 	udr = NULL;
 	tray_icon = NULL;
 	ctrl_iface = NULL;
@@ -261,6 +257,10 @@ WpaGui::WpaGui(WpaGuiApp *app
 
 WpaGui::~WpaGui()
 {
+	closeDialog(scanWindow);
+	closeDialog(peersWindow);
+	closeDialog(eventHistoryWindow);
+
 	delete msgNotifier;
 
 	if (monitor_conn) {
@@ -718,6 +718,8 @@ void WpaGui::setState(const WpaStateType state)
 			// but not the other? If not set to false here and remove the
 			// line in openCtrlConnection()
 			// adapterSelect->setEnabled(false);
+			closeDialog(scanWindow);
+			closeDialog(peersWindow);
 			tally.insert(NetworkNeedsUpdate);
 			if (ctrl_conn) {
 				wpa_ctrl_close(ctrl_conn);
@@ -1303,40 +1305,6 @@ void WpaGui::disconnReconnect()
 }
 
 
-void WpaGui::scan()
-{
-	if (scanres) {
-		scanres->close();
-		delete scanres;
-	}
-
-	scanres = new ScanResults(this);
-	if (scanres == NULL)
-		return;
-	scanres->setWpaGui(this);
-	scanres->show();
-	scanres->activateWindow();
-	scanres->exec();
-}
-
-
-void WpaGui::eventHistory()
-{
-	if (eh) {
-		eh->close();
-		delete eh;
-	}
-
-	eh = new EventHistory(this);
-	if (eh == NULL)
-		return;
-	eh->addEvents(msgs);
-	eh->show();
-	eh->activateWindow();
-	eh->exec();
-}
-
-
 void WpaGui::ping()
 {
 	static WpaStateType oldState(WpaUnknown);
@@ -1348,16 +1316,6 @@ void WpaGui::ping()
 
 	bool stateChanged(wpaState != oldState);
 	oldState = wpaState;
-
-	if (scanres && !scanres->isVisible()) {
-		delete scanres;
-		scanres = NULL;
-	}
-
-	if (eh && !eh->isVisible()) {
-		delete eh;
-		eh = NULL;
-	}
 
 	if (udr && !udr->isVisible()) {
 		delete udr;
@@ -1551,10 +1509,11 @@ void WpaGui::processMsg(char *msg)
 	}
 
 	WpaMsg wm(pos, priority);
-	if (eh)
-		eh->addEvent(wm);
-	if (peers)
-		peers->event_notify(wm);
+	if (eventHistoryWindow)
+		eventHistoryWindow->addEvent(wm);
+	if (peersWindow)
+		peersWindow->event_notify(wm);
+
 	msgs.append(wm);
 	while (msgs.count() > 100)
 		msgs.pop_front();
@@ -1570,6 +1529,8 @@ void WpaGui::processMsg(char *msg)
 	} else if (str_match(pos, WPA_EVENT_SCAN_RESULTS)) {
 		if (!tally.contains(WpsRunning))
 			logHint(tr("...scan results available"));
+		if (scanWindow)
+			scanWindow->updateResults();
 	} else if (str_match(pos, WPA_EVENT_NETWORK_NOT_FOUND)) {
 		logHint(tr("Network not found"));
 		tally.insert(NetworkNeedsUpdate);
@@ -1601,7 +1562,7 @@ void WpaGui::processMsg(char *msg)
 	} else if (str_match(pos, "SME: Trying to authenticate")) {
 		pos = strstr(pos, "SSID='") + 6;
 		*strstr(pos, "\' freq") = '\0';
-		logHint(tr("...found network: %1").arg(pos));
+		logHint(tr("Found network: %1").arg(pos));
 		setState(WpaAuthenticating);
 	} else if (str_match(pos, "Trying to associate with")) {
 		setState(WpaAssociating);
@@ -1787,18 +1748,14 @@ void WpaGui::editNetwork(const QString &sel)
 
 	id = cmd.toInt();
 
-	NetworkConfig *nc = new NetworkConfig();
-	if (nc == NULL)
-		return;
-	nc->setWpaGui(this);
+	NetworkConfig nc(this);
 
 	if (id >= 0)
-		nc->paramsFromConfig(id);
+		nc.paramsFromConfig(id);
 	else
-		nc->newNetwork();
+		nc.newNetwork();
 
-	nc->show();
-	nc->exec();
+	nc.exec();
 }
 
 
@@ -1817,13 +1774,7 @@ void WpaGui::editListedNetwork()
 
 void WpaGui::addNetwork()
 {
-	NetworkConfig *nc = new NetworkConfig();
-	if (nc == NULL)
-		return;
-	nc->setWpaGui(this);
-	nc->newNetwork();
-	nc->show();
-	nc->exec();
+	editNetwork("-1");
 }
 
 
@@ -2209,29 +2160,14 @@ QIcon WpaGui::loadThemedIcon(const QStringList &names,
 
 void WpaGui::closeEvent(QCloseEvent *event)
 {
-	if (eh) {
-		eh->close();
-		delete eh;
-		eh = NULL;
-	}
-
-	if (scanres) {
-		scanres->close();
-		delete scanres;
-		scanres = NULL;
-	}
-
-	if (peers) {
-		peers->close();
-		delete peers;
-		peers = NULL;
-	}
-
 	if (udr) {
 		udr->close();
 		delete udr;
 		udr = NULL;
 	}
+	closeDialog(scanWindow);
+	closeDialog(peersWindow);
+	closeDialog(eventHistoryWindow);
 
 	if (tray_icon && !tally.contains(AckTrayIcon)) {
 		/* give user a visual hint that the tray icon exists */
@@ -2259,25 +2195,67 @@ void WpaGui::showEvent(QShowEvent *event)
 }
 
 
-void WpaGui::wpsDialog()
+void WpaGui::newDialog(DialogType type, QDialog* window)
 {
-	wpaguiTab->setCurrentWidget(wpsTab);
+	if (window) {
+		window->show();
+		window->showNormal();
+		window->activateWindow();
+		return;
+	}
+
+	switch (type) {
+		case ScanWindow:
+			scanWindow = new ScanResults(this);
+			window = scanWindow;
+			break;
+		case PeersWindow:
+			peersWindow = new Peers(this);
+			window = peersWindow;
+			break;
+		case EventHistWindow:
+			eventHistoryWindow = new EventHistory(this);
+			eventHistoryWindow->addEvents(msgs);
+			window = eventHistoryWindow;
+			break;
+	}
+
+	window->show();
+	window->activateWindow();
+	return;
 }
 
 
-void WpaGui::peersDialog()
+void WpaGui::closeDialog(QDialog* window)
 {
-	if (peers) {
-		peers->close();
-		delete peers;
-	}
+	if (window)
+		window->close();
 
-	peers = new Peers(this);
-	if (peers == NULL)
-		return;
-	peers->setWpaGui(this);
-	peers->show();
-	peers->exec();
+	delete window;
+}
+
+
+void WpaGui::showScanWindow()
+{
+	newDialog(ScanWindow, scanWindow);
+}
+
+
+void WpaGui::showPeersWindow()
+{
+	newDialog(PeersWindow, peersWindow);
+}
+
+
+void WpaGui::showEventHistoryWindow()
+{
+	 newDialog(EventHistWindow, eventHistoryWindow);
+}
+
+
+void WpaGui::wpsDialog()
+{
+	wpaguiTab->setCurrentWidget(wpsTab);
 }
 
 
@@ -2508,7 +2486,7 @@ void WpaGui::addInterface()
 		delete add_iface;
 	}
 	add_iface = new AddInterface(this, this);
-	add_iface->show();
+// 	add_iface->show();
 	add_iface->exec();
 }
 

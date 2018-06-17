@@ -31,26 +31,28 @@ enum {
 #define InQuotes true
 
 
-NetworkConfig::NetworkConfig(QWidget *parent, const char *, bool,
-			     Qt::WindowFlags)
-	: QDialog(parent)
+NetworkConfig::NetworkConfig(WpaGui *parent)
+             : QDialog(parent)
+             , wpagui(parent)
+             , new_network(false)
 {
 	setupUi(this);
 
 	encrBox->setVisible(false);
-	connect(authSelect, SIGNAL(activated(int)), this,
-		SLOT(authChanged(int)));
-	connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
-	connect(addButton, SIGNAL(clicked()), this, SLOT(addNetwork()));
-	connect(encrSelect, SIGNAL(activated(const QString &)), this,
-		SLOT(encrChanged(const QString &)));
-	connect(removeButton, SIGNAL(clicked()), this, SLOT(removeNetwork()));
-	connect(eapSelect, SIGNAL(activated(int)), this,
-		SLOT(eapChanged(int)));
-	connect(useWpsButton, SIGNAL(clicked()), this, SLOT(useWps()));
-
-	wpagui = NULL;
-	new_network = false;
+	connect(authSelect, SIGNAL(activated(int))
+	      , this, SLOT(authChanged(int)));
+	connect(cancelButton, SIGNAL(clicked())
+	      , this, SLOT(close()));
+	connect(addButton, SIGNAL(clicked())
+	      , this, SLOT(addNetwork()));
+	connect(encrSelect, SIGNAL(activated(const QString &))
+	      , this, SLOT(encrChanged(const QString &)));
+	connect(removeButton, SIGNAL(clicked())
+	     , this, SLOT(removeNetwork()));
+	connect(eapSelect, SIGNAL(activated(int))
+	      , this, SLOT(eapChanged(int)));
+	connect(useWpsButton, SIGNAL(clicked())
+	      , this, SLOT(useWps()));
 }
 
 
@@ -397,12 +399,6 @@ void NetworkConfig::addNetwork()
 	wpagui->enableNetwork(QString::number(id));
 
 	close();
-}
-
-
-void NetworkConfig::setWpaGui(WpaGui *_wpagui)
-{
-	wpagui = _wpagui;
 }
 
 

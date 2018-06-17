@@ -22,12 +22,10 @@ class NetworkConfig : public QDialog, public Ui::NetworkConfig
 	Q_OBJECT
 
 public:
-	NetworkConfig(QWidget *parent = 0, const char *name = 0,
-	              bool modal = false, Qt::WindowFlags fl = 0);
+	NetworkConfig(WpaGui *parent);
 	~NetworkConfig();
 
 	virtual void paramsFromScanResults(QTreeWidgetItem *sel);
-	virtual void setWpaGui(WpaGui *_wpagui);
 	virtual  int setNetworkParam(int id, const QString &variable,
                                const QString &value, bool quote = false);
 	virtual void paramsFromConfig(int network_id);

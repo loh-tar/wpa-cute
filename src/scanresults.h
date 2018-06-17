@@ -22,12 +22,10 @@ class ScanResults : public QDialog, public Ui::ScanResults
 	Q_OBJECT
 
 public:
-	ScanResults(QWidget *parent = 0, const char *name = 0,
-		    bool modal = false, Qt::WindowFlags fl = 0);
+	ScanResults(WpaGui *_wpagui);
 	~ScanResults();
 
 public slots:
-	virtual void setWpaGui(WpaGui *_wpagui);
 	virtual void updateResults();
 	virtual void scanRequest();
 	virtual void getResults();

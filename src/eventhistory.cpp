@@ -76,22 +76,23 @@ void EventListModel::addEvent(QString time, QString msg)
 }
 
 
-EventHistory::EventHistory(QWidget *parent, const char *, bool, Qt::WindowFlags)
-	: QDialog(parent)
+EventHistory::EventHistory(QWidget *widget)
+            : QDialog(0) // No parent so wpagui can above us
 {
 	setupUi(this);
 
 	connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
 
-	elm = new EventListModel(parent);
+	elm = new EventListModel(this);
 	eventListView->setModel(elm);
+
+	// No parent, ensure we have the icon
+	setWindowIcon(widget->windowIcon());
 }
 
 
 EventHistory::~EventHistory()
 {
-	destroy();
-	delete elm;
 }
 
 

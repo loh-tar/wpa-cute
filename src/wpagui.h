@@ -122,10 +122,12 @@ public slots:
 	virtual void updateSignalMeter();
 
 	virtual void disconnReconnect();
+
+	virtual void showScanWindow();
+	virtual void showPeersWindow();
+	virtual void showEventHistoryWindow();
 	virtual void wpsDialog();
-	virtual void scan();
-	virtual void peersDialog();
-	virtual void eventHistory();
+
 	virtual void saveConfig();
 	virtual void reloadConfig();
 
@@ -179,6 +181,13 @@ protected slots:
 	virtual void showEvent(QShowEvent *event);
 
 private:
+
+	enum DialogType {
+		ScanWindow,
+		PeersWindow,
+		EventHistWindow,
+	};
+
 	virtual void requestNetworkChange(const QString &req, const QString &sel);
 	virtual void logHint(const QString &hint);
 
@@ -191,19 +200,21 @@ private:
 	        void setState(const WpaStateType state);
 
 	        void parseArgCV(WpaGuiApp *app);
+	        void newDialog(DialogType type, QDialog* window);
+	        void closeDialog(QDialog* window);
 
 
 	QSet<int> tally;
 	WpaStateType wpaState;
 
-	ScanResults *scanres;
-	Peers *peers;
+	QPointer<ScanResults>      scanWindow;
+	QPointer<Peers>            peersWindow;
+	QPointer<EventHistory>     eventHistoryWindow;
 
 	QTimer*                    assistanceDog;
 	QTimer*                    watchdogTimer;
 
 	char *ctrl_iface;
-	EventHistory *eh;
 	struct wpa_ctrl *ctrl_conn;
 	QSocketNotifier *msgNotifier;
 	WpaMsgList msgs;

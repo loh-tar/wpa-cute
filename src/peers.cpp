@@ -65,8 +65,10 @@ enum peer_type {
 };
 
 
-Peers::Peers(QWidget *parent, const char *, bool, Qt::WindowFlags)
-	: QDialog(parent)
+Peers::Peers(WpaGui *_wpagui)
+     : QDialog(0) // No parent so wpagui can above us
+     , wpagui(_wpagui)
+     , hide_ap(false)
 {
 	setupUi(this);
 
@@ -91,17 +93,12 @@ Peers::Peers(QWidget *parent, const char *, bool, Qt::WindowFlags)
 	peers->setSelectionMode(QAbstractItemView::NoSelection);
 
 	peers->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(peers, SIGNAL(customContextMenuRequested(const QPoint &)),
-		this, SLOT(context_menu(const QPoint &)));
+	connect(peers, SIGNAL(customContextMenuRequested(const QPoint &))
+	      ,	this, SLOT(context_menu(const QPoint &)));
 
-	wpagui = NULL;
-	hide_ap = false;
-}
+	// No parent, ensure we have the icon
+	setWindowIcon(wpagui->windowIcon());
 
-
-void Peers::setWpaGui(WpaGui *_wpagui)
-{
-	wpagui = _wpagui;
 	update_peers();
 }
 
