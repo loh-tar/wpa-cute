@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>EventHistory</class>
- <widget class="QDialog" name="EventHistory" >
-  <property name="geometry" >
+ <widget class="QDialog" name="EventHistory">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,32 +10,44 @@
     <height>285</height>
    </rect>
   </property>
-  <property name="windowTitle" >
-   <string>Event history</string>
+  <property name="windowTitle">
+   <string>Event History</string>
   </property>
-  <layout class="QGridLayout" >
-   <item row="0" column="0" colspan="2" >
-    <widget class="QTreeView" name="eventListView" >
-     <property name="sizePolicy" >
-      <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+  <layout class="QGridLayout">
+   <item row="0" column="0" colspan="2">
+    <widget class="QTreeView" name="eventListView">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="verticalScrollBarPolicy" >
+     <property name="verticalScrollBarPolicy">
       <enum>Qt::ScrollBarAlwaysOn</enum>
      </property>
-     <property name="selectionMode" >
+     <property name="selectionMode">
       <enum>QAbstractItemView::NoSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+     <property name="rootIsDecorated">
+      <bool>false</bool>
+     </property>
+     <property name="itemsExpandable">
+      <bool>true</bool>
+     </property>
+     <property name="allColumnsShowFocus">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="1" column="0" >
+   <item row="1" column="0">
     <spacer>
-     <property name="orientation" >
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="sizeHint" >
+     <property name="sizeHint" stdset="0">
       <size>
        <width>40</width>
        <height>20</height>
@@ -42,19 +55,18 @@
      </property>
     </spacer>
    </item>
-   <item row="1" column="1" >
-    <widget class="QPushButton" name="closeButton" >
-     <property name="text" >
+   <item row="1" column="1">
+    <widget class="QPushButton" name="closeButton">
+     <property name="text">
       <string>Close</string>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
- <layoutdefault spacing="6" margin="11" />
- <pixmapfunction></pixmapfunction>
+ <layoutdefault spacing="6" margin="11"/>
  <includes>
-  <include location="local" >wpamsg.h</include>
+  <include location="local">wpamsg.h</include>
  </includes>
  <resources/>
  <connections/>

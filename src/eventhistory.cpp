@@ -83,8 +83,6 @@ EventHistory::EventHistory(QWidget *parent, const char *, bool, Qt::WindowFlags)
 
 	connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
 
-	eventListView->setItemsExpandable(false);
-	eventListView->setRootIsDecorated(false);
 	elm = new EventListModel(parent);
 	eventListView->setModel(elm);
 }
