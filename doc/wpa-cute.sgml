@@ -21,6 +21,7 @@
       <arg>-p <replaceable>path-to-ctrl-sockets</replaceable></arg>
       <arg>-q</arg>
       <arg>-t</arg>
+      <arg>-W</arg>
     </cmdsynopsis>
   </refsynopsisdiv>
 
@@ -91,6 +92,18 @@
   <listitem><para>Start program in the system tray only (if the window
   manager supports it). By default the main status window is
   shown.</para></listitem>
+      </varlistentry>
+
+      <varlistentry>
+  <term>-W</term>
+  <listitem><para>Unset setting - Disable network after "WRONG_KEY"</para>
+  <para>This a workaround to a wpa_supplicant quirk where he endless tries to
+  connect to a wrong configured network. There are cases where it is a good idea,
+  but I believe it is mostly annoying due to it's implementation. If I'm wrong,
+  use <option>-W</option> to have the original behavior. By default will now a
+  network disabled after a "WRONG_KEY" message.
+  </para>
+  </listitem>
       </varlistentry>
 
     </variablelist>

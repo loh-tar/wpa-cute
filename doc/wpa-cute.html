@@ -52,12 +52,12 @@ CLASS="REPLACEABLE"
 ><I
 >path-to-ctrl-sockets</I
 ></TT
->] [-q] [-t]</P
+>] [-q] [-t] [-W]</P
 ></DIV
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN21"
+NAME="AEN22"
 ></A
 ><H2
 >Overview</H2
@@ -77,7 +77,7 @@ NAME="AEN21"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN26"
+NAME="AEN27"
 ></A
 ><H2
 >Command Arguments</H2
@@ -155,20 +155,36 @@ CLASS="OPTION"
   manager supports it). By default the main status window is
   shown.</P
 ></DD
+><DT
+>-W</DT
+><DD
+><P
+>Unset setting - Disable network after "WRONG_KEY"</P
+><P
+>This a workaround to a wpa_supplicant quirk where he endless tries to
+  connect to a wrong configured network. There are cases where it is a good idea,
+  but I believe it is mostly annoying due to it's implementation. If I'm wrong,
+  use <CODE
+CLASS="OPTION"
+>-W</CODE
+> to have the original behavior. By default will now a
+  network disabled after a "WRONG_KEY" message.
+  </P
+></DD
 ></DL
 ></DIV
 ></DIV
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN62"
+NAME="AEN69"
 ></A
 ><H2
 >Things Of Interest</H2
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN64"
+NAME="AEN71"
 ></A
 ><H3
 >Polling And Pinging</H3
@@ -193,7 +209,7 @@ NAME="AEN64"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN69"
+NAME="AEN76"
 ></A
 ><H3
 >Edit Network</H3
@@ -236,7 +252,7 @@ NAME="AEN69"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN77"
+NAME="AEN84"
 ></A
 ><H3
 >Peers</H3
@@ -251,7 +267,7 @@ NAME="AEN77"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN80"
+NAME="AEN87"
 ></A
 ><H2
 >See Also</H2
@@ -275,7 +291,7 @@ CLASS="REFENTRYTITLE"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN89"
+NAME="AEN96"
 ></A
 ><H2
 >Legal</H2

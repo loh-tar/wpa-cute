@@ -656,6 +656,8 @@
     <addaction name="enablePollingAction"/>
     <addaction name="disableNotifierAction"/>
     <addaction name="noTrayBalloonAction"/>
+    <addaction name="separator"/>
+    <addaction name="disableWrongKeyNetworks"/>
    </widget>
    <addaction name="fileMenu"/>
    <addaction name="networkMenu"/>
@@ -821,6 +823,20 @@
    </property>
    <property name="shortcut">
     <string>F5</string>
+   </property>
+  </action>
+  <action name="disableWrongKeyNetworks">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Disable network after &quot;WRONG_KEY&quot;</string>
+   </property>
+   <property name="statusTip">
+    <string>This prevent that the supplicant endless tries to connect to a wrong configured network</string>
    </property>
   </action>
  </widget>

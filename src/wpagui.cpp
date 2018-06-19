@@ -292,7 +292,7 @@ void WpaGui::parseArgCV(WpaGuiApp *app)
 {
 	int c;
 	bool hasN(false), hasP(false);
-	while( (c = getopt(app->argc, app->argv, "i:m:p:tqNP"))  > 0) {
+	while( (c = getopt(app->argc, app->argv, "i:m:p:tqNPW"))  > 0) {
 		switch (c) {
 		case 'i':
 			free(ctrl_iface);
@@ -320,6 +320,9 @@ void WpaGui::parseArgCV(WpaGuiApp *app)
 			break;
 		case 'P':
 			hasP = true;
+			break;
+		case 'W':
+			disableWrongKeyNetworks->setChecked(false);
 			break;
 		}
 	}
@@ -1559,11 +1562,18 @@ void WpaGui::processMsg(char *msg)
 		setState(WpaAssociated);
 	} else if (str_match(pos, "CTRL-EVENT-SSID-TEMP-DISABLED")) {
 		if (strstr(pos, "WRONG_KEY")) {
+			char* id = strstr(pos, "id=") + 3;
+			pos = strstr(pos, " ssid=");
+			*pos++ = '\0';
 			pos = strstr(pos, "ssid=\"") + 6;
 			*strstr(pos, "\" auth") = '\0';
-			trayMessage(tr("Error: Wrong key for network %1").arg(pos)
+			trayMessage(tr("Error: Wrong key for network %1 '%2'")
+			              .arg(id).arg(pos)
 			          , LogThis, QSystemTrayIcon::Critical);
 			tally.insert(StatusNeedsUpdate);
+			if(disableWrongKeyNetworks->isChecked()) {
+				disableNetwork(id);
+			}
 		} else {
 			debug("Message noticed but not handled");
 		}

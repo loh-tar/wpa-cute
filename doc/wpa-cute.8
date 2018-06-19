@@ -9,7 +9,7 @@
 wpaCute \- A graphical wpa_supplicant front end
 .SH SYNOPSIS
 
-\fBwpa-cute\fR [ \fB-i \fIifname\fB\fR ] [ \fB-m \fIseconds\fB\fR ] [ \fB-N\fR ] [ \fB-P\fR ] [ \fB-p \fIpath-to-ctrl-sockets\fB\fR ] [ \fB-q\fR ] [ \fB-t\fR ]
+\fBwpa-cute\fR [ \fB-i \fIifname\fB\fR ] [ \fB-m \fIseconds\fB\fR ] [ \fB-N\fR ] [ \fB-P\fR ] [ \fB-p \fIpath-to-ctrl-sockets\fB\fR ] [ \fB-q\fR ] [ \fB-t\fR ] [ \fB-W\fR ]
 
 .SH "OVERVIEW"
 .PP
@@ -64,6 +64,15 @@ icon pop-up messages.
 Start program in the system tray only (if the window
 manager supports it). By default the main status window is
 shown.
+.TP
+\fB-W\fR
+Unset setting - Disable network after "WRONG_KEY"
+
+This a workaround to a wpa_supplicant quirk where he endless tries to
+connect to a wrong configured network. There are cases where it is a good idea,
+but I believe it is mostly annoying due to it's implementation. If I'm wrong,
+use \fB-W\fR to have the original behavior. By default will now a
+network disabled after a "WRONG_KEY" message.
 .SH "THINGS OF INTEREST"
 .SS "POLLING AND PINGING"
 .PP
