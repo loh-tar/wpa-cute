@@ -25,7 +25,7 @@ ScanResults::ScanResults(WpaGui *_wpagui)
 	setupUi(this);
 
 	connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
-	connect(scanButton, SIGNAL(clicked()), this, SLOT(scanRequest()));
+	connect(scanButton, SIGNAL(clicked()), this, SLOT(requestScan()));
 	connect(scanResultsWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int))
 	      , this, SLOT(bssSelected(QTreeWidgetItem *)));
 
@@ -37,6 +37,9 @@ ScanResults::ScanResults(WpaGui *_wpagui)
 	setWindowIcon(wpagui->windowIcon());
 
 	updateResults();
+
+	if (scanResultsWidget->topLevelItemCount() < 2)
+		requestScan();
 }
 
 
@@ -123,7 +126,7 @@ void ScanResults::updateResults()
 }
 
 
-void ScanResults::scanRequest()
+void ScanResults::requestScan()
 {
 	if (wpagui == NULL)
 		return;

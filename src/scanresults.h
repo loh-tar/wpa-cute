@@ -27,7 +27,7 @@ public:
 
 public slots:
 	virtual void updateResults();
-	virtual void scanRequest();
+	virtual void requestScan();
 	virtual void getResults();
 	virtual void bssSelected(QTreeWidgetItem *sel);
 
