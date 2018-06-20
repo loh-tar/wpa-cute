@@ -987,7 +987,11 @@ void WpaGui::updateStatus(bool changed/* = true*/)
 	} else
 		textEncryption->clear();
 
-	logHint(textStatus->text());
+	static QString lastLog;
+	if (textStatus->text() != lastLog) {
+		logHint(textStatus->text());
+		lastLog = textStatus->text();
+	}
 
 	if (tally.contains(FreshConnected)) {
 		tally.remove(FreshConnected);
