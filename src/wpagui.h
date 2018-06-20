@@ -196,6 +196,7 @@ private:
 	        void assistanceDogNeeded(bool needed = true);
 
 	        void wpaStateTranslate(const char *state);
+	        bool checkUpdateConfigSetting();
 	        void setState(const WpaStateType state);
 
 	        void parseArgCV(WpaGuiApp *app);

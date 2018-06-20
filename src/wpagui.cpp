@@ -632,6 +632,27 @@ void WpaGui::wpaStateTranslate(const char *state)
 }
 
 
+bool WpaGui::checkUpdateConfigSetting() {
+
+	saveConfigAction->setEnabled(false);
+
+	size_t len(10); char buf[len];
+	ctrlRequest("GET update_config", buf, len);
+
+	if (atoi(buf)) {
+		saveConfigAction->setEnabled(true);
+		return true;
+	}
+
+	if (WpaRunning == wpaState) {
+		const QString txt(tr("Changes of the configuration can't be saved"));
+		networksTab->setStatusTip(txt);
+		logHint(txt);
+	}
+	return false;
+}
+
+
 void WpaGui::setState(const WpaStateType state)
 {
 	static int oldState = -1;
@@ -735,7 +756,7 @@ void WpaGui::setState(const WpaStateType state)
 			scanAction->setEnabled(true);
 			peersAction->setEnabled(true);
 			eventHistoryAction->setEnabled(true);
-			saveConfigAction->setEnabled(true);
+			checkUpdateConfigSetting();
 			reloadConfigAction->setEnabled(true);
 			networkMenu->setEnabled(true);
 			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(networksTab), true);
@@ -1625,7 +1646,8 @@ void WpaGui::processMsg(char *msg)
 		debug("Message noticed but so far ignored");
 	} else if (WpaObscure == wpaState) {
 		// ...catch the buggy wpa_supplicant behavior when shut down
-		setState(WpaRunning);
+		// Here should it be: setState(WpaPlain) or similar, but I'm too lazy
+		tally.insert(StatusNeedsUpdate);
 	} else {
 		debug("Message ignored");
 	}
@@ -1774,6 +1796,10 @@ void WpaGui::requestNetworkChange(const QString &req, const QString &sel)
 	ctrlRequest(cmd);
 
 	updateNetworks();
+
+	if (!checkUpdateConfigSetting())
+		return;
+
 	// reloadSaveBox->show();
 	networksTab->setStatusTip(tr("Changes are not yet saved"));
 	wpaguiTab->setTabIcon(wpaguiTab->indexOf(networksTab)
