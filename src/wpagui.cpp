@@ -70,6 +70,11 @@ WpaGui::WpaGui(WpaGuiApp *app
 	assistanceDog->setSingleShot(true);
 	connect(assistanceDog, SIGNAL(timeout()), SLOT(assistanceDogOffice()));
 
+	restoreStatusHintTimer = new QTimer(this);
+	restoreStatusHintTimer->setSingleShot(true);
+	restoreStatusHintTimer->setInterval(9 * 1000);
+	connect(restoreStatusHintTimer, SIGNAL(timeout()), SLOT(restoreStatusHint()));
+
 	logHint(tr("Start-up at %1")
 	       .arg(QDateTime::currentDateTime()
 	       .toString("dddd, yyyy-MM-dd")));
@@ -235,7 +240,6 @@ WpaGui::WpaGui(WpaGuiApp *app
 
 	watchdogTimer = new QTimer(this);
 	connect(watchdogTimer, SIGNAL(timeout()), SLOT(ping()));
-	watchdogTimer->setSingleShot(false);
 	letTheDogOut(PomDog, enablePollingAction->isChecked());
 
 	signalMeterTimer = new QTimer(this);
@@ -1467,6 +1471,12 @@ void WpaGui::updateSignalMeter()
 }
 
 
+void WpaGui::restoreStatusHint() {
+
+	statusHint->setText(textStatus->text());
+}
+
+
 void WpaGui::logHint(const QString &hint) {
 
 	QString text(hint);
@@ -1482,8 +1492,10 @@ void WpaGui::logHint(const QString &hint) {
 
 	debug("UserHint: %s", hint.toLocal8Bit().constData());
 
-	if (text.count('\n') == 0)
+	if (text.count('\n') == 0) {
 		statusHint->setText(text);
+		restoreStatusHintTimer->start();
+	}
 
 	bool scroll = true;
 	if (eventList->verticalScrollBar()->value() <

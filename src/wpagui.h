@@ -173,6 +173,7 @@ public slots:
 
 protected slots:
 	        void assistanceDogOffice();
+	        void restoreStatusHint();
 	virtual void showTrayStatus();
 	virtual void languageChange();
 	virtual void trayActivated(QSystemTrayIcon::ActivationReason how);
@@ -213,6 +214,7 @@ private:
 
 	QTimer*                    assistanceDog;
 	QTimer*                    watchdogTimer;
+	QTimer*                    restoreStatusHintTimer;
 
 	char *ctrl_iface;
 	struct wpa_ctrl *ctrl_conn;
