@@ -10,6 +10,11 @@ break my box.
     varied
   - I have tried to use "indent with tabs align with spaces"
   - Don't use underscores, use camelCase
+  - Place *& left to the type not right to the variable in declarations
+  - Place the open brace { of a function not on an own line but keep a blank
+    line to the function body, see scanresults.cpp
+  - Old code forces a line length of 80 char, but I'm not a fan of that, so feel
+    free but do not overdo it. 100 is fine, 110 may, at 120 I say ouch!
   - Try to use only Qt stuff in new code and avoid the standard library
   - Don't spick the code with your copyright hints. We can change the about
     window and add there a contributer tab with your name and done work if you

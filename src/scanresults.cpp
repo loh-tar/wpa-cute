@@ -9,25 +9,29 @@
  * See COPYING for more details.
  */
 
-#include <cstdio>
-#include <algorithm>
-
 #include "scanresults.h"
-#include "signalbar.h"
-#include "wpagui.h"
+
 #include "networkconfig.h"
 #include "scanresultsitem.h"
+#include "signalbar.h"
+#include "wpagui.h"
 
-ScanResults::ScanResults(WpaGui *_wpagui)
+
+ScanResults::ScanResults(WpaGui* _wpagui)
            : QDialog(0) // No parent so wpagui can above us
            , wpagui(_wpagui)
-{
+           , selectedNetwork(nullptr) {
+
 	setupUi(this);
 
 	connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
 	connect(scanButton, SIGNAL(clicked()), this, SLOT(requestScan()));
-	connect(scanResultsWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int))
-	      , this, SLOT(bssSelected(QTreeWidgetItem *)));
+	connect(addButton, SIGNAL(clicked()), this, SLOT(addNetwork()));
+
+	connect(scanResultsWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*))
+	      , this, SLOT(networkSelected(QTreeWidgetItem*)));
+	connect(scanResultsWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int))
+          , this, SLOT(addNetwork()));
 
 	scanResultsWidget->setItemsExpandable(false);
 	scanResultsWidget->setRootIsDecorated(false);
@@ -43,25 +47,74 @@ ScanResults::ScanResults(WpaGui *_wpagui)
 }
 
 
-ScanResults::~ScanResults()
-{
+ScanResults::~ScanResults() {
 }
 
 
-void ScanResults::languageChange()
-{
+void ScanResults::languageChange() {
+
 	retranslateUi(this);
 }
 
 
-void ScanResults::updateResults()
-{
+void ScanResults::requestScan() {
+
+	scanButton->setEnabled(false);
+	wpagui->ctrlRequest("SCAN");
+}
+
+
+void ScanResults::updateResults() {
+
 	size_t len(2048); char buf[len];
 	int index(0);
-	QString cmd("BSS %1");
+	const QString cmd("BSS %1");
 	QList<int> ssidTextWidth;
 
+	QString selectedBSSID;
+	if (selectedNetwork)
+		selectedBSSID = selectedNetwork->text(1);
+
+	selectedNetwork = nullptr;
 	scanResultsWidget->clear();
+
+	// The wpa_supplicant does sadly not deliver information about which
+	// scanned network he (probably) knows, so we have to puzzle it out
+	QHash<QString, QString> idBySSID;   // SSID/id
+	QHash<QString, QString> idByBSSID;  // BSSID/id
+	QHash<QString, QString> knownNet;   // BSSID/SSID
+	QSet<QString> lookalike;            // To note that idBySSID is not unique
+	QSet<QString> wrongKey;
+	QSet<QString> usedCandidate;
+	QString currentBSSID;
+	QTreeWidgetItem* currentNetwork(nullptr);
+	QTreeWidgetItem* wrongKeyOption(nullptr);
+	QTreeWidgetItem* bestAltOption(nullptr);
+	QString currentId;
+	for (int i = 0; i < wpagui->networkList->topLevelItemCount(); i++) {
+		QTreeWidgetItem* item = wpagui->networkList->topLevelItem(i);
+		const QString id    = item->text(0);
+		const QString ssid  = item->text(1);
+		const QString bssid = item->text(2);
+		if (item->text(3).contains("[CURRENT]")) {
+			currentBSSID = wpagui->textBssid->text();
+			currentId    = id;
+			continue;
+		}
+		if (item->text(3).contains("[TEMP-DISABLED]")) {
+			wrongKey.insert(id);
+		}
+		if (!bssid.compare("any", Qt::CaseInsensitive) == 0) {
+			knownNet.insert(bssid, ssid);
+			idByBSSID.insert(bssid, id);
+			continue;
+		}
+		if (idBySSID.contains(ssid)) {
+			lookalike.insert(ssid);
+		} else {
+			idBySSID.insert(ssid, id);
+		}
+	}
 
 	while (wpagui && index < 1000) {
 		if (wpagui->ctrlRequest(cmd.arg(index++), buf, len) < 0)
@@ -100,7 +153,42 @@ void ScanResults::updateResults()
 			item->setText(1, bssid);
 			item->setText(2, signal);
 			item->setText(3, freq);
+			QString wrongKeyId = "not-set";
+			if (currentBSSID == bssid) {
+				flags.prepend(QString("[CURRENT-%1]").arg(currentId));
+				currentNetwork = item;
+				wrongKeyId = currentId;
+			} else if (knownNet.contains(bssid) && knownNet.value(bssid) == ssid) {
+				flags.prepend(QString("[KNOWN-%1]").arg(idByBSSID.value(bssid)));
+				bestAltOption = item;
+				wrongKeyId = idByBSSID.value(bssid);
+			} else if (lookalike.contains(ssid)) {
+				flags.prepend(QString("[CANDIDATE]"));
+				bestAltOption = item;
+			} else if (idBySSID.contains(ssid)) {
+				QString cf = QString("[CANDIDATE-%1]").arg(idBySSID.value(ssid));
+				if (usedCandidate.contains(cf)) {
+					foreach(QTreeWidgetItem* item, scanResultsWidget->findItems(cf, Qt::MatchContains, 4)) {
+						QString txt = item->text(4).replace(cf, "[CANDIDATE]");
+						txt = item->text(4).remove("[WRONG-KEY]");
+						item->setText(4, txt);
+					}
+					lookalike.insert(ssid);
+					cf = "[CANDIDATE]";
+				} else {
+					usedCandidate.insert(cf);
+					wrongKeyId = idBySSID.value(ssid);
+				}
+				flags.prepend(cf);
+				bestAltOption = item;
+			}
+			if (wrongKey.contains(wrongKeyId)) {
+				flags.insert(flags.indexOf(']') + 1, "[WRONG-KEY]");
+			}
 			item->setText(4, flags);
+
+			if (selectedBSSID == bssid)
+				selectedNetwork = item;
 		}
 		if (bssid.isEmpty())
 			break;
@@ -123,27 +211,71 @@ void ScanResults::updateResults()
 	h->resizeSection(0, ssidTextWidth.at(idx));        // SSID
 
 	h->setSectionResizeMode(2 , QHeaderView::Stretch); // Signal Bar
+
+	scanButton->setEnabled(true);
+	addButton->setEnabled(false);
+	wpsButton->setEnabled(false);
+
+	if (selectedNetwork)
+		scanResultsWidget->setCurrentItem(selectedNetwork);
+	else if (currentNetwork)
+		scanResultsWidget->setCurrentItem(currentNetwork);
+	else if (wrongKeyOption)
+		scanResultsWidget->setCurrentItem(wrongKeyOption);
+	else if (bestAltOption)
+		scanResultsWidget->setCurrentItem(bestAltOption);
 }
 
 
-void ScanResults::requestScan()
-{
-	if (wpagui == NULL)
+void ScanResults::networkSelected(QTreeWidgetItem* curr) {
+
+	if (!curr)
 		return;
 
-	wpagui->ctrlRequest("SCAN");
+	selectedNetwork = curr;
+
+	QString flags = curr->text(4);
+
+	wpsButton->setEnabled(true);
+	addButton->setEnabled(true);
+	addButton->setText(tr("Add Network"));
+	selectedNetworkId.clear();
+	QStringList testFlags = {"[CURRENT-", "[KNOWN-", "[CANDIDATE-"};
+	foreach(const QString flag, testFlags) {
+		if (!flags.startsWith(flag))
+			continue;
+
+		selectedNetworkId = flags.section(flag, 1, 1);
+		selectedNetworkId = selectedNetworkId.section(']', 0, 0);
+
+		addButton->setText(tr("Edit Network"));
+		wpsButton->setEnabled(false);
+		wpsButton->setEnabled(flags.contains("[WRONG-KEY]"));
+		break;
+	}
+
+	if (!flags.contains("[WPS"))
+		wpsButton->setEnabled(false);
+
+	if (flags.startsWith("[CANDIDATE]"))
+		addButton->setEnabled(false);
 }
 
 
-void ScanResults::getResults()
-{
-	updateResults();
-}
+void ScanResults::addNetwork() {
 
+	if (!addButton->isEnabled())
+		return;
 
-void ScanResults::bssSelected(QTreeWidgetItem *sel)
-{
 	NetworkConfig nc(wpagui);
-	nc.paramsFromScanResults(sel);
+
+	if (selectedNetworkId.isEmpty()) {
+		nc.paramsFromScanResults(selectedNetwork);
+	} else {
+		nc.paramsFromConfig(selectedNetworkId.toInt());
+	}
+
 	nc.exec();
+
+	raise();
 }

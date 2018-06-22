@@ -22,20 +22,22 @@ class ScanResults : public QDialog, public Ui::ScanResults
 	Q_OBJECT
 
 public:
-	ScanResults(WpaGui *_wpagui);
+	ScanResults(WpaGui* _wpagui);
 	~ScanResults();
 
 public slots:
-	virtual void updateResults();
 	virtual void requestScan();
-	virtual void getResults();
-	virtual void bssSelected(QTreeWidgetItem *sel);
+	virtual void updateResults();
 
 protected slots:
 	virtual void languageChange();
+	virtual void networkSelected(QTreeWidgetItem* curr);
+	virtual void addNetwork();
 
 private:
-	WpaGui *wpagui;
+	WpaGui*             wpagui;
+	QString             selectedNetworkId;
+	QTreeWidgetItem*    selectedNetwork;
 };
 
 #endif /* SCANRESULTS_H */

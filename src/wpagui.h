@@ -51,6 +51,7 @@ public:
 class WpaGui : public QMainWindow, public Ui::WpaGui
 {
 	Q_OBJECT
+	friend class ScanResults;
 
 public:
 
