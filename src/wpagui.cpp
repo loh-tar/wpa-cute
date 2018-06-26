@@ -1136,6 +1136,9 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 
 	networkSelectionChanged();
 
+	if (scanWindow)
+			scanWindow->updateResults();
+
 	debug("updateNetworks() <<<<<<");
 }
 
