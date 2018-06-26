@@ -124,7 +124,7 @@ void ScanResults::updateResults() {
 		if (bss.isEmpty())
 			break;
 
-		QString ssid, bssid, freq, signal, flags;
+		QString ssid, bssid, freq, signal, flags, customFlags;
 
 		QStringList lines = bss.split(QRegExp("\\n"));
 		for (QStringList::Iterator it = lines.begin();
@@ -155,36 +155,39 @@ void ScanResults::updateResults() {
 			item->setText(3, freq);
 			QString wrongKeyId = "not-set";
 			if (currentBSSID == bssid) {
-				flags.prepend(QString("[CURRENT-%1]").arg(currentId));
+				customFlags = QString("[CURRENT-%1]").arg(currentId);
 				currentNetwork = item;
 				wrongKeyId = currentId;
 			} else if (knownNet.contains(bssid) && knownNet.value(bssid) == ssid) {
-				flags.prepend(QString("[KNOWN-%1]").arg(idByBSSID.value(bssid)));
+				customFlags = QString("[KNOWN-%1]").arg(idByBSSID.value(bssid));
 				bestAltOption = item;
 				wrongKeyId = idByBSSID.value(bssid);
 			} else if (lookalike.contains(ssid)) {
-				flags.prepend(QString("[CANDIDATE]"));
+				customFlags = "[CANDIDATE]";
 				bestAltOption = item;
 			} else if (idBySSID.contains(ssid)) {
-				QString cf = QString("[CANDIDATE-%1]").arg(idBySSID.value(ssid));
-				if (usedCandidate.contains(cf)) {
-					foreach(QTreeWidgetItem* item, scanResultsWidget->findItems(cf, Qt::MatchContains, 4)) {
-						QString txt = item->text(4).replace(cf, "[CANDIDATE]");
+				customFlags = QString("[CANDIDATE-%1]").arg(idBySSID.value(ssid));
+				if (usedCandidate.contains(customFlags)) {
+					foreach(QTreeWidgetItem* item, scanResultsWidget->findItems(customFlags, Qt::MatchContains, 4)) {
+						QString txt = item->text(4).replace(customFlags, "[CANDIDATE]");
 						txt = item->text(4).remove("[WRONG-KEY]");
 						item->setText(4, txt);
 					}
 					lookalike.insert(ssid);
-					cf = "[CANDIDATE]";
+					customFlags = "[CANDIDATE]";
 				} else {
-					usedCandidate.insert(cf);
+					usedCandidate.insert(customFlags);
 					wrongKeyId = idBySSID.value(ssid);
 				}
-				flags.prepend(cf);
 				bestAltOption = item;
 			}
 			if (wrongKey.contains(wrongKeyId)) {
-				flags.insert(flags.indexOf(']') + 1, "[WRONG-KEY]");
+				customFlags.append("[WRONG-KEY]");
 			}
+			if (!customFlags.isEmpty())
+				customFlags.prepend("* ");
+
+			flags.prepend(customFlags);
 			item->setText(4, flags);
 
 			if (selectedBSSID == bssid)
@@ -242,7 +245,7 @@ void ScanResults::networkSelected(QTreeWidgetItem* curr) {
 	selectedNetworkId.clear();
 	QStringList testFlags = {"[CURRENT-", "[KNOWN-", "[CANDIDATE-"};
 	foreach(const QString flag, testFlags) {
-		if (!flags.startsWith(flag))
+		if (!flags.contains(flag))
 			continue;
 
 		selectedNetworkId = flags.section(flag, 1, 1);
@@ -257,7 +260,7 @@ void ScanResults::networkSelected(QTreeWidgetItem* curr) {
 	if (!flags.contains("[WPS"))
 		wpsButton->setEnabled(false);
 
-	if (flags.startsWith("[CANDIDATE]"))
+	if (flags.contains("[CANDIDATE]"))
 		addButton->setEnabled(false);
 }
 
