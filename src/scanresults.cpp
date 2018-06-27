@@ -15,6 +15,7 @@
 #include "scanresultsitem.h"
 #include "signalbar.h"
 #include "wpagui.h"
+#include "wpsdialog.h"
 
 
 ScanResults::ScanResults(WpaGui* _wpagui)
@@ -27,6 +28,7 @@ ScanResults::ScanResults(WpaGui* _wpagui)
 	connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
 	connect(scanButton, SIGNAL(clicked()), this, SLOT(requestScan()));
 	connect(addButton, SIGNAL(clicked()), this, SLOT(addNetwork()));
+	connect(wpsButton, SIGNAL(clicked()), this, SLOT(showWpsDialog()));
 
 	connect(scanResultsWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*))
 	      , this, SLOT(networkSelected(QTreeWidgetItem*)));
@@ -281,4 +283,18 @@ void ScanResults::addNetwork() {
 	nc.exec();
 
 	raise();
+}
+
+
+void ScanResults::showWpsDialog() {
+
+	const QString ssid  = selectedNetwork->text(0);
+	const QString bssid = selectedNetwork->text(1);
+
+	wpagui->showWpsWindow();
+
+	if (selectedNetwork->text(4).contains("[WPS-PBC]"))
+		wpagui->wpsWindow->activePbcAvailable(ssid, bssid);
+	else
+		wpagui->wpsWindow->setNetworkIds(ssid, bssid);
 }

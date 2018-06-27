@@ -478,75 +478,6 @@
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="wpsTab">
-         <attribute name="title">
-          <string>WPS</string>
-         </attribute>
-         <layout class="QGridLayout" name="wpsGridLayout">
-          <item row="1" column="2">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>PIN:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" colspan="2">
-           <widget class="QPushButton" name="wpsApPinButton">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Use AP PIN</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0" colspan="4">
-           <widget class="QTextEdit" name="wpsInstructions">
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" colspan="2">
-           <widget class="QPushButton" name="wpsPbcButton">
-            <property name="text">
-             <string>PBC - push button</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QLineEdit" name="wpsPinEdit">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>AP PIN:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="3">
-           <widget class="QLineEdit" name="wpsApPinEdit">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="QPushButton" name="wpsPinButton">
-            <property name="text">
-             <string>Generate PIN</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
         <widget class="QWidget" name="eventTab">
          <attribute name="title">
           <string>Events</string>
@@ -668,12 +599,18 @@
    <property name="text">
     <string>Event &amp;History</string>
    </property>
+   <property name="statusTip">
+    <string>Show messages of the wpa_supplicant</string>
+   </property>
   </action>
   <action name="saveConfigAction">
    <property name="text">
     <string>&amp;Save Config</string>
    </property>
    <property name="toolTip">
+    <string>Save Config</string>
+   </property>
+   <property name="statusTip">
     <string>Save current configuration</string>
    </property>
    <property name="shortcut">
@@ -685,6 +622,9 @@
     <string>&amp;Quit</string>
    </property>
    <property name="toolTip">
+    <string>Quit</string>
+   </property>
+   <property name="statusTip">
     <string>Quit Application</string>
    </property>
    <property name="shortcut">
@@ -749,10 +689,19 @@
    <property name="text">
     <string>&amp;Wi-Fi Protected Setup</string>
    </property>
+   <property name="statusTip">
+    <string>Show Wi-Fi Protected Setup window</string>
+   </property>
   </action>
   <action name="peersAction">
    <property name="text">
     <string>&amp;Peers</string>
+   </property>
+   <property name="toolTip">
+    <string>Peers</string>
+   </property>
+   <property name="statusTip">
+    <string>Show Peers window</string>
    </property>
   </action>
   <action name="helpAboutQtAction">
@@ -774,6 +723,9 @@
    </property>
    <property name="toolTip">
     <string notr="true">DisconnReconn</string>
+   </property>
+   <property name="statusTip">
+    <string/>
    </property>
   </action>
   <action name="disableNotifierAction">
@@ -802,6 +754,12 @@
    <property name="text">
     <string>S&amp;can</string>
    </property>
+   <property name="toolTip">
+    <string>Scan</string>
+   </property>
+   <property name="statusTip">
+    <string>Show Scan window</string>
+   </property>
   </action>
   <action name="noTrayBalloonAction">
    <property name="checkable">
@@ -819,6 +777,9 @@
     <string>&amp;Reload Config</string>
    </property>
    <property name="toolTip">
+    <string>Reload Config</string>
+   </property>
+   <property name="statusTip">
     <string>Reload configuration</string>
    </property>
    <property name="shortcut">
@@ -833,7 +794,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Disable network after &quot;WRONG_KEY&quot;</string>
+    <string>Disable network after &quot;&amp;WRONG_KEY&quot;</string>
    </property>
    <property name="statusTip">
     <string>This prevent that the supplicant endless tries to connect to a wrong configured network</string>

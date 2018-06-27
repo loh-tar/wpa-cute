@@ -31,6 +31,7 @@
 #include "networkconfig.h"
 #include "peers.h"
 #include "scanresults.h"
+#include "wpsdialog.h"
 #include "wpagui.h"
 
 #ifndef QT_NO_DEBUG
@@ -54,6 +55,7 @@ enum TallyType {
 	AssistanceDogAtWork,
 	WpsReassoiciate,
 	WpsRunning,
+	WpsCleanUp
 };
 
 
@@ -141,13 +143,6 @@ WpaGui::WpaGui(WpaGuiApp *app
 
 	(void) statusBar();
 
-	/*
-	 * Disable WPS tab by default; it will be enabled if wpa_supplicant is
-	 * built with WPS support.
-	 */
-	wpsTab->setEnabled(false);
-	wpaguiTab->setTabEnabled(wpaguiTab->indexOf(wpsTab), false);
-
 	connect(disconReconAction, SIGNAL(triggered())
 	      , this, SLOT(disconnReconnect()));
 	connect(saveConfigAction, SIGNAL(triggered())
@@ -190,8 +185,6 @@ WpaGui::WpaGui(WpaGuiApp *app
 
 	connect(adapterSelect, SIGNAL(activated(const QString&))
 	      , this, SLOT(selectAdapter(const QString&)));
-	connect(wpaguiTab, SIGNAL(currentChanged(int))
-	      , this, SLOT(tabChanged(int)));
 	connect(networkList, SIGNAL(itemSelectionChanged())
 	      , this, SLOT(networkSelectionChanged()));
 	connect(networkList, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int))
@@ -200,15 +193,7 @@ WpaGui::WpaGui(WpaGuiApp *app
 	      , eventList, SLOT(scrollToBottom()));
 
 	connect(wpsAction, SIGNAL(triggered())
-	      , this, SLOT(wpsDialog()));
-	connect(wpsPbcButton, SIGNAL(clicked())
-	      , this, SLOT(wpsPbc()));
-	connect(wpsPinButton, SIGNAL(clicked())
-	      , this, SLOT(wpsGeneratePin()));
-	connect(wpsApPinEdit, SIGNAL(textChanged(const QString &))
-	      , this, SLOT(wpsApPinChanged(const QString &)));
-	connect(wpsApPinButton, SIGNAL(clicked())
-	      , this, SLOT(wpsApPin()));
+	      , this, SLOT(showWpsWindow()));
 
 	tray_icon = NULL;
 	ctrl_iface = NULL;
@@ -263,6 +248,7 @@ WpaGui::~WpaGui()
 	closeDialog(scanWindow);
 	closeDialog(peersWindow);
 	closeDialog(eventHistoryWindow);
+	closeDialog(wpsWindow);
 
 	delete msgNotifier;
 
@@ -556,8 +542,6 @@ int WpaGui::openCtrlConnection(const char *ifname)
 		QStringList types = res.split(QChar(' '));
 		bool wps = types.contains("WSC");
 		wpsAction->setEnabled(wps);
-		wpsTab->setEnabled(wps);
-		wpaguiTab->setTabEnabled(wpaguiTab->indexOf(wpsTab), wps);
 	}
 
 	setState(WpaRunning);
@@ -667,6 +651,8 @@ void WpaGui::setState(const WpaStateType state)
 	const QString DiscActTTTxt(tr("Disable WLAN networking"));
 	const QString RecActTxt(tr("Reconnect"));
 	const QString RecActTTTxt(tr("Enable WLAN networking"));
+	const QString StpWpsActTxt(tr("Stop WPS"));
+	const QString StpWpsActTTTxt(tr("Stop running WPS procedure"));
 
 	if (state == oldState) {
 		if (WpaScanning == state)
@@ -698,7 +684,6 @@ void WpaGui::setState(const WpaStateType state)
 			reloadConfigAction->setEnabled(false);
 			networkMenu->setEnabled(false);
 			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(networksTab), false);
-			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(wpsTab), false);
 			wpaguiTab->setCurrentWidget(eventTab);
 			rssiBar->hide();
 			break;
@@ -724,7 +709,6 @@ void WpaGui::setState(const WpaStateType state)
 			wpaState = WpaNotRunning;
 			icon = TrayIconError;
 			stateText = tr("No running wpa_supplicant");
-			stopWpsRun(true);
 			disconReconAction->setEnabled(false);
 			wpsAction->setEnabled(false);
 			scanAction->setEnabled(false);
@@ -734,7 +718,6 @@ void WpaGui::setState(const WpaStateType state)
 			reloadConfigAction->setEnabled(false);
 			networkMenu->setEnabled(false);
 			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(networksTab), false);
-			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(wpsTab), false);
 			wpaguiTab->setCurrentWidget(eventTab);
 			// FIXME is it possible that wpa_supplicant runs with one adapter
 			// but not the other? If not set to false here and remove the
@@ -797,6 +780,16 @@ void WpaGui::setState(const WpaStateType state)
 			stateText = tr("Wait for registrar");
 			icon = TrayIconAcquiring;
 			break;
+		case WpaWpsRunning:
+			wpaState = WpaWpsRunning;
+			icon = TrayIconScanning;
+			stateText = tr("Running WPS...");
+			disconReconAction->setText(StpWpsActTxt);
+			disconReconAction->setToolTip(StpWpsActTTTxt);
+			disconReconAction->setEnabled(true);
+			tally.insert(WpsRunning);
+			rssiBar->hide();
+			break;
 		case WpaInactive:
 			wpaState = WpaInactive;
 			icon = TrayIconInactive;
@@ -850,7 +843,6 @@ void WpaGui::setState(const WpaStateType state)
 			wpaState = WpaCompleted;
 			icon = TrayIconSignalExcellent;
 			stateText = tr("Connected");
-			stopWpsRun(true);
 			signalMeterTimer->start();
 			disconReconAction->setText(DiscActTxt);
 			disconReconAction->setToolTip(DiscActTTTxt);
@@ -1321,12 +1313,13 @@ void WpaGui::disconnReconnect()
 	if (WpaDisconnected == wpaState) {
 		logHint(tr("User requests network reconnect"));
 		ctrlRequest("REASSOCIATE");
+	} else if (WpaWpsRunning == wpaState) {
+		wpsCancel();
 	} else if (WpaCompleted == wpaState || WpaScanning  == wpaState ||
 		       WpaInactive == wpaState)
 	{
 		logHint(tr("User requests network disconnect"));
 		ctrlRequest("DISCONNECT");
-		stopWpsRun(false);
 		assistanceDogNeeded();
 	}
 
@@ -1573,6 +1566,8 @@ void WpaGui::processMsg(char *msg)
 				logHint(tr("Oops!?"));
 			} else if (tally.contains(WpsRunning)) {
 				// Silently ignored
+			} else if (tally.contains(WpsCleanUp)) {
+				tally.remove(WpsCleanUp);
 			} else {
 				if (WpaCompleted == wpaState) {
 					trayMessage(tr("Disconnected from %1")
@@ -1589,12 +1584,15 @@ void WpaGui::processMsg(char *msg)
 			           .arg(textSsid->text())
 			          , LogThis, QSystemTrayIcon::Warning);
 		} else {
-			debug("WARNING disconnect reason not handled/ignored");
+			debug("Disconnect reason not handled/ignored");
 		}
 	} else if (str_match(pos, "SME: Trying to authenticate")) {
+		char* bssid = strstr(pos, "authenticate with ") + 18;
+		pos = bssid + 17;
+		*pos++ = '\0';
 		pos = strstr(pos, "SSID='") + 6;
 		*strstr(pos, "\' freq") = '\0';
-		logHint(tr("Found network: %1").arg(pos));
+		logHint(tr("Found network: %1 %2").arg(pos).arg(bssid));
 		setState(WpaAuthenticating);
 	} else if (str_match(pos, "Trying to associate with")) {
 		setState(WpaAssociating);
@@ -1610,56 +1608,68 @@ void WpaGui::processMsg(char *msg)
 			trayMessage(tr("Error: Wrong key for network %1 '%2'")
 			              .arg(id).arg(pos)
 			          , LogThis, QSystemTrayIcon::Critical);
-			tally.insert(StatusNeedsUpdate);
 			if(disableWrongKeyNetworks->isChecked()) {
 				disableNetwork(id);
 			}
+			tally.insert(StatusNeedsUpdate);
 		} else {
 			debug("Message noticed but not handled");
 		}
 	} else if (str_match(pos, WPA_EVENT_CONNECTED)) {
 		setState(WpaCompleted);
 	} else if (str_match(pos, WPA_EVENT_TERMINATING)) {
+		tally.remove(WpaWpsRunning);
 		setState(WpaNotRunning);
 		trayMessage(tr("The wpa_supplicant is terminated")
 		          , LogThis, QSystemTrayIcon::Critical);
 	} else if (str_match(pos, WPS_EVENT_AP_AVAILABLE_PBC)) {
 		logHint(tr("WPS AP in active PBC mode found"));
-		if (WpaInactive == wpaState || WpaDisconnected == wpaState) {
-			wpaguiTab->setCurrentWidget(wpsTab);
-			setState(WpaWait4Registrar);
-		}
-		wpsInstructions->setText(tr("Press the PBC button on the "
-		                            "screen to start registration"));
+		if (wpsWindow)
+			wpsWindow->activePbcAvailable();
 	} else if (str_match(pos, WPS_EVENT_AP_AVAILABLE_PIN)) {
 		logHint(tr("WPS AP with recently selected registrar"));
-		if (WpaInactive == wpaState || WpaDisconnected == wpaState)
-			wpaguiTab->setCurrentWidget(wpsTab);
+// 		if (WpaInactive == wpaState || WpaDisconnected == wpaState)
+// 			wpaguiTab->setCurrentWidget(eventTab);
 	} else if (str_match(pos, WPS_EVENT_AP_AVAILABLE_AUTH)) {
 		trayMessage(tr("Wi-Fi Protected Setup (WPS) AP\n"
 		               "indicating this client is authorized"), LogThis);
-		if (WpaInactive == wpaState || WpaDisconnected == wpaState)
-			wpaguiTab->setCurrentWidget(wpsTab);
+// 		if (WpaInactive == wpaState || WpaDisconnected == wpaState)
+// 			wpaguiTab->setCurrentWidget(eventTab);
 	} else if (str_match(pos, WPS_EVENT_AP_AVAILABLE)) {
-		logHint(tr("WPS AP detected"));
+		if (!tally.contains(WpsRunning))
+			logHint(tr("WPS AP detected"));
 	} else if (str_match(pos, WPS_EVENT_OVERLAP)) {
 		logHint(tr("PBC mode overlap detected"));
-		wpsInstructions->setText(tr("More than one AP is currently in "
-		                            "active WPS PBC mode. Wait couple "
-		                            "of minutes and try again"));
-		wpaguiTab->setCurrentWidget(wpsTab);
+		if (wpsWindow)
+			wpsWindow->pbcOverlapDetected();
 	} else if (str_match(pos, WPS_EVENT_CRED_RECEIVED)) {
+		// WPS_EVENT_SUCCESS is not always send, so we take
+		// WPS_EVENT_CRED_RECEIVED also as success.
+		// FIXME I have no clue if after this message we can still fail
 		logHint(tr("Network configuration received"));
-		wpaguiTab->setCurrentWidget(wpsTab);
+		wpsStop(WPS_EVENT_SUCCESS);
 	} else if (str_match(pos, WPA_EVENT_EAP_METHOD)) {
 		if (strstr(pos, "(WSC)"))
 			logHint(tr("Registration started"));
 	} else if (str_match(pos, WPS_EVENT_M2D)) {
 		logHint(tr("Registrar does not yet know PIN"));
-	} else if (str_match(pos, WPS_EVENT_FAIL)) {
-		logHint(tr("Registration failed"));
+	} else if (str_match(pos, WPS_EVENT_FAIL) && !QString(pos).contains("config_error=0")) {
+		// WPS_EVENT_FAIL means not always failed :-/ config_error=0 is named WPS_CFG_NO_ERROR
+		// Error numbers are defined in wps/wps_defs.h, see wpa_supplicant sources
+		if (QString(pos).contains("config_error=")) {
+			wpsStop(WPS_EVENT_FAIL);
+			if (QString(pos).contains("config_error=15"))
+				logHint(tr("AP not ready for WPS (SETUP_LOCKED)"));
+			if (QString(pos).contains("config_error=18"))
+				logHint(tr("Wrong PIN"));
+			else
+				logHint(QString("Please report: config_error=%1")
+				               .arg(QString(pos).section("config_error=", 1, 1)));
+		}
+	} else if (str_match(pos, WPS_EVENT_TIMEOUT)) {
+		wpsStop(WPS_EVENT_TIMEOUT);
 	} else if (str_match(pos, WPS_EVENT_SUCCESS)) {
-		logHint(tr("Registration succeeded"));
+		wpsStop(WPS_EVENT_SUCCESS);
 	} else if (str_match(pos, WPA_EVENT_BSS_REMOVED)) {
 		// Needed to catch these or the next has not the desired effect to...
 		debug("Message noticed but so far ignored");
@@ -2011,8 +2021,10 @@ void WpaGui::createTrayIcon(bool trayOnly)
 	tray_menu->addAction(statAction);
 	tray_menu->addAction(disconReconAction);
 	tray_menu->addSeparator();
-	tray_menu->addAction(peersAction);
+	tray_menu->addAction(wpsAction);
+	tray_menu->addSeparator();
 	tray_menu->addAction(scanAction);
+	tray_menu->addAction(peersAction);
 	tray_menu->addSeparator();
 	tray_menu->addMenu(settingsMenu);
 	tray_menu->addMenu(helpMenu);
@@ -2248,6 +2260,7 @@ void WpaGui::closeEvent(QCloseEvent *event)
 	closeDialog(scanWindow);
 	closeDialog(peersWindow);
 	closeDialog(eventHistoryWindow);
+	closeDialog(wpsWindow);
 
 	if (tray_icon && !tally.contains(AckTrayIcon)) {
 		/* give user a visual hint that the tray icon exists */
@@ -2298,6 +2311,10 @@ void WpaGui::newDialog(DialogType type, QDialog* window)
 			eventHistoryWindow->addEvents(msgs);
 			window = eventHistoryWindow;
 			break;
+		case WpsWindow:
+			wpsWindow = new WpsDialog(this);
+			window = wpsWindow;
+			break;
 	}
 
 	window->show();
@@ -2333,103 +2350,117 @@ void WpaGui::showEventHistoryWindow()
 }
 
 
-void WpaGui::wpsDialog()
-{
-	wpaguiTab->setCurrentWidget(wpsTab);
+void WpaGui::showWpsWindow() {
+
+	 newDialog(WpsWindow, wpsWindow);
 }
 
 
-void WpaGui::tabChanged(int index)
-{
-	if (index != 2)
-		return;
+void WpaGui::wpsPbc(const QString& bssid /*= ""*/) {
 
-	if (tally.contains(WpsRunning))
-		return;
+	// 'any' works but is not as such documented by 'help wps_pbc', so call without any
+	QString cmd = "WPS_PBC";
+	if (bssid != "any")
+		cmd.append(" " + bssid);
 
-	wpsApPinEdit->setEnabled(!bssFromScan.isEmpty());
-	if (bssFromScan.isEmpty())
-		wpsApPinButton->setEnabled(false);
-}
-
-
-void WpaGui::wpsPbc()
-{
-	if (ctrlRequest("WPS_PBC") < 0)
-		return;
-
-	wpsPinEdit->setEnabled(false);
-	if (WpaWait4Registrar != wpaState) {
-		wpsInstructions->setText(tr("Press the push button on the AP to "
-					 "start the PBC mode."));
-	} else {
-		wpsInstructions->setText(tr("If you have not yet done so, press "
-					 "the push button on the AP to start "
-					 "the PBC mode."));
-	}
-	logHint(tr("Waiting for Registrar"));
-	tally.insert(WpsRunning);
-}
-
-
-void WpaGui::wpsGeneratePin()
-{
-	size_t len(20); char buf[len];
-
-	if (ctrlRequest("WPS_PIN any", buf, len) < 0)
-		return;
-
-	wpsPinEdit->setText(buf);
-	wpsPinEdit->setEnabled(true);
-	wpsInstructions->setText(tr("Enter the generated PIN into the Registrar "
-				 "(either the internal one in the AP or an "
-				 "external one)."));
-	logHint(tr("Waiting for Registrar"));
-	tally.insert(WpsRunning);
-}
-
-
-void WpaGui::setBssFromScan(const QString &bssid)
-{
-	bssFromScan = bssid;
-	wpsApPinEdit->setEnabled(!bssFromScan.isEmpty());
-	wpsApPinButton->setEnabled(wpsApPinEdit->text().length() == 8);
-	logHint(tr("WPS AP selected from scan results"));
-	wpsInstructions->setText(tr("If you want to use an AP device PIN, e.g., "
-				 "from a label in the device, enter the eight "
-				 "digit AP PIN and click Use AP PIN button."));
-}
-
-
-void WpaGui::wpsApPinChanged(const QString &text)
-{
-	wpsApPinButton->setEnabled(text.length() == 8);
-}
-
-
-void WpaGui::wpsApPin()
-{
-	QString cmd("WPS_REG " + bssFromScan + " " + wpsApPinEdit->text());
 	if (ctrlRequest(cmd) < 0)
 		return;
 
-	logHint(tr("Waiting for AP/Enrollee"));
-	tally.insert(WpsRunning);
+	if (bssid != "any") {
+		logHint(tr("User started WPS Push Button Method"));
+		logHint(tr("for BSSID %1").arg(bssid));
+	} else {
+		logHint(tr("User started WPS Push Button Method"));
+		logHint(tr("as universal call"));
+	}
+
+	wpsStart();
 }
 
 
-void WpaGui::stopWpsRun(bool success)
-{
-	if (tally.contains(WpsRunning))
-		logHint(success ? tr("Connected to the network") :
-		                  tr("Stopped"));
+void WpaGui::wpsApPin(const QString& bssid, const QString& pin) {
 
-	wpsPinEdit->setEnabled(false);
-	wpsInstructions->setText("");
+	QString cmd("WPS_REG " + bssid + " " + pin);
+	if (ctrlRequest(cmd) < 0)
+		return;
+
+	logHint(tr("User started WPS AP PIN Method"));
+	logHint(tr("for BSSID %1 with PIN %2").arg(bssid).arg(pin));
+	wpsStart();
+}
+
+
+QString WpaGui::wpsGeneratePin(const QString& bssid) {
+
+	size_t len(20); char buf[len];
+
+	if (ctrlRequest("WPS_PIN " + bssid, buf, len) < 0)
+			return QString();
+
+	logHint(tr("User started WPS PIN Method"));
+	logHint(tr("for BSSID %1 with generated PIN %2").arg(bssid).arg(buf));
+	wpsStart();
+
+	return QString(buf);
+}
+
+
+void WpaGui::wpsStart() {
+
+	if (WpaDisconnected != wpaState)
+		tally.insert(WpsReassoiciate);
+
+	wpaguiTab->setCurrentWidget(eventTab);
+	setState(WpaWpsRunning);
+}
+
+
+void WpaGui::wpsStop(const QString& reason) {
+
+	if (!tally.contains(WpsRunning))
+		return;
+
+	tally.insert(WpsCleanUp);
 	tally.remove(WpsRunning);
-	bssFromScan = "";
-	wpsApPinEdit->setEnabled(false);
-	wpsApPinButton->setEnabled(false);
+
+	if (reason == "USER-CANCEL")
+		logHint(tr("WPS run canceled by user"));
+	else if (reason == WPS_EVENT_FAIL)
+		logHint(tr("WPS Registration failed"));
+	else if (reason == WPS_EVENT_TIMEOUT)
+		logHint(tr("WPS run timed out"));
+	else if (reason == WPS_EVENT_SUCCESS) {
+		tally.remove(WpsReassoiciate);
+		wpaguiTab->setCurrentWidget(statusTab);
+		logHint(tr("WPS Registration succeeded"));
+		logHint(tr("Will reconnect with exchanged credentials"));
+		wpsWindow->accept();
+		activateWindow();
+		return;
+	} else {
+		// Yeah, I become lazy, 'reason' should be some enum
+		debug("FATAL: Unknown reason: %s", reason.toLocal8Bit().constData());
+	}
+
+	// Only needed if not successful
+	tally.insert(StatusNeedsUpdate);
+
+	// WPS_CANCEL is often not enough to calm down the supplicant, he need some
+	// more forceful hint to give up his efforts, perhaps a bug?
+	ctrlRequest("DISCONNECT");
+	ctrlRequest("WPS_CANCEL");
+
+	// Restore the state previous to WPS run
+	if (tally.contains(WpsReassoiciate)) {
+		tally.remove(WpsReassoiciate);
+		ctrlRequest("REASSOCIATE");
+	}
+}
+
+
+void WpaGui::wpsCancel() {
+
+	wpsStop("USER-CANCEL");
 }
 
 

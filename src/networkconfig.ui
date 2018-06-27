@@ -496,16 +496,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="useWpsButton">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>WPS</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="addButton">
         <property name="text">
          <string>Add</string>
@@ -535,7 +525,6 @@
   <tabstop>idstrEdit</tabstop>
   <tabstop>prioritySpinBox</tabstop>
   <tabstop>addButton</tabstop>
-  <tabstop>useWpsButton</tabstop>
   <tabstop>cancelButton</tabstop>
   <tabstop>removeButton</tabstop>
   <tabstop>wep0Radio</tabstop>

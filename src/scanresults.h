@@ -33,6 +33,7 @@ protected slots:
 	virtual void languageChange();
 	virtual void networkSelected(QTreeWidgetItem* curr);
 	virtual void addNetwork();
+	virtual void showWpsDialog();
 
 private:
 	WpaGui*             wpagui;

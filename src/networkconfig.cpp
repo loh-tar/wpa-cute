@@ -51,8 +51,6 @@ NetworkConfig::NetworkConfig(WpaGui *parent)
 	     , this, SLOT(removeNetwork()));
 	connect(eapSelect, SIGNAL(activated(int))
 	      , this, SLOT(eapChanged(int)));
-	connect(useWpsButton, SIGNAL(clicked())
-	      , this, SLOT(useWps()));
 }
 
 
@@ -107,8 +105,6 @@ void NetworkConfig::paramsFromScanResults(QTreeWidgetItem *sel)
 
 	getEapCapa();
 
-	if (flags.indexOf("[WPS") >= 0)
-		useWpsButton->setEnabled(true);
 	bssid = sel->text(1);
 }
 
@@ -735,14 +731,4 @@ void NetworkConfig::getEapCapa()
 	QString res(buf);
 	QStringList types = res.split(QChar(' '));
 	eapSelect->insertItems(-1, types);
-}
-
-
-void NetworkConfig::useWps()
-{
-	if (wpagui == NULL)
-		return;
-	wpagui->setBssFromScan(bssid);
-	wpagui->wpsDialog();
-	close();
 }

@@ -26,6 +26,7 @@ class EventHistory;
 class Peers;
 class ScanResults;
 class WpaGui;
+class WpsDialog;
 
 
 #define ProjAppName "wpaCute"
@@ -83,6 +84,7 @@ public:
 		WpaGroupHandshake,
 		WpaWait4Registrar,
 		WpaInactive,
+		WpaWpsRunning,
 		WpaScanning,
 		WpaDisconnected,
 		WpaLostSignal,
@@ -110,8 +112,7 @@ public:
 	virtual void removeNetwork(const QString &sel);
 	virtual void enableNetwork(const QString &sel);
 	virtual void disableNetwork(const QString &sel);
-	virtual int getNetworkDisabled(const QString &sel);
-	void setBssFromScan(const QString &bssid);
+	virtual  int getNetworkDisabled(const QString &sel);
 #ifndef QT_NO_SESSIONMANAGER
 	void saveState();
 #endif
@@ -126,7 +127,7 @@ public slots:
 	virtual void showScanWindow();
 	virtual void showPeersWindow();
 	virtual void showEventHistoryWindow();
-	virtual void wpsDialog();
+	virtual void showWpsWindow();
 
 	virtual void saveConfig();
 	virtual void reloadConfig();
@@ -161,11 +162,13 @@ public slots:
 	virtual void updateTrayToolTip(const QString &msg);
 	virtual QIcon loadThemedIcon(const QStringList &names,
 	                             const QIcon &fallback);
-	virtual void tabChanged(int index);
-	virtual void wpsPbc();
-	virtual void wpsGeneratePin();
-	virtual void wpsApPinChanged(const QString &text);
-	virtual void wpsApPin();
+
+	        void wpsPbc(const QString& bssid = "");
+	        void wpsApPin(const QString& bssid, const QString& pin);
+	     QString wpsGeneratePin(const QString& bssid);
+	        void wpsStart();
+	        void wpsStop(const QString& reason);
+	        void wpsCancel();
 #ifdef CONFIG_NATIVE_WINDOWS
 	virtual void startService();
 	virtual void stopService();
@@ -187,7 +190,10 @@ private:
 		ScanWindow,
 		PeersWindow,
 		EventHistWindow,
+		WpsWindow
 	};
+
+	        int  openCtrlConnection(const char *ifname);
 
 	virtual void requestNetworkChange(const QString &req, const QString &sel);
 	virtual void logHint(const QString &hint);
@@ -212,6 +218,7 @@ private:
 	QPointer<ScanResults>      scanWindow;
 	QPointer<Peers>            peersWindow;
 	QPointer<EventHistory>     eventHistoryWindow;
+	QPointer<WpsDialog>        wpsWindow;
 
 	QTimer*                    assistanceDog;
 	QTimer*                    watchdogTimer;
@@ -227,12 +234,6 @@ private:
 	QSystemTrayIcon *tray_icon;
 	TrayIconType currentIconType;
 	void createTrayIcon(bool);
-
-	int openCtrlConnection(const char *ifname);
-
-	QString bssFromScan;
-
-	void stopWpsRun(bool success);
 
 	QTimer *signalMeterTimer;
 	int signalMeterInterval;

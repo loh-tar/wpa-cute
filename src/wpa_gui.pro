@@ -39,6 +39,7 @@ HEADERS	+= wpamsg.h \
 	scanresults.h \
 	scanresultsitem.h \
 	signalbar.h \
+	wpsdialog.h \
 	networkconfig.h \
 	addinterface.h \
 	peers.h \
@@ -49,6 +50,7 @@ SOURCES	+= main.cpp \
 	eventhistory.cpp \
 	scanresults.cpp \
 	scanresultsitem.cpp \
+	wpsdialog.cpp \
 	signalbar.cpp \
 	networkconfig.cpp \
 	addinterface.cpp \
@@ -61,10 +63,10 @@ RESOURCES += icons.qrc
 FORMS	= wpagui.ui \
 	eventhistory.ui \
 	scanresults.ui \
+	wpsdialog.ui \
 	networkconfig.ui \
 	peers.ui \
 	about.ui
-
 
 unix {
   UI_DIR = .ui
