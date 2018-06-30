@@ -1846,7 +1846,7 @@ void WpaGui::editNetwork(const QString &sel)
 	NetworkConfig nc(this);
 
 	if (id >= 0)
-		nc.paramsFromConfig(id);
+		nc.editNetwork(id);
 	else
 		nc.newNetwork();
 

@@ -22,34 +22,33 @@ class NetworkConfig : public QDialog, public Ui::NetworkConfig
 	Q_OBJECT
 
 public:
-	NetworkConfig(WpaGui *parent);
-	~NetworkConfig();
+	             NetworkConfig(WpaGui *parent);
+	            ~NetworkConfig();
 
-	virtual void paramsFromScanResults(QTreeWidgetItem *sel);
-	virtual  int setNetworkParam(int id, const QString &variable,
-                               const QString &value, bool quote = false);
-	virtual void paramsFromConfig(int network_id);
-	virtual void newNetwork();
+	        void editNetwork(int network_id);
+	        void newNetwork(QTreeWidgetItem *sel);
+	        void newNetwork();
 
 public slots:
-	virtual void authChanged(int sel);
-	virtual void addNetwork();
-	virtual void encrChanged(const QString &sel);
-	virtual void writeWepKey(int network_id, QLineEdit *edit, int id);
-	virtual void removeNetwork();
-	virtual void eapChanged(int sel);
+	        void authChanged(int sel);
+	        void applyNetworkChanges();
+	        void encrChanged(const QString &sel);
+	        void writeWepKey(int network_id, QLineEdit *edit, int id);
+	        void removeNetwork();
+	        void eapChanged(int sel);
 
 protected slots:
 	virtual void languageChange();
 
 private:
-	WpaGui *wpagui;
-	int edit_network_id;
-	bool new_network;
-	QString bssid;
+	         int setNetworkParam(int id, const QString &variable, const QString &value, bool quote = false);
+	        void wepEnabled(bool enabled);
+	        void getEapCapa();
 
-	virtual void wepEnabled(bool enabled);
-	virtual void getEapCapa();
+	     WpaGui* wpagui;
+	         int edit_network_id;
+	        bool new_network;
+
 };
 
 #endif /* NETWORKCONFIG_H */

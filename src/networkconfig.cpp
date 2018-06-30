@@ -44,7 +44,7 @@ NetworkConfig::NetworkConfig(WpaGui *parent)
 	connect(cancelButton, SIGNAL(clicked())
 	      , this, SLOT(close()));
 	connect(addButton, SIGNAL(clicked())
-	      , this, SLOT(addNetwork()));
+	      , this, SLOT(applyNetworkChanges()));
 	connect(encrSelect, SIGNAL(activated(const QString &))
 	      , this, SLOT(encrChanged(const QString &)));
 	connect(removeButton, SIGNAL(clicked())
@@ -65,8 +65,7 @@ void NetworkConfig::languageChange()
 }
 
 
-void NetworkConfig::paramsFromScanResults(QTreeWidgetItem *sel)
-{
+void NetworkConfig::newNetwork(QTreeWidgetItem *sel) {
 
 	/* SSID BSSID signal frequency flags */
 	setWindowTitle(sel->text(0));
@@ -100,8 +99,6 @@ void NetworkConfig::paramsFromScanResults(QTreeWidgetItem *sel)
 
 	authSelect->setCurrentIndex(auth);
 	encrSelect->setCurrentIndex(encr);
-
-	bssid = sel->text(1);
 }
 
 
@@ -191,8 +188,8 @@ void NetworkConfig::eapChanged(int sel)
 }
 
 
-void NetworkConfig::addNetwork()
-{
+void NetworkConfig::applyNetworkChanges() {
+
 	size_t len(10); char buf[len];
 	int id;
 	int psklen = pskEdit->text().length();
@@ -454,8 +451,8 @@ void NetworkConfig::writeWepKey(int network_id, QLineEdit *edit, int id)
 }
 
 
-void NetworkConfig::paramsFromConfig(int network_id)
-{
+void NetworkConfig::editNetwork(int network_id) {
+
 	int i, res;
 
 	edit_network_id = network_id;

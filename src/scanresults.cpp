@@ -275,9 +275,9 @@ void ScanResults::addNetwork() {
 	NetworkConfig nc(wpagui);
 
 	if (selectedNetworkId.isEmpty()) {
-		nc.paramsFromScanResults(selectedNetwork);
+		nc.newNetwork(selectedNetwork);
 	} else {
-		nc.paramsFromConfig(selectedNetworkId.toInt());
+		nc.editNetwork(selectedNetworkId.toInt());
 	}
 
 	nc.exec();
