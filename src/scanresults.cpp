@@ -277,7 +277,7 @@ void ScanResults::addNetwork() {
 	if (selectedNetworkId.isEmpty()) {
 		nc.newNetwork(selectedNetwork);
 	} else {
-		nc.editNetwork(selectedNetworkId.toInt(), selectedNetwork->text(1));
+		nc.editNetwork(selectedNetworkId, selectedNetwork->text(1));
 	}
 
 	nc.exec();

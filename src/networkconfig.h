@@ -25,30 +25,29 @@ public:
 	             NetworkConfig(WpaGui *parent);
 	            ~NetworkConfig();
 
-	        void editNetwork(int network_id, const QString& bssid = "");
+	        void editNetwork(const QString& id, const QString& bssid = "");
 	        void newNetwork(QTreeWidgetItem *sel);
 	        void newNetwork();
 
-public slots:
+protected slots:
+	virtual void languageChange();
+
 	        void authChanged(int sel);
 	        void applyNetworkChanges();
 	        void encrChanged(const QString &sel);
-	        void writeWepKey(int network_id, QLineEdit *edit, int id);
+	        void writeWepKey(const QString& id, QLineEdit *edit, int keyId);
 	        void removeNetwork();
 	        void eapChanged(int sel);
-
-protected slots:
-	virtual void languageChange();
 	        void pullTheAce();
 
 private:
-	         int setNetworkParam(int id, const QString &variable, const QString &value, bool quote = false);
+	         int setNetworkParam(const QString& id, const QString& parm
+	                           , const QString& val, bool quote = false);
 	        void wepEnabled(bool enabled);
 	        void getEapCapa();
 
 	     WpaGui* wpagui;
-	         int edit_network_id;
-	        bool new_network;
+	     QString networkId;
 	     QString aceInTheHoleId;
 
 };

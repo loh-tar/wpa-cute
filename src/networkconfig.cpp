@@ -34,7 +34,6 @@ enum {
 NetworkConfig::NetworkConfig(WpaGui *parent)
              : QDialog(parent)
              , wpagui(parent)
-             , new_network(false)
 {
 	setupUi(this);
 
@@ -197,7 +196,7 @@ void NetworkConfig::eapChanged(int sel)
 void NetworkConfig::applyNetworkChanges() {
 
 	size_t len(10); char buf[len];
-	int id;
+	QString id;
 	int psklen = pskEdit->text().length();
 	int auth = authSelect->currentIndex();
 
@@ -246,16 +245,17 @@ void NetworkConfig::applyNetworkChanges() {
 
 	memset(buf, 0, sizeof(buf));
 
-	if (new_network) {
+	if (networkId.isEmpty()) {
 		if (wpagui->ctrlRequest("ADD_NETWORK", buf, len) < 0) {
 			QMessageBox::warning(this, ProjAppName,
 			                     tr("Failed to add network to \n"
 			                        "wpa_supplicant configuration."));
 			return;
 		}
-		id = atoi(buf);
+		id = buf;
+		id.remove('\n');
 	} else
-		id = edit_network_id;
+		id = networkId;
 
 	setNetworkParam(id, "ssid", ssidEdit->text(), InQuotes);
 	setNetworkParam(id, "bssid", bssidEdit->text());
@@ -404,22 +404,22 @@ void NetworkConfig::applyNetworkChanges() {
 		setNetworkParam(id, "priority", prioritySpinBox->cleanText());
 	}
 
-	wpagui->enableNetwork(QString::number(id));
+	wpagui->enableNetwork(id);
 
 	close();
 }
 
 
-int NetworkConfig::setNetworkParam(int id, const QString &variable,
-                                   const QString &value, bool quote/* = false*/)
-{
+int NetworkConfig::setNetworkParam(const QString& id, const QString &parm,
+                                   const QString &val, bool quote/* = false*/) {
+
 	QString cmd;
 	if (quote)
 		cmd = "SET_NETWORK %1 %2 \"%3\"";
 	else
 		cmd = "SET_NETWORK %1 %2 %3";
 
-	return wpagui->ctrlRequest(cmd.arg(id).arg(variable).arg(value));
+	return wpagui->ctrlRequest(cmd.arg(id).arg(parm).arg(val));
 }
 
 
@@ -444,8 +444,8 @@ void NetworkConfig::wepEnabled(bool enabled)
 }
 
 
-void NetworkConfig::writeWepKey(int network_id, QLineEdit *edit, int id)
-{
+void NetworkConfig::writeWepKey(const QString& id, QLineEdit *edit, int keyId) {
+
 	bool hex;
 	size_t len;
 
@@ -465,7 +465,7 @@ void NetworkConfig::writeWepKey(int network_id, QLineEdit *edit, int id)
 	if (hex && len != 10 && len != 26 && len != 32)
 		hex = false;
 	QString var("wep_key%1");
-	setNetworkParam(network_id, var.arg(id), val, !hex);
+	setNetworkParam(id, var.arg(keyId), val, !hex);
 }
 
 
@@ -475,11 +475,11 @@ void NetworkConfig::pullTheAce() {
 }
 
 
-void NetworkConfig::editNetwork(int network_id, const QString& bssid/* = ""*/) {
+void NetworkConfig::editNetwork(const QString& id, const QString& bssid/* = ""*/) {
 
 	int i, res;
 
-	edit_network_id = network_id;
+	networkId = id;
 	getEapCapa();
 
 	QString curSetting(tr("Currently Used") + ": ");
@@ -487,7 +487,7 @@ void NetworkConfig::editNetwork(int network_id, const QString& bssid/* = ""*/) {
 	size_t len(1024); char buf[len];
 	char *pos;
 	QString cmd("GET_NETWORK %1 %2");
-	cmd = cmd.arg(network_id);
+	cmd = cmd.arg(id);
 
 	if (wpagui->ctrlRequest(cmd.arg("ssid"), buf, len) >= 0) {
 		pos = strchr(buf + 1, '"');
@@ -728,20 +728,19 @@ void NetworkConfig::editNetwork(int network_id, const QString& bssid/* = ""*/) {
 
 	removeButton->setEnabled(true);
 	addButton->setText(tr("Apply"));
-	setWindowTitle(tr("Edit Network Block - %1").arg(network_id));
+	setWindowTitle(tr("Edit Network Block - %1").arg(id));
 }
 
 
-void NetworkConfig::removeNetwork()
-{
-	wpagui->removeNetwork(QString::number(edit_network_id));
+void NetworkConfig::removeNetwork() {
+
+	wpagui->removeNetwork(networkId);
 	close();
 }
 
 
-void NetworkConfig::newNetwork()
-{
-	new_network = true;
+void NetworkConfig::newNetwork() {
+
 	getEapCapa();
 	// Trigger UI to collapse to only fitting options
 	authChanged(0);

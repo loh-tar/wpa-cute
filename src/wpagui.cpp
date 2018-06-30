@@ -1836,19 +1836,14 @@ void WpaGui::requestNetworkChange(const QString &req, const QString &sel)
 }
 
 
-void WpaGui::editNetwork(const QString &sel, const QString &bssid/* = ""*/)
-{
-	QString cmd(sel);
-	int id = -1;
-
-	id = cmd.toInt();
+void WpaGui::editNetwork(const QString &id, const QString &bssid/* = ""*/) {
 
 	NetworkConfig nc(this);
 
-	if (id >= 0)
-		nc.editNetwork(id, bssid);
-	else
+	if (id == "-1")
 		nc.newNetwork();
+	else
+		nc.editNetwork(id, bssid);
 
 	nc.exec();
 }
