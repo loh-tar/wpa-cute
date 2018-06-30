@@ -108,7 +108,7 @@ public:
 	virtual int ctrlRequest(const QString &cmd, char *buf, const size_t buflen);
 	virtual int ctrlRequest(const QString &cmd);
 
-	virtual void editNetwork(const QString &sel);
+	virtual void editNetwork(const QString &sel, const QString &bssid = "");
 	virtual void removeNetwork(const QString &sel);
 	virtual void enableNetwork(const QString &sel);
 	virtual void disableNetwork(const QString &sel);

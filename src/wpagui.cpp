@@ -1836,7 +1836,7 @@ void WpaGui::requestNetworkChange(const QString &req, const QString &sel)
 }
 
 
-void WpaGui::editNetwork(const QString &sel)
+void WpaGui::editNetwork(const QString &sel, const QString &bssid/* = ""*/)
 {
 	QString cmd(sel);
 	int id = -1;
@@ -1846,7 +1846,7 @@ void WpaGui::editNetwork(const QString &sel)
 	NetworkConfig nc(this);
 
 	if (id >= 0)
-		nc.editNetwork(id);
+		nc.editNetwork(id, bssid);
 	else
 		nc.newNetwork();
 
@@ -1863,7 +1863,10 @@ void WpaGui::editListedNetwork()
 		return;
 	}
 	QString sel(networkList->currentItem()->text(0));
-	editNetwork(sel);
+	if (networkList->currentItem()->text(3).contains("[CURRENT]"))
+		editNetwork(sel, textBssid->text());
+	else
+		editNetwork(sel);
 }
 
 

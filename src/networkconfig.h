@@ -25,7 +25,7 @@ public:
 	             NetworkConfig(WpaGui *parent);
 	            ~NetworkConfig();
 
-	        void editNetwork(int network_id);
+	        void editNetwork(int network_id, const QString& bssid = "");
 	        void newNetwork(QTreeWidgetItem *sel);
 	        void newNetwork();
 
@@ -39,6 +39,7 @@ public slots:
 
 protected slots:
 	virtual void languageChange();
+	        void pullTheAce();
 
 private:
 	         int setNetworkParam(int id, const QString &variable, const QString &value, bool quote = false);
@@ -48,6 +49,7 @@ private:
 	     WpaGui* wpagui;
 	         int edit_network_id;
 	        bool new_network;
+	     QString aceInTheHoleId;
 
 };
 

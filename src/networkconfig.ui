@@ -6,392 +6,33 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>547</width>
-    <height>1101</height>
+    <width>579</width>
+    <height>1107</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
     <horstretch>0</horstretch>
     <verstretch>2</verstretch>
    </sizepolicy>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>570</width>
+    <height>400</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>NetworkConfig</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_3">
-   <item row="6" column="0" colspan="2">
-    <widget class="QGroupBox" name="optionalSettingsBox">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="title">
-      <string>Optional Settings</string>
-     </property>
-     <layout class="QGridLayout">
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="idstrEdit">
-        <property name="toolTip">
-         <string>Network Identification String</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QSpinBox" name="prioritySpinBox">
-        <property name="toolTip">
-         <string>Network Priority</string>
-        </property>
-        <property name="maximum">
-         <number>10000</number>
-        </property>
-        <property name="singleStep">
-         <number>10</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="idstrLabel">
-        <property name="toolTip">
-         <string>Network identifier string for external scripts [id_str=]</string>
-        </property>
-        <property name="text">
-         <string>IDString</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="priorityLabel">
-        <property name="toolTip">
-         <string>A larger priority value result in sooner use [priority=]</string>
-        </property>
-        <property name="text">
-         <string>Priority</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="2">
-    <widget class="QGroupBox" name="eapBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="title">
-      <string>Extensible Authentication Protocol</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="identityEdit">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>Username/Identity for EAP methods</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="passwordLabel">
-        <property name="toolTip">
-         <string>Password string for EAP [password=]</string>
-        </property>
-        <property name="text">
-         <string>Password</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="passwordEdit">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>Password for EAP methods</string>
-        </property>
-        <property name="echoMode">
-         <enum>QLineEdit::Password</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QComboBox" name="phase2Select">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="eapLabel">
-        <property name="toolTip">
-         <string>List of accepted EAP methods [eap=]</string>
-        </property>
-        <property name="text">
-         <string>EAP method</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="eapSelect">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="identityLabel">
-        <property name="toolTip">
-         <string>Identity string for EAP [identity=]</string>
-        </property>
-        <property name="text">
-         <string>Identity</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="cacertLabel">
-        <property name="toolTip">
-         <string>Path to CA certificate (PEM/DER) [ca_cert=]</string>
-        </property>
-        <property name="text">
-         <string>CA certificate</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="cacertEdit">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="phase2Label">
-        <property name="toolTip">
-         <string>Pre-configure Phase 2  parameters [phase2=]</string>
-        </property>
-        <property name="text">
-         <string>Inner auth</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QComboBox" name="authSelect">
-     <item>
-      <property name="text">
-       <string>Plaintext (open / no authentication)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Static WEP (no authentication)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Static WEP (Shared Key authentication)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>IEEE 802.1X</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>WPA-Personal (PSK)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>WPA-Enterprise (EAP)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>WPA2-Personal (PSK)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>WPA2-Enterprise (EAP)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Not Set (Defaults to WPA RSN)</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="5" column="0" colspan="2">
-    <widget class="QGroupBox" name="wepBox">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="ssidLabel">
      <property name="toolTip">
-      <string>Static WEP keys [wep_key0..3=]</string>
-     </property>
-     <property name="title">
-      <string>WEP Keys</string>
-     </property>
-     <layout class="QGridLayout" name="_2">
-      <item row="1" column="0">
-       <widget class="QRadioButton" name="wep1Radio">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>key &amp;1</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="wep0Edit">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="wep1Edit">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QRadioButton" name="wep3Radio">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>key &amp;3</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QRadioButton" name="wep2Radio">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>key &amp;2</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="wep2Edit">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QRadioButton" name="wep0Radio">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>&amp;key 0</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="wep3Edit">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QGroupBox" name="pskBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="title">
-      <string>Pre-Shared Key</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_1">
-      <item row="0" column="0">
-       <widget class="QLabel" name="pskLabel">
-        <property name="toolTip">
-         <string>Pre Shared Key (Password) [psk=]</string>
-        </property>
-        <property name="text">
-         <string>PSK</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="pskEdit">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="toolTip">
-         <string>WPA/WPA2 pre-shared key or passphrase</string>
-        </property>
-        <property name="whatsThis">
-         <string/>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="echoMode">
-         <enum>QLineEdit::Password</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="7" column="1">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Maximum</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>82</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="authLabel">
-     <property name="toolTip">
-      <string>List of accepted authenticated key management protocols [key_mgmt=]</string>
+      <string>Network name  (mandatory) [ssid=]</string>
      </property>
      <property name="text">
-      <string>Authentication</string>
+      <string>SSID</string>
      </property>
     </widget>
    </item>
@@ -405,52 +46,580 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QGroupBox" name="encrBox">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>104</height>
-      </size>
+   <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="spacing">
+      <number>0</number>
      </property>
-     <property name="title">
-      <string>WPA Cipher</string>
+     <property name="leftMargin">
+      <number>0</number>
      </property>
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="0">
-       <widget class="QLabel" name="encrLabel">
-        <property name="toolTip">
-         <string>List of accepted pairwise ciphers for WPA [pairwise=]</string>
-        </property>
-        <property name="text">
-         <string>Pairwise</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="encrSelect">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>1</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="toolTip">
+        <string>Connect only to an AP with matching SSID/BSSID [bssid=]</string>
+       </property>
+       <property name="text">
+        <string>BSSID</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="applyBssidButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Can set the BSSID (sorry, later)</string>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="icon">
+        <iconset theme="emblem-system-symbolic">
+         <normaloff>.</normaloff>.</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="bssidEdit">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>1</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>Basic Service Set Identification (BSSID) MAC Address of the AP</string>
+     </property>
+     <property name="placeholderText">
+      <string>any</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="ssidLabel">
+   <item row="2" column="0">
+    <widget class="QLabel" name="priorityLabel">
      <property name="toolTip">
-      <string>Network name  (mandatory) [ssid=]</string>
+      <string>A larger priority value result in sooner use [priority=]</string>
      </property>
      <property name="text">
-      <string>SSID</string>
+      <string>Priority</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="0" colspan="2" alignment="Qt::AlignBottom">
+   <item row="2" column="1">
+    <widget class="QSpinBox" name="prioritySpinBox">
+     <property name="toolTip">
+      <string>Network Priority</string>
+     </property>
+     <property name="maximum">
+      <number>999</number>
+     </property>
+     <property name="singleStep">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="authTab">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <attribute name="title">
+       <string>Authentication</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QComboBox" name="authSelect">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>42</height>
+          </size>
+         </property>
+         <item>
+          <property name="text">
+           <string>Plaintext (open / no authentication)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Static WEP (no authentication)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Static WEP (Shared Key authentication)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>IEEE 802.1X</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>WPA-Personal (PSK)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>WPA-Enterprise (EAP)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>WPA2-Personal (PSK)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>WPA2-Enterprise (EAP)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Not Set (Defaults to WPA RSN)</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="encrBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>94</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>94</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>WPA Cipher</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="0" column="0">
+           <widget class="QLabel" name="encrLabel">
+            <property name="toolTip">
+             <string>List of accepted pairwise ciphers for WPA [pairwise=]</string>
+            </property>
+            <property name="text">
+             <string>Pairwise</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="encrSelect">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>1</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="pskBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>94</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>94</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Pre-Shared Key</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_1">
+          <item row="0" column="0">
+           <widget class="QLabel" name="pskLabel">
+            <property name="toolTip">
+             <string>Pre Shared Key (Password) [psk=]</string>
+            </property>
+            <property name="text">
+             <string>PSK</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="pskEdit">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="toolTip">
+             <string>WPA/WPA2 pre-shared key or passphrase</string>
+            </property>
+            <property name="whatsThis">
+             <string/>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="echoMode">
+             <enum>QLineEdit::Password</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="eapBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>4</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>286</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>286</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Extensible Authentication Protocol</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="identityEdit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Username/Identity for EAP methods</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="passwordLabel">
+            <property name="toolTip">
+             <string>Password string for EAP [password=]</string>
+            </property>
+            <property name="text">
+             <string>Password</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="passwordEdit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Password for EAP methods</string>
+            </property>
+            <property name="echoMode">
+             <enum>QLineEdit::Password</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QComboBox" name="phase2Select">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="eapLabel">
+            <property name="toolTip">
+             <string>List of accepted EAP methods [eap=]</string>
+            </property>
+            <property name="text">
+             <string>EAP method</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="eapSelect">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="identityLabel">
+            <property name="toolTip">
+             <string>Identity string for EAP [identity=]</string>
+            </property>
+            <property name="text">
+             <string>Identity</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="cacertLabel">
+            <property name="toolTip">
+             <string>Path to CA certificate (PEM/DER) [ca_cert=]</string>
+            </property>
+            <property name="text">
+             <string>CA certificate</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="cacertEdit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="phase2Label">
+            <property name="toolTip">
+             <string>Pre-configure Phase 2  parameters [phase2=]</string>
+            </property>
+            <property name="text">
+             <string>Inner auth</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="wepBox">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>238</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>238</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>0</width>
+           <height>238</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Static WEP keys [wep_key0..3=]</string>
+         </property>
+         <property name="title">
+          <string>WEP Keys</string>
+         </property>
+         <layout class="QGridLayout" name="_2">
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="wep1Radio">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>key &amp;1</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="wep0Edit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="wep1Edit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QRadioButton" name="wep3Radio">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>key &amp;3</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QRadioButton" name="wep2Radio">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>key &amp;2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="wep2Edit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="wep0Radio">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>&amp;key 0</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="wep3Edit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="optTab">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <attribute name="title">
+       <string>Optionnal Settings</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="idstrEdit">
+         <property name="toolTip">
+          <string>Network Identification String</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="idstrLabel">
+         <property name="toolTip">
+          <string>Network identifier string for external scripts [id_str=]</string>
+         </property>
+         <property name="text">
+          <string>IDString</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <spacer name="verticalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="5" column="0" colspan="2">
     <widget class="QFrame" name="frame">
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -510,6 +679,8 @@
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
   <tabstop>ssidEdit</tabstop>
+  <tabstop>bssidEdit</tabstop>
+  <tabstop>prioritySpinBox</tabstop>
   <tabstop>authSelect</tabstop>
   <tabstop>encrSelect</tabstop>
   <tabstop>pskEdit</tabstop>
@@ -522,15 +693,16 @@
   <tabstop>wep1Edit</tabstop>
   <tabstop>wep2Edit</tabstop>
   <tabstop>wep3Edit</tabstop>
-  <tabstop>idstrEdit</tabstop>
-  <tabstop>prioritySpinBox</tabstop>
   <tabstop>addButton</tabstop>
   <tabstop>cancelButton</tabstop>
   <tabstop>removeButton</tabstop>
-  <tabstop>wep0Radio</tabstop>
-  <tabstop>wep1Radio</tabstop>
   <tabstop>wep3Radio</tabstop>
   <tabstop>wep2Radio</tabstop>
+  <tabstop>wep1Radio</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>wep0Radio</tabstop>
+  <tabstop>idstrEdit</tabstop>
+  <tabstop>applyBssidButton</tabstop>
  </tabstops>
  <includes>
   <include location="global">qtreewidget.h</include>

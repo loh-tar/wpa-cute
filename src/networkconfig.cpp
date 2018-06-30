@@ -39,6 +39,8 @@ NetworkConfig::NetworkConfig(WpaGui *parent)
 	setupUi(this);
 
 	encrBox->setVisible(false);
+	connect(applyBssidButton, SIGNAL(clicked())
+	      , this, SLOT(pullTheAce()));
 	connect(authSelect, SIGNAL(currentIndexChanged(int))
 	      , this, SLOT(authChanged(int)));
 	connect(cancelButton, SIGNAL(clicked())
@@ -70,6 +72,7 @@ void NetworkConfig::newNetwork(QTreeWidgetItem *sel) {
 	/* SSID BSSID signal frequency flags */
 	setWindowTitle(sel->text(0));
 	ssidEdit->setText(sel->text(0));
+	bssidEdit->setText(sel->text(1));
 
 	QString flags = sel->text(4);
 	int auth, encr = 0;
@@ -141,6 +144,9 @@ void NetworkConfig::authChanged(int sel)
 
 	wepEnabled(sel == AUTH_NONE_WEP || sel == AUTH_NONE_WEP_SHARED);
 
+	// Wow, that was a hard lesson!
+	// Thanks to Cerno/Daniel https://stackoverflow.com/a/1679399
+	QApplication::processEvents();
 	resize(sizeHint());
 	adjustSize();
 }
@@ -224,6 +230,17 @@ void NetworkConfig::applyNetworkChanges() {
 		}
 	}
 
+	if (bssidEdit->text().isEmpty()) {
+		bssidEdit->setText("any");
+	} else if (!QRegExp("([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})").exactMatch(bssidEdit->text())) {
+		// Thanks to https://stackoverflow.com/a/4260512
+		QMessageBox::warning(this, tr("Not a valid BSSID")
+			, tr("The BSSID must consist of 12 hex digits "
+			      "separated by colons, like:\n\n\t 12:34:56:78:9a:bc"));
+		bssidEdit->setFocus();
+		return;
+	}
+
 	if (wpagui == NULL)
 		return;
 
@@ -241,6 +258,7 @@ void NetworkConfig::applyNetworkChanges() {
 		id = edit_network_id;
 
 	setNetworkParam(id, "ssid", ssidEdit->text(), InQuotes);
+	setNetworkParam(id, "bssid", bssidEdit->text());
 
 	const char *key_mgmt = NULL, *proto = NULL, *pairwise = NULL;
 	switch (auth) {
@@ -451,7 +469,13 @@ void NetworkConfig::writeWepKey(int network_id, QLineEdit *edit, int id)
 }
 
 
-void NetworkConfig::editNetwork(int network_id) {
+void NetworkConfig::pullTheAce() {
+
+	bssidEdit->setText(aceInTheHoleId);
+}
+
+
+void NetworkConfig::editNetwork(int network_id, const QString& bssid/* = ""*/) {
 
 	int i, res;
 
@@ -470,6 +494,17 @@ void NetworkConfig::editNetwork(int network_id) {
 		if (pos)
 			*pos = '\0';
 		ssidEdit->setText(buf + 1);
+	}
+
+	if (wpagui->ctrlRequest(cmd.arg("bssid"), buf, len) >= 0) {
+		bssidEdit->setText(buf);
+		aceInTheHoleId = buf;
+	} else if (!bssid.isEmpty()) {
+		aceInTheHoleId = bssid;
+	}
+	if (!aceInTheHoleId.isEmpty()) {
+		applyBssidButton->setToolTip(tr("Apply BSSID to %1").arg(bssid));
+		applyBssidButton->setEnabled(true);
 	}
 
 	int wpa = 0;
