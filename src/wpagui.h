@@ -134,6 +134,8 @@ public slots:
 
 	virtual void addNetwork();
 	virtual void editListedNetwork();
+	virtual void chooseNetwork();
+	virtual void disEnableNetwork();
 	virtual void enableAllNetworks();
 	virtual void disableAllNetworks();
 	virtual void removeListedNetwork();
@@ -153,7 +155,6 @@ public slots:
 	virtual void networkSelectionChanged();
 
 	virtual void selectAdapter(const QString &sel);
-	virtual void disEnableNetwork();
 	virtual void trayMessage(const QString &msg
 	           , bool logIt = false
 	           , QSystemTrayIcon::MessageIcon type = QSystemTrayIcon::Information

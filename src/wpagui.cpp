@@ -103,12 +103,19 @@ WpaGui::WpaGui(WpaGuiApp *app
 	disableNotifierAction->setChecked(true);
 #endif
 
+	// Clear these in QtDesigner was not possible, but is needed to avoid the
+	// ugly display of the action name, now is shown the action text.
+	// Disable completely, is not a simple task, what a cheese!
+	disconReconAction->setToolTip("");
+	networkDisEnableAction->setToolTip("");
+
 	disconReconButton->setDefaultAction(disconReconAction);
 	scanButton->setDefaultAction(scanAction);
 	addNetworkButton->setDefaultAction(networkAddAction);
 	editNetworkButton->setDefaultAction(networkEditAction);
 	removeNetworkButton->setDefaultAction(networkRemoveAction);
 	disEnableNetworkButton->setDefaultAction(networkDisEnableAction);
+	chooseNetworkButton->setDefaultAction(networkChooseAction);
 	reloadButton->setDefaultAction(reloadConfigAction);
 	saveButton->setDefaultAction(saveConfigAction);
 	// FIXME Find a better place or solution for this box or its intention,
@@ -165,6 +172,8 @@ WpaGui::WpaGui(WpaGuiApp *app
 	      , this, SLOT(editListedNetwork()));
 	connect(networkDisEnableAction, SIGNAL(triggered())
 	      , this, SLOT(disEnableNetwork()));
+	connect(networkChooseAction, SIGNAL(triggered())
+	      , this, SLOT(chooseNetwork()));
 	connect(networkEnableAllAction, SIGNAL(triggered())
 	      , this, SLOT(enableAllNetworks()));
 	connect(networkDisableAllAction, SIGNAL(triggered())
@@ -785,7 +794,7 @@ void WpaGui::setState(const WpaStateType state)
 			icon = TrayIconScanning;
 			stateText = tr("Running WPS...");
 			disconReconAction->setText(StpWpsActTxt);
-			disconReconAction->setToolTip(StpWpsActTTTxt);
+			disconReconAction->setStatusTip(StpWpsActTTTxt);
 			disconReconAction->setEnabled(true);
 			tally.insert(WpsRunning);
 			rssiBar->hide();
@@ -795,7 +804,7 @@ void WpaGui::setState(const WpaStateType state)
 			icon = TrayIconInactive;
 			stateText = tr("Inactive");
 			disconReconAction->setText(DiscActTxt);
-			disconReconAction->setToolTip(DiscActTTTxt);
+			disconReconAction->setStatusTip(DiscActTTTxt);
 			disconReconAction->setEnabled(true);
 			tally.insert(NetworkNeedsUpdate);
 			rssiBar->hide();
@@ -810,7 +819,7 @@ void WpaGui::setState(const WpaStateType state)
 			icon = TrayIconScanning;
 			stateText = tr("Scanning...");
 			disconReconAction->setText(DiscActTxt);
-			disconReconAction->setToolTip(DiscActTTTxt);
+			disconReconAction->setStatusTip(DiscActTTTxt);
 			disconReconAction->setEnabled(true);
 			rssiBar->hide();
 			// The wpa_supplicant doesn't report the change
@@ -823,7 +832,7 @@ void WpaGui::setState(const WpaStateType state)
 			icon = TrayIconOffline;
 			stateText = tr("Disconnected");
 			disconReconAction->setText(RecActTxt);
-			disconReconAction->setToolTip(RecActTTTxt);
+			disconReconAction->setStatusTip(RecActTTTxt);
 			disconReconAction->setEnabled(true);
 			tally.insert(NetworkNeedsUpdate);
 			rssiBar->hide();
@@ -845,7 +854,7 @@ void WpaGui::setState(const WpaStateType state)
 			stateText = tr("Connected");
 			signalMeterTimer->start();
 			disconReconAction->setText(DiscActTxt);
-			disconReconAction->setToolTip(DiscActTTTxt);
+			disconReconAction->setStatusTip(DiscActTTTxt);
 			disconReconAction->setEnabled(true);
 			tally.insert(NetworkNeedsUpdate);
 			tally.insert(FreshConnected);
@@ -1772,6 +1781,8 @@ void WpaGui::networkSelectionChanged()
 		networkRemoveAction->setEnabled(false);
 		networkDisEnableAction->setEnabled(false);
 		networkDisEnableAction->setText(tr("Dis-/Enable"));
+		networkDisEnableAction->setStatusTip(tr("Toggle selected network"));
+		networkChooseAction->setEnabled(false);
 		return;
 	}
 	networkEditAction->setEnabled(true);
@@ -1781,14 +1792,21 @@ void WpaGui::networkSelectionChanged()
 	switch (getNetworkDisabled(selectedNetwork->text(0))) {
 		case 1:
 			networkDisEnableAction->setText(tr("Enable"));
+			networkDisEnableAction->setStatusTip(tr("Enable selected network"));
 			break;
 		case 0:
 			networkDisEnableAction->setText(tr("Disable"));
+			networkDisEnableAction->setStatusTip(tr("Disable selected network"));
 			break;
 		default:
 			networkDisEnableAction->setEnabled(false);  // TODO Hint user
 			break;
 	}
+
+	if (selectedNetwork->text(3).contains("[CURRENT]"))
+		networkChooseAction->setEnabled(false);
+	else
+		networkChooseAction->setEnabled(true);
 }
 
 
@@ -1933,6 +1951,29 @@ int WpaGui::getNetworkDisabled(const QString &sel)
 	return atoi(buf);
 }
 
+
+void WpaGui::chooseNetwork() {
+
+	QTreeWidgetItem *selectedNetwork = networkList->currentItem();
+	QString id = selectedNetwork->text(0);
+	logHint(tr("User choose network %1 - %2")
+	           .arg(id)
+	           .arg(selectedNetwork->text(1)));
+
+	// 'SELECT_NETWORK <id>' set the '[CURRENT]' flag of network <id> regardless of its success
+// 	ctrlRequest("SELECT_NETWORK " + selectedNetwork->text(0));
+	// So we must code around that
+	disableNetwork("all");
+	enableNetwork(id);
+
+	if (WpaDisconnected == wpaState) {
+		// To have a suitable logHint, we don't call disconnReconnect();
+		logHint(tr("Disconnected, so reconnect for users gladness"));
+		ctrlRequest("REASSOCIATE");
+	} else if (WpaCompleted == wpaState) {
+		setState(WpaDisconnected);
+	}
+}
 
 
 void WpaGui::disEnableNetwork()
