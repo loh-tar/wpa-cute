@@ -39,7 +39,7 @@ NetworkConfig::NetworkConfig(WpaGui *parent)
 	setupUi(this);
 
 	encrBox->setVisible(false);
-	connect(authSelect, SIGNAL(activated(int))
+	connect(authSelect, SIGNAL(currentIndexChanged(int))
 	      , this, SLOT(authChanged(int)));
 	connect(cancelButton, SIGNAL(clicked())
 	      , this, SLOT(close()));
@@ -67,9 +67,8 @@ void NetworkConfig::languageChange()
 
 void NetworkConfig::paramsFromScanResults(QTreeWidgetItem *sel)
 {
-	new_network = true;
 
-	/* SSID BSSID frequency signal flags */
+	/* SSID BSSID signal frequency flags */
 	setWindowTitle(sel->text(0));
 	ssidEdit->setText(sel->text(0));
 
@@ -97,13 +96,10 @@ void NetworkConfig::paramsFromScanResults(QTreeWidgetItem *sel)
 	} else
 		encr = 0;
 
+	newNetwork();
+
 	authSelect->setCurrentIndex(auth);
-	authChanged(auth);
 	encrSelect->setCurrentIndex(encr);
-
-	wepEnabled(auth == AUTH_NONE_WEP);
-
-	getEapCapa();
 
 	bssid = sel->text(1);
 }
@@ -118,8 +114,6 @@ void NetworkConfig::authChanged(int sel)
 	bool eap = sel == AUTH_IEEE8021X || sel == AUTH_WPA_EAP ||
 		sel == AUTH_WPA2_EAP;
 	eapBox->setVisible(eap);
-	resize(sizeHint());
-	adjustSize();
 	eapSelect->setEnabled(eap);
 	identityEdit->setEnabled(eap);
 	passwordEdit->setEnabled(eap);
@@ -149,6 +143,9 @@ void NetworkConfig::authChanged(int sel)
 	}
 
 	wepEnabled(sel == AUTH_NONE_WEP || sel == AUTH_NONE_WEP_SHARED);
+
+	resize(sizeHint());
+	adjustSize();
 }
 
 
@@ -419,12 +416,12 @@ void NetworkConfig::encrChanged(const QString &)
 void NetworkConfig::wepEnabled(bool enabled)
 {
 	wepBox->setVisible(enabled);
-	resize(sizeHint());
-	adjustSize();
+
 	wep0Edit->setEnabled(enabled);
 	wep1Edit->setEnabled(enabled);
 	wep2Edit->setEnabled(enabled);
 	wep3Edit->setEnabled(enabled);
+
 	wep0Radio->setEnabled(enabled);
 	wep1Radio->setEnabled(enabled);
 	wep2Radio->setEnabled(enabled);
@@ -692,9 +689,10 @@ void NetworkConfig::paramsFromConfig(int network_id)
 		prioritySpinBox->setValue(atoi(buf));
 
 	authSelect->setCurrentIndex(auth);
+	// Ensure UI will collapse to only fitting options
+	// when these has not cause a change signal
 	authChanged(auth);
 	encrSelect->setCurrentIndex(encr);
-	wepEnabled(auth == AUTH_NONE_WEP || auth == AUTH_NONE_WEP_SHARED);
 
 	removeButton->setEnabled(true);
 	addButton->setText(tr("Apply"));
