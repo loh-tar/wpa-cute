@@ -1247,7 +1247,7 @@ void WpaGui::helpContents()
 void WpaGui::helpAbout()
 {
 	const QString copyright(tr("%1 - A graphical wpa_supplicant front end\n")
-	                       .arg(ProjAppName) +
+	                       .arg(ProjAppName) + tr(
 	            "Copyright (C) 2018 loh.tar@googlemail.com\n"
 	            "\n"
 	            ProjAppName " is a fork from wpa_gui shipped with \n"
@@ -1255,19 +1255,14 @@ void WpaGui::helpAbout()
 	            "\n"
 	            "wpa_gui for wpa_supplicant\n"
 	            "Copyright (C) 2005-2015 Jouni Malinen <j@w1.fi> \n"
-	            "and contributors\n");
+	            "and contributors\n"));
 
-	const QString msg(copyright +
-	            "\n"
+	const QString msg(copyright + tr("\n"
 	            "This software may be distributed under\n"
-	            "the terms of the BSD license.\n"
-	            "\n"
-	            "This product includes software developed\n"
-	            "by the OpenSSL Project for use in the\n"
-	            "OpenSSL Toolkit (http://www.openssl.org/)\n");
+	            "the terms of the BSD license.\n\n"
+	            "%1 for details.\n"));
 
-	const QString license(copyright +
-	"\n"
+	const QString license(copyright + tr("\n"
 	"\n"
 	"License\n"
 	"=========\n"
@@ -1299,7 +1294,7 @@ void WpaGui::helpAbout()
 	"DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\n"
 	"THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n"
 	"(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n"
-	"OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n");
+	"OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"));
 
 	QDialog msgBox(this);
 	Ui::aboutDialog ui;
@@ -1307,7 +1302,7 @@ void WpaGui::helpAbout()
 	ui.setupUi(&msgBox);
 	ui.appName->setText(ProjAppName);
 	ui.appVersion->setText(tr("Version %1, %2").arg(ProjVersion).arg(ProjRelease));
-	ui.aboutText->setText(msg);
+	ui.aboutText->setText(msg.arg(tr("See License tab")));
 	ui.licenseText->setText(license);
 	msgBox.setWindowTitle(tr("About %1").arg(ProjAppName));
 	msgBox.exec();
