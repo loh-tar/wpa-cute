@@ -46,7 +46,7 @@
 enum TallyType {
 	AckTrayIcon,
 	ConnectedToService,     // FIXME Windows only, using wpaState possible ?
-	FreshConnected,
+	UserRequestDisconnect,
 	InTray,
 	NetworkNeedsUpdate,
 	QuietMode,
@@ -841,12 +841,19 @@ void WpaGui::setState(const WpaStateType state)
 			// happens when you disable your connected network with no alternatives left
 			if (oldState != WpaInactive  && oldState != WpaRunning)
 				assistanceDogNeeded();
+			if (WpaCompleted == oldState)
+				trayMessage(stateText
+				           + tr(" from %1 - %2").arg(textSsid->text()).arg(textBssid->text())
+				           , LogThis);
 			break;
 		case WpaLostSignal:
 			wpaState = WpaLostSignal;
 			icon = TrayIconSignalNone;
 			stateText = tr("Lost signal");
 			rssiBar->hide();
+			trayMessage(stateText
+			           + tr(" from %1 - %2").arg(textSsid->text()).arg(textBssid->text())
+			           , LogThis, QSystemTrayIcon::Warning);
 			break;
 		case WpaCompleted:
 			wpaState = WpaCompleted;
@@ -857,8 +864,10 @@ void WpaGui::setState(const WpaStateType state)
 			disconReconAction->setStatusTip(DiscActTTTxt);
 			disconReconAction->setEnabled(true);
 			tally.insert(NetworkNeedsUpdate);
-			tally.insert(FreshConnected);
 			rssiBar->show();
+			trayMessage(stateText
+			           + tr(" to %1 - %2").arg(textSsid->text()).arg(textBssid->text())
+			           , LogThis);
 			break;
 	}
 
@@ -996,11 +1005,6 @@ void WpaGui::updateStatus(bool changed/* = true*/)
 	if (textStatus->text() != lastLog) {
 		logHint(textStatus->text());
 		lastLog = textStatus->text();
-	}
-
-	if (tally.contains(FreshConnected)) {
-		tally.remove(FreshConnected);
-		trayMessage(tr("Connection to %1 established").arg(textSsid->text()));
 	}
 
 	// wpa_supplicant will not send a message when IP is set
@@ -1324,10 +1328,9 @@ void WpaGui::disconnReconnect()
 	{
 		logHint(tr("User requests network disconnect"));
 		ctrlRequest("DISCONNECT");
+		tally.insert(UserRequestDisconnect);
 		assistanceDogNeeded();
 	}
-
-	updateStatus();
 }
 
 
@@ -1572,10 +1575,10 @@ void WpaGui::processMsg(char *msg)
 				// Silently ignored
 			} else if (tally.contains(WpsCleanUp)) {
 				tally.remove(WpsCleanUp);
+			} else if (tally.remove(UserRequestDisconnect)) {
+				setState(WpaDisconnected);
 			} else {
 				if (WpaCompleted == wpaState) {
-					trayMessage(tr("Disconnected from %1")
-					                .arg(textSsid->text()), LogThis);
 					// Unclear situation, possible supplicant shut down where
 					// any ctrlRequest() would fail, So ensure not to update
 					// status or network until some clarifying message, see below.
@@ -1584,9 +1587,6 @@ void WpaGui::processMsg(char *msg)
 			}
 		} else if (strstr(pos, "reason=4")) {
 			setState(WpaLostSignal);
-			trayMessage(tr("Lost signal from %1")
-			           .arg(textSsid->text())
-			          , LogThis, QSystemTrayIcon::Warning);
 		} else {
 			debug("Disconnect reason not handled/ignored");
 		}
@@ -1596,7 +1596,7 @@ void WpaGui::processMsg(char *msg)
 		*pos++ = '\0';
 		pos = strstr(pos, "SSID='") + 6;
 		*strstr(pos, "\' freq") = '\0';
-		logHint(tr("Found network: %1 %2").arg(pos).arg(bssid));
+		logHint(tr("Found network %1 - %2").arg(pos).arg(bssid));
 		setState(WpaAuthenticating);
 	} else if (str_match(pos, "Trying to associate with")) {
 		setState(WpaAssociating);
@@ -1609,7 +1609,7 @@ void WpaGui::processMsg(char *msg)
 			*pos++ = '\0';
 			pos = strstr(pos, "ssid=\"") + 6;
 			*strstr(pos, "\" auth") = '\0';
-			trayMessage(tr("Error: Wrong key for network %1 '%2'")
+			trayMessage(tr("Wrong key for network %1 - %2")
 			              .arg(id).arg(pos)
 			          , LogThis, QSystemTrayIcon::Critical);
 			if(disableWrongKeyNetworks->isChecked()) {
