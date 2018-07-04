@@ -179,6 +179,7 @@ public slots:
 protected slots:
 	        void assistanceDogOffice();
 	        void restoreStatusHint();
+	        void restoreConfigUpdates();
 	virtual void showTrayStatus();
 	virtual void languageChange();
 	virtual void trayActivated(QSystemTrayIcon::ActivationReason how);
@@ -205,7 +206,8 @@ private:
 	        void assistanceDogNeeded(bool needed = true);
 
 	        void wpaStateTranslate(const char *state);
-	        bool checkUpdateConfigSetting();
+	        bool checkUpdateConfigSetting(const int config = -1);
+	        void blockConfigUpdates(bool blocking = true);
 	        void setState(const WpaStateType state);
 
 	        void parseArgCV(WpaGuiApp *app);

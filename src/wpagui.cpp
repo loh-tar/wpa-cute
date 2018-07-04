@@ -53,6 +53,7 @@ enum TallyType {
 	StartInTray,
 	StatusNeedsUpdate,
 	AssistanceDogAtWork,
+	ConfigUpdatesBlocked,
 	WpsReassoiciate,
 	WpsRunning,
 	WpsCleanUp
@@ -629,24 +630,73 @@ void WpaGui::wpaStateTranslate(const char *state)
 }
 
 
-bool WpaGui::checkUpdateConfigSetting() {
-
-	saveConfigAction->setEnabled(false);
+bool WpaGui::checkUpdateConfigSetting(const int config/* = -1*/) {
 
 	size_t len(10); char buf[len];
 	ctrlRequest("GET update_config", buf, len);
 
-	if (atoi(buf)) {
-		saveConfigAction->setEnabled(true);
-		return true;
+	int oldConfig = atoi(buf);
+	int newConfig = oldConfig;
+
+	if (config == 1 && oldConfig != config) {
+		ctrlRequest("SET update_config 1");
+		newConfig = 1;
+	} else if (config == 0 && oldConfig != config) {
+		ctrlRequest("SET update_config 0");
+		newConfig = 0;
+	} else if (config < -1 || config > 1) {
+		debug("WARNING: Wrong checkUpdateConfigSetting parm");
 	}
 
-	if (WpaRunning == wpaState) {
-		const QString txt(tr("Changes of the configuration can't be saved"));
-		networksTab->setStatusTip(txt);
-		logHint(txt);
+	ctrlRequest("GET update_config", buf, len);
+
+	if (newConfig) {
+		saveConfigAction->setEnabled(true);
+		networksTab->setStatusTip("");
+		return oldConfig;
 	}
-	return false;
+
+	saveConfigAction->setEnabled(false);
+
+	const QString txt(tr("Changes of the configuration can't be saved"));
+	networksTab->setStatusTip(txt);
+
+	if (WpaRunning == wpaState)
+		logHint(txt);
+
+	return oldConfig;
+}
+
+
+void WpaGui::blockConfigUpdates(bool blocking/* = true*/) {
+
+	static QString saveST;
+	const  QString tmpST(tr("Save action is temporary disabled"));
+
+	if (blocking) {
+		if (tally.contains(ConfigUpdatesBlocked))
+			return;
+		if (checkUpdateConfigSetting(0)) {
+			debug("BLOCK updates");
+			tally.insert(ConfigUpdatesBlocked);
+			saveST = saveConfigAction->statusTip();
+			// FIXME WTF? Disabled action shows no statusTip!(?) https://forum.qt.io/post/447331
+			saveConfigAction->setStatusTip(tmpST);
+			networksTab->setStatusTip(tmpST);
+		}
+	} else {
+		if (tally.remove(ConfigUpdatesBlocked)) {
+			debug("UNBLOCK updates");
+			checkUpdateConfigSetting(1);
+			saveConfigAction->setStatusTip(saveST);
+		}
+	}
+}
+
+
+void WpaGui::restoreConfigUpdates() {
+
+	blockConfigUpdates(false);
 }
 
 
@@ -868,6 +918,10 @@ void WpaGui::setState(const WpaStateType state)
 			trayMessage(stateText
 			           + tr(" to %1 - %2").arg(textSsid->text()).arg(textBssid->text())
 			           , LogThis);
+			if (tally.remove(WpsCleanUp))
+				// The supplicant tries unruly to save the new network, so we
+				// wait some time with the restore of update_config
+				QTimer::singleShot(BassetHound, this, SLOT(restoreConfigUpdates()));
 			break;
 	}
 
@@ -1574,7 +1628,7 @@ void WpaGui::processMsg(char *msg)
 			} else if (tally.contains(WpsRunning)) {
 				// Silently ignored
 			} else if (tally.contains(WpsCleanUp)) {
-				tally.remove(WpsCleanUp);
+				// Silently ignored
 			} else if (tally.remove(UserRequestDisconnect)) {
 				setState(WpaDisconnected);
 			} else {
@@ -2444,6 +2498,7 @@ void WpaGui::wpsStart() {
 	if (WpaDisconnected != wpaState)
 		tally.insert(WpsReassoiciate);
 
+	blockConfigUpdates(true);
 	wpaguiTab->setCurrentWidget(eventTab);
 	setState(WpaWpsRunning);
 }
@@ -2489,6 +2544,8 @@ void WpaGui::wpsStop(const QString& reason) {
 		tally.remove(WpsReassoiciate);
 		ctrlRequest("REASSOCIATE");
 	}
+
+	restoreConfigUpdates();
 }
 
 
