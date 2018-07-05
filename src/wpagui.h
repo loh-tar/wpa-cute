@@ -118,7 +118,7 @@ public:
 #endif
 
 public slots:
-	virtual void updateStatus(bool changed = true);
+	virtual void updateStatus(bool needsUpdate = true);
 	virtual void updateNetworks(bool changed = true);
 	virtual void updateSignalMeter();
 
@@ -205,7 +205,7 @@ private:
 	virtual void letTheDogOut(bool yes = true);
 	        void assistanceDogNeeded(bool needed = true);
 
-	        void wpaStateTranslate(const char *state);
+	        void wpaStateTranslate(const QString& state);
 	        bool checkUpdateConfigSetting(const int config = -1);
 	        void blockConfigUpdates(bool blocking = true);
 	        void setState(const WpaStateType state);

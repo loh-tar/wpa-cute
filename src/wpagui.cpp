@@ -592,41 +592,32 @@ int WpaGui::ctrlRequest(const QString &cmd)
 }
 
 
-void WpaGui::wpaStateTranslate(const char *state)
-{
-	if (!strcmp(state, "DISCONNECTED")) {
+void WpaGui::wpaStateTranslate(const QString& state) {
+
+	if (state == "DISCONNECTED")
 		setState(WpaDisconnected);
-	}
-	else if (!strcmp(state, "INACTIVE")) {
+	else if (state == "INACTIVE")
 		setState(WpaInactive);
-	}
-	else if (!strcmp(state, "SCANNING")) {
+	else if (state == "SCANNING")
 		setState(WpaScanning);
-	}
-	else if (!strcmp(state, "AUTHENTICATING")) {
+	else if (state == "AUTHENTICATING")
 		setState(WpaAuthenticating);
-	}
-	else if (!strcmp(state, "ASSOCIATING")) {
+	else if (state == "ASSOCIATING")
 		setState(WpaAssociating);
-	}
-	else if (!strcmp(state, "ASSOCIATED")) {
+	else if (state == "ASSOCIATED")
 		setState(WpaAssociated);
-	}
-	else if (!strcmp(state, "4WAY_HANDSHAKE")) {
+	else if (state == "4WAY_HANDSHAKE")
 		setState(Wpa4WayHandshake);
-	}
-	else if (!strcmp(state, "GROUP_HANDSHAKE")) {
+	else if (state == "GROUP_HANDSHAKE")
 		setState(WpaGroupHandshake);
-	}
-	else if (!strcmp(state, "COMPLETED")) {
+	else if (state == "COMPLETED")
 		setState(WpaCompleted);
-	}
-	else if (!strcmp(state, "NOT_RUNNING")) {
+	else if (state == "NOT_RUNNING")
 		setState(WpaNotRunning);
-	}
-	else {
+	else  if (state == "Unknown")
 		setState(WpaUnknown);
-	}
+	else
+		debug("FATAL: Unknown state: %s", state.toLocal8Bit().constData());
 }
 
 
@@ -935,14 +926,11 @@ void WpaGui::setState(const WpaStateType state)
 }
 
 
-void WpaGui::updateStatus(bool changed/* = true*/)
-{
-	size_t len(2048); char buf[len];
-	char *start, *end, *pos;
+void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 
 	debug(" updateStatus ??");
 
-	if (!changed)
+	if (!needsUpdate)
 		return;
 
 	debug(" updateStatus >>");
@@ -952,17 +940,18 @@ void WpaGui::updateStatus(bool changed/* = true*/)
 	if (!watchdogTimer->isActive() && enablePollingAction->isChecked())
 		letTheDogOut(PomDog);
 
-	textAuthentication->clear();
-	textEncryption->clear();
-	textSsid->clear();
-	textBssid->clear();
-	textIpAddress->clear();
-
-	if (WpaNotRunning == wpaState)
+	if (WpaNotRunning == wpaState) {
+		textAuthentication->clear();
+		textEncryption->clear();
+		textSsid->clear();
+		textBssid->clear();
+		textIpAddress->clear();
 		return;
+	}
 
 	debug(" updateStatus >>>>");
 
+	size_t len(2048); char buf[len];
 	if (ctrlRequest("STATUS", buf, len) < 0) {
 		logHint(tr("Could not get status from wpa_supplicant"));
 		updateTrayToolTip(tr("No status information"));
@@ -989,71 +978,39 @@ void WpaGui::updateStatus(bool changed/* = true*/)
 	}
 	debug(" updateStatus >>>>>>");
 
-	char *pairwise_cipher = NULL, *group_cipher = NULL;
-	char *mode = NULL;
-
-	start = buf;
-	while (*start) {
-		bool last = false;
-		end = strchr(start, '\n');
-		if (end == NULL) {
-			last = true;
-			end = start;
-			while (end[0] && end[1])
-				end++;
-		}
-		*end = '\0';
-
-		pos = strchr(start, '=');
-		if (pos) {
-			*pos++ = '\0';
-			if (strcmp(start, "bssid") == 0) {
-				textBssid->setText(pos);
-			} else if (strcmp(start, "ssid") == 0) {
-				textSsid->setText(pos);
-				// Needed to fix rare cases with a missig ssid in tool tip
-				updateTrayToolTip(pos);
-			} else if (strcmp(start, "ip_address") == 0) {
-				textIpAddress->setText(pos);
-			} else if (strcmp(start, "wpa_state") == 0) {
-				wpaStateTranslate(pos);
-			} else if (strcmp(start, "key_mgmt") == 0) {
-				textAuthentication->setText(pos);
-				/* TODO: could add EAP status to this */
-			} else if (strcmp(start, "pairwise_cipher") == 0) {
-				pairwise_cipher = pos;
-			} else if (strcmp(start, "group_cipher") == 0) {
-				group_cipher = pos;
-			} else if (strcmp(start, "mode") == 0) {
-				mode = pos;
-			}
-		}
-
-		if (last)
-			break;
-
-		start = end + 1;
+	QHash<QString, QString> status;
+	foreach(QString line, QString(buf).split('\n')) {
+		QString key = line.section('=', 0, 0);
+		QString val = line.section('=', 1, 1);
+		status.insert(key, val);
 	}
 
-	if (mode && !textStatus->text().contains(mode))
-		textStatus->setText(textStatus->text() + " (" + mode + ")");
+	textSsid->setText(status.value("ssid"));
+	textBssid->setText(status.value("bssid"));
 
-	if (pairwise_cipher || group_cipher) {
-		QString encr;
-		if (pairwise_cipher && group_cipher &&
-		    strcmp(pairwise_cipher, group_cipher) != 0) {
-			encr.append(pairwise_cipher);
-			encr.append(" + ");
-			encr.append(group_cipher);
-		} else if (pairwise_cipher) {
-			encr.append(pairwise_cipher);
-		} else {
-			encr.append(group_cipher);
-			encr.append(" [group key only]");
-		}
-		textEncryption->setText(encr);
-	} else
+	if (  status.contains("pairwise_cipher") && status.contains("group_cipher") &&
+		 (status.value("pairwise_cipher")    != status.value("group_cipher"))       )
+		textEncryption->setText(status.value("pairwise_cipher") + " + " + status.value("group_cipher"));
+	else if (status.contains("pairwise_cipher"))
+		textEncryption->setText(status.value("pairwise_cipher"));
+	else if (status.contains("group_cipher"))
+		textEncryption->setText(status.value("group_cipher") + " [group key only]");
+	else
 		textEncryption->clear();
+
+	textAuthentication->setText(status.value("key_mgmt"));
+	textIpAddress->setText(status.value("ip_address"));
+	/* TODO: could add EAP status to this */
+
+	// Must done last because of some logHint in setState using data set above,
+	// but perhaps it would best to make 'status' variable global ->FIXME ?
+	wpaStateTranslate(status.value("wpa_state"));
+	if (status.contains("mode") && !textStatus->text().contains(status.value("mode")))
+		textStatus->setText(textStatus->text() + " (" + status.value("mode") + ")");
+
+
+	// Needed to fix rare cases with a missig ssid in tool tip
+	updateTrayToolTip(status.value("ssid"));
 
 	static QString lastLog;
 	if (textStatus->text() != lastLog) {
@@ -2240,7 +2197,8 @@ void WpaGui::showTrayStatus()
 
 void WpaGui::updateTrayToolTip(const QString &msg)
 {
-	if (!tray_icon)
+
+	if (!tray_icon || msg.isEmpty())
 		return;
 
 	if (WpaCompleted == wpaState)
