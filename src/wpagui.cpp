@@ -1037,7 +1037,6 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 {
 	size_t len(4096); char buf[len];
 	char *start, *end, *id, *ssid, *bssid, *flags;
-	int was_selected = -1;
 
 	debug("updateNetworks() ??");
 
@@ -1045,11 +1044,20 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 		return;
 
 	tally.remove(NetworkNeedsUpdate);
-	QTreeWidgetItem *currentNetwork = NULL;
-	QTreeWidgetItem *selectedNetwork = networkList->currentItem();
+	int selectedNetworkId = -1;
+	int substitudeNetworkId = -1;
+	QTreeWidgetItem* currentNetwork = nullptr;
+	QTreeWidgetItem* substitudeNetwork = nullptr;
+	QTreeWidgetItem* selectedNetwork = networkList->currentItem();
 
-	if (selectedNetwork)
-		was_selected = selectedNetwork->text(0).toInt();
+	if (selectedNetwork) {
+		selectedNetworkId = selectedNetwork->text(0).toInt();
+		substitudeNetwork = networkList->itemBelow(selectedNetwork);
+		if (!substitudeNetwork)
+			substitudeNetwork = networkList->itemAbove(selectedNetwork);
+		if (substitudeNetwork)
+			substitudeNetworkId = substitudeNetwork->text(0).toInt();
+	}
 
 	selectedNetwork = NULL;
 
@@ -1112,10 +1120,13 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 		if (strstr(flags, "[CURRENT]")) {
 			currentNetwork = item;
 		}
-		if (atoi(id) == was_selected) {
+		if (atoi(id) == substitudeNetworkId) {
+			substitudeNetwork = item;
+		}
+		if (atoi(id) == selectedNetworkId) {
 			networkList->setCurrentItem(item);
 			selectedNetwork = item;
-			debug("restore old selection: %d", was_selected);
+			debug("restore old selection: %d", selectedNetworkId);
 		}
 
 		if (last)
@@ -1124,7 +1135,11 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 	}
 
 	if (!selectedNetwork) {
-		if (currentNetwork) {
+		if (substitudeNetwork) {
+			networkList->setCurrentItem(substitudeNetwork);
+			selectedNetwork = substitudeNetwork;
+			debug("select substitude network");
+		} else if (currentNetwork) {
 			networkList->setCurrentItem(currentNetwork);
 			selectedNetwork = currentNetwork;
 			debug("select current network");
