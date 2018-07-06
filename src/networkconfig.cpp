@@ -404,7 +404,7 @@ void NetworkConfig::applyNetworkChanges() {
 		setNetworkParam(id, "priority", prioritySpinBox->cleanText());
 	}
 
-	wpagui->enableNetwork(id);
+	wpagui->configIsChanged();
 
 	close();
 }

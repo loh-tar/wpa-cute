@@ -131,6 +131,7 @@ public slots:
 
 	virtual void saveConfig();
 	virtual void reloadConfig();
+	virtual void configIsChanged(bool changed = true);
 
 	virtual void addNetwork();
 	virtual void editListedNetwork();

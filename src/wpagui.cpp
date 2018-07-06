@@ -1855,14 +1855,6 @@ void WpaGui::requestNetworkChange(const QString &req, const QString &sel)
 	ctrlRequest(cmd);
 
 	updateNetworks();
-
-	if (!checkUpdateConfigSetting())
-		return;
-
-	// reloadSaveBox->show();
-	networksTab->setStatusTip(tr("Changes are not yet saved"));
-	wpaguiTab->setTabIcon(wpaguiTab->indexOf(networksTab)
-	                    , QIcon::fromTheme("emblem-warning"));
 }
 
 
@@ -1904,6 +1896,7 @@ void WpaGui::addNetwork()
 void WpaGui::removeNetwork(const QString &sel)
 {
 	requestNetworkChange("REMOVE_NETWORK ", sel);
+	configIsChanged();
 }
 
 
@@ -2031,9 +2024,7 @@ void WpaGui::saveConfig()
 			   "be permitted.\n"));
 	else {
 		logHint(tr("The current configuration was saved"));
-		// reloadSaveBox->hide();
-		networksTab->setStatusTip("");
-		wpaguiTab->setTabIcon(wpaguiTab->indexOf(networksTab), QIcon());
+		configIsChanged(false);
 	}
 }
 
@@ -2047,11 +2038,28 @@ void WpaGui::reloadConfig()
 	}
 	else {
 		logHint(tr("The configuration was reloaded"));
+		configIsChanged(false);
+	}
+	updateNetworks();
+}
+
+
+void WpaGui::configIsChanged(bool changed/* = true*/) {
+
+	if (changed) {
+		if (!checkUpdateConfigSetting())
+			return;
+
+		updateNetworks();
+		// reloadSaveBox->show();
+		networksTab->setStatusTip(tr("Changes are not yet saved"));
+		wpaguiTab->setTabIcon(wpaguiTab->indexOf(networksTab)
+							, QIcon::fromTheme("emblem-warning"));
+	} else {
 		// reloadSaveBox->hide();
 		networksTab->setStatusTip("");
 		wpaguiTab->setTabIcon(wpaguiTab->indexOf(networksTab), QIcon());
 	}
-	updateNetworks();
 }
 
 
