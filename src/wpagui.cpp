@@ -1035,103 +1035,67 @@ void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 
 void WpaGui::updateNetworks(bool changed/* = true*/)
 {
-	size_t len(4096); char buf[len];
-	char *start, *end, *id, *ssid, *bssid, *flags;
-
 	debug("updateNetworks() ??");
 
 	if (!changed)
 		return;
 
 	tally.remove(NetworkNeedsUpdate);
-	int selectedNetworkId = -1;
-	int substitudeNetworkId = -1;
+
+	QString selectedNetworkId;
+	QString substitudeNetworkId;
 	QTreeWidgetItem* currentNetwork = nullptr;
 	QTreeWidgetItem* substitudeNetwork = nullptr;
 	QTreeWidgetItem* selectedNetwork = networkList->currentItem();
 
 	if (selectedNetwork) {
-		selectedNetworkId = selectedNetwork->text(0).toInt();
+		selectedNetworkId = selectedNetwork->text(0);
 		substitudeNetwork = networkList->itemBelow(selectedNetwork);
 		if (!substitudeNetwork)
 			substitudeNetwork = networkList->itemAbove(selectedNetwork);
 		if (substitudeNetwork)
-			substitudeNetworkId = substitudeNetwork->text(0).toInt();
+			substitudeNetworkId = substitudeNetwork->text(0);
 	}
 
-	selectedNetwork = NULL;
+	selectedNetwork = nullptr;
 
 	const QSignalBlocker blocker(networkList);
 	networkList->clear();
 
-	if (ctrl_conn == NULL)
+	if (ctrl_conn == nullptr)
 		return;
 
 	debug("updateNetworks() >>");
+
+	size_t len(4096); char buf[len];
 	if (ctrlRequest("LIST_NETWORKS", buf, len) < 0)
 		return;
 
-	debug("updateNetworks() >>>>");
-	start = strchr(buf, '\n');
-	if (start == NULL)
-		return;
-	start++;
-
 	debug("updateNetworks() >>>>>>");
 
-	while (*start) {
-		bool last = false;
-		end = strchr(start, '\n');
-		if (end == NULL) {
-			last = true;
-			end = start;
-			while (end[0] && end[1])
-				end++;
-		}
-		*end = '\0';
+	foreach(QString line, QString(buf).split('\n')) {
 
-		id = start;
-		ssid = strchr(id, '\t');
-		if (ssid == NULL)
-			break;
-		*ssid++ = '\0';
-		bssid = strchr(ssid, '\t');
-		if (bssid == NULL)
-			break;
-		*bssid++ = '\0';
-		flags = strchr(bssid, '\t');
-		if (flags == NULL)
-			break;
-		*flags++ = '\0';
-
-		if (strstr(flags, "[DISABLED][P2P-PERSISTENT]")) {
-			if (last)
-				break;
-			start = end + 1;
+		QStringList data = line.split('\t');
+		if (!data.at(0).contains(QRegExp("^[0-9]+$")))
 			continue;
-		}
 
 		QTreeWidgetItem *item = new QTreeWidgetItem(networkList);
-		item->setText(0, id);
-		item->setText(1, ssid);
-		item->setText(2, bssid);
-		item->setText(3, flags);
+		item->setText(0, data.at(0) /*id*/);
+		item->setText(1, data.at(1) /*ssid*/);
+		item->setText(2, data.at(2) /*bssid*/);
+		item->setText(3, data.at(3) /*flags*/);
 
-		if (strstr(flags, "[CURRENT]")) {
-			currentNetwork = item;
-		}
-		if (atoi(id) == substitudeNetworkId) {
+		if (data.at(0) == substitudeNetworkId) {
 			substitudeNetwork = item;
 		}
-		if (atoi(id) == selectedNetworkId) {
+		if (data.at(0) == selectedNetworkId) {
 			networkList->setCurrentItem(item);
 			selectedNetwork = item;
-			debug("restore old selection: %d", selectedNetworkId);
+			debug("restore old selection: %d", selectedNetworkId.toInt());
 		}
-
-		if (last)
-			break;
-		start = end + 1;
+		if (data.at(3).contains("[CURRENT]")) {
+			currentNetwork = item;
+		}
 	}
 
 	if (!selectedNetwork) {
@@ -1145,13 +1109,14 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 			debug("select current network");
 		} else {
 			networkList->setCurrentItem(NULL);
-			debug("select NULL");
+			debug("don't select a network");
 		}
 	}
 
 	if (selectedNetwork)
 		networkList->scrollToItem(selectedNetwork);
 
+	// FIXME Add the same procedure as last year Ms...äh, as in scanresults.cpp
 	for (int i = 0; i < networkList->columnCount(); ++i)
 		networkList->resizeColumnToContents(i);
 
