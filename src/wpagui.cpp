@@ -47,6 +47,7 @@ enum TallyType {
 	AckTrayIcon,
 	ConnectedToService,     // FIXME Windows only, using wpaState possible ?
 	UserRequestDisconnect,
+	UserRequestScan,
 	InTray,
 	NetworkNeedsUpdate,
 	QuietMode,
@@ -382,7 +383,7 @@ int WpaGui::openCtrlConnection(const char *ifname)
 				if (strcmp(dent->d_name, ".") == 0 ||
 				    strcmp(dent->d_name, "..") == 0)
 					continue;
-				debug("Selected interface '%s'",
+				debug(" Selected interface '%s'",
 				      dent->d_name);
 				ctrl_iface = strdup(dent->d_name);
 				break;
@@ -516,7 +517,7 @@ int WpaGui::openCtrlConnection(const char *ifname)
 				logHint(tr("Wait for wpa_supplicant..."));
 		}
 
-		debug("case %d : %s",e, dbgTxt.toLocal8Bit().constData());
+		debug(" case %d : %s",e, dbgTxt.toLocal8Bit().constData());
 		return -1;
 	}
 
@@ -617,7 +618,7 @@ void WpaGui::wpaStateTranslate(const QString& state) {
 	else  if (state == "Unknown")
 		setState(WpaUnknown);
 	else
-		debug("FATAL: Unknown state: %s", state.toLocal8Bit().constData());
+		debug(" FATAL: Unknown state: %s", state.toLocal8Bit().constData());
 }
 
 
@@ -636,7 +637,7 @@ bool WpaGui::checkUpdateConfigSetting(const int config/* = -1*/) {
 		ctrlRequest("SET update_config 0");
 		newConfig = 0;
 	} else if (config < -1 || config > 1) {
-		debug("WARNING: Wrong checkUpdateConfigSetting parm");
+		debug(" FATAL: Wrong checkUpdateConfigSetting parm");
 	}
 
 	ctrlRequest("GET update_config", buf, len);
@@ -668,7 +669,7 @@ void WpaGui::blockConfigUpdates(bool blocking/* = true*/) {
 		if (tally.contains(ConfigUpdatesBlocked))
 			return;
 		if (checkUpdateConfigSetting(0)) {
-			debug("BLOCK updates");
+			debug(" BLOCK updates");
 			tally.insert(ConfigUpdatesBlocked);
 			saveST = saveConfigAction->statusTip();
 			// FIXME WTF? Disabled action shows no statusTip!(?) https://forum.qt.io/post/447331
@@ -677,7 +678,7 @@ void WpaGui::blockConfigUpdates(bool blocking/* = true*/) {
 		}
 	} else {
 		if (tally.remove(ConfigUpdatesBlocked)) {
-			debug("UNBLOCK updates");
+			debug(" UNBLOCK updates");
 			checkUpdateConfigSetting(1);
 			saveConfigAction->setStatusTip(saveST);
 		}
@@ -712,7 +713,7 @@ void WpaGui::setState(const WpaStateType state)
 	}
 
 	if (tally.contains(WpsRunning)) {
-		debug("New state blocked: %d", state);
+		debug(" New state blocked: %d", state);
 		return;
 	}
 
@@ -916,7 +917,7 @@ void WpaGui::setState(const WpaStateType state)
 			break;
 	}
 
-	debug("#### New state: %s", stateText.toLocal8Bit().constData());
+	debug(" #### New state: %s", stateText.toLocal8Bit().constData());
 
 	oldState = state;
 
@@ -1114,7 +1115,7 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 		if (atoi(id) == was_selected) {
 			networkList->setCurrentItem(item);
 			selectedNetwork = item;
-			debug(" restore old selection: %d", was_selected);
+			debug("restore old selection: %d", was_selected);
 		}
 
 		if (last)
@@ -1566,11 +1567,12 @@ void WpaGui::processMsg(char *msg)
 	if (str_match(pos, WPA_CTRL_REQ)) {
 		processCtrlReq(pos + strlen(WPA_CTRL_REQ));
 	} else if (str_match(pos, WPA_EVENT_SCAN_STARTED)) {
-		setState(WpaScanning); // Ensures assistance dog is called
-		if (!tally.contains(WpsRunning))
-			logHint(tr("Scan started..."));
+		if (!tally.contains(WpsRunning) && !tally.contains(UserRequestScan))
+			// Only change state without user interaction
+			setState(WpaScanning);
 	} else if (str_match(pos, WPA_EVENT_SCAN_RESULTS)) {
-		if (!tally.contains(WpsRunning))
+		scanAction->setEnabled(true);
+		if (tally.remove(UserRequestScan))
 			logHint(tr("...scan results available"));
 		if (scanWindow)
 			scanWindow->updateResults();
@@ -1628,7 +1630,11 @@ void WpaGui::processMsg(char *msg)
 			}
 			tally.insert(StatusNeedsUpdate);
 		} else {
-			debug("Message noticed but not handled");
+			// FIXME There is also a 'reason=CONN_FAILED'. The wpa_supplicant source reveal
+			// that this can be 'Blocked client'/'Max client reached'/'Unknown',
+			// Any idea? (Besides to send a bug report)
+			tally.insert(NetworkNeedsUpdate);
+			debug("NetworkNeedsUpdate");
 		}
 	} else if (str_match(pos, WPA_EVENT_CONNECTED)) {
 		setState(WpaCompleted);
@@ -1933,6 +1939,16 @@ void WpaGui::removeAllNetworks()
 {
 	QString sel("all");
 	removeNetwork(sel);
+}
+
+
+void WpaGui::scan4Networks() {
+
+	scanAction->setEnabled(false);
+	tally.insert(UserRequestScan);
+	logHint(tr("User requests network scan"));
+
+	ctrlRequest("SCAN");
 }
 
 

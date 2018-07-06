@@ -62,7 +62,7 @@ void ScanResults::languageChange() {
 void ScanResults::requestScan() {
 
 	scanButton->setEnabled(false);
-	wpagui->ctrlRequest("SCAN");
+	wpagui->scan4Networks();
 }
 
 

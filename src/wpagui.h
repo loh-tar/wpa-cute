@@ -140,6 +140,7 @@ public slots:
 	virtual void disableAllNetworks();
 	virtual void removeListedNetwork();
 	virtual void removeAllNetworks();
+	virtual void scan4Networks();
 
 	virtual void disableNotifier(bool yes);
 	virtual void enablePolling(bool yes);
