@@ -34,6 +34,7 @@ protected slots:
 	virtual void networkSelected(QTreeWidgetItem* curr);
 	virtual void addNetwork();
 	virtual void showWpsDialog();
+	virtual void chooseNetwork();
 
 private:
 	WpaGui*             wpagui;

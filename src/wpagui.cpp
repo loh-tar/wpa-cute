@@ -1977,10 +1977,13 @@ int WpaGui::getNetworkDisabled(const QString &sel)
 void WpaGui::chooseNetwork() {
 
 	QTreeWidgetItem *selectedNetwork = networkList->currentItem();
-	QString id = selectedNetwork->text(0);
-	logHint(tr("User choose network %1 - %2")
-	           .arg(id)
-	           .arg(selectedNetwork->text(1)));
+	chooseNetwork(selectedNetwork->text(0), selectedNetwork->text(1));
+}
+
+
+void WpaGui::chooseNetwork(const QString& id, const QString& ssid) {
+
+	logHint(tr("User choose network %1 - %2").arg(id).arg(ssid));
 
 	// 'SELECT_NETWORK <id>' set the '[CURRENT]' flag of network <id> regardless of its success
 // 	ctrlRequest("SELECT_NETWORK " + selectedNetwork->text(0));

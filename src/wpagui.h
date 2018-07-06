@@ -135,6 +135,7 @@ public slots:
 	virtual void addNetwork();
 	virtual void editListedNetwork();
 	virtual void chooseNetwork();
+	virtual void chooseNetwork(const QString& id, const QString& ssid);
 	virtual void disEnableNetwork();
 	virtual void enableAllNetworks();
 	virtual void disableAllNetworks();

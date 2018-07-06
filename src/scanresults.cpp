@@ -27,6 +27,7 @@ ScanResults::ScanResults(WpaGui* _wpagui)
 
 	connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
 	connect(scanButton, SIGNAL(clicked()), this, SLOT(requestScan()));
+	connect(chooseButton, SIGNAL(clicked()), this, SLOT(chooseNetwork()));
 	connect(addButton, SIGNAL(clicked()), this, SLOT(addNetwork()));
 	connect(wpsButton, SIGNAL(clicked()), this, SLOT(showWpsDialog()));
 
@@ -241,6 +242,7 @@ void ScanResults::networkSelected(QTreeWidgetItem* curr) {
 
 	QString flags = curr->text(4);
 
+	chooseButton->setEnabled(false);
 	wpsButton->setEnabled(true);
 	addButton->setEnabled(true);
 	addButton->setText(tr("Add Network"));
@@ -258,6 +260,10 @@ void ScanResults::networkSelected(QTreeWidgetItem* curr) {
 		wpsButton->setEnabled(flags.contains("[WRONG-KEY]"));
 		break;
 	}
+
+	if (!selectedNetworkId.isEmpty() && !flags.contains("[CURRENT-"))
+		// Ignore [WRONG-KEY], who knows, perhapse a false info
+		chooseButton->setEnabled(true);
 
 	if (!flags.contains("[WPS"))
 		wpsButton->setEnabled(false);
@@ -297,4 +303,10 @@ void ScanResults::showWpsDialog() {
 		wpagui->wpsWindow->activePbcAvailable(ssid, bssid);
 	else
 		wpagui->wpsWindow->setNetworkIds(ssid, bssid);
+}
+
+
+void ScanResults::chooseNetwork() {
+
+	wpagui->chooseNetwork(selectedNetworkId, selectedNetwork->text(0));
 }
