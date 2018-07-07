@@ -45,7 +45,6 @@
 
 enum TallyType {
 	AckTrayIcon,
-	ConnectedToService,     // FIXME Windows only, using wpaState possible ?
 	UserRequestDisconnect,
 	UserRequestScan,
 	InTray,
@@ -377,24 +376,18 @@ int WpaGui::openCtrlConnection(const QString& ifname) {
 		}
 #endif /* CONFIG_CTRL_IFACE_UNIX */
 #ifdef CONFIG_CTRL_IFACE_NAMED_PIPE
-		struct wpa_ctrl *ctrl;
-		int ret;
-
-		// FIXME Possible to use ctrl_conn? See commit which introduce this line
-		ctrl = wpa_ctrl_open(NULL);
-		if (ctrl) {
-			len = sizeof(buf) - 1;
-			ret = wpa_ctrl_request(ctrl, "INTERFACES", 10, buf,
-					       len, NULL);
-			if (ret >= 0) {
-				tally.insert(connectedToService);
-				buf[len] = '\0';
-				pos = strchr(buf, '\n');
-				if (pos)
-					*pos = '\0';
-				ctrlInterface = buf;
+		// FIXME Completely untested, sorry
+		if (ctrl_conn) wpa_ctrl_close(ctrl_conn);
+		ctrl_conn = wpa_ctrl_open(NULL);
+		if (ctrl_conn) {
+			if (ctrlRequest("INTERFACES", buf, len) >= 0) {
+				foreach(QString iface, QString(buf).split('\n')) {
+					if (iface == ctrlInterface || iface.isEmpty())
+						continue;
+					ctrlInterface = iface;
+					break;
+				}
 			}
-			wpa_ctrl_close(ctrl);
 		}
 #endif /* CONFIG_CTRL_IFACE_NAMED_PIPE */
 	}
@@ -939,7 +932,7 @@ void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 
 #ifdef CONFIG_NATIVE_WINDOWS
 		static bool first = true;
-		if (first && connectedToService && ctrlInterface.isEmpty()) {
+		if (first && ctrlInterface.isEmpty()) {
 			first = false;
 			if (QMessageBox::information(
 				    this, ProjAppName,
