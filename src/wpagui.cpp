@@ -207,7 +207,6 @@ WpaGui::WpaGui(WpaGuiApp *app
 	connect(wpsAction, SIGNAL(triggered())
 	      , this, SLOT(showWpsWindow()));
 
-	tray_icon = NULL;
 	ctrl_iface = NULL;
 	ctrl_conn = NULL;
 	monitor_conn = NULL;
@@ -2063,32 +2062,32 @@ void WpaGui::createTrayIcon(bool trayOnly)
 {
 	QApplication::setQuitOnLastWindowClosed(false);
 
-	tray_icon = new QSystemTrayIcon(this);
+	trayIcon = new QSystemTrayIcon(this);
 	updateTrayIcon(TrayIconOffline);
 
-	connect(tray_icon, SIGNAL(activated(QSystemTrayIcon::ActivationReason))
+	connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason))
 	      , this, SLOT(trayActivated(QSystemTrayIcon::ActivationReason)));
-
-	tray_menu = new QMenu(this);
 
 	QAction *statAction;
 	statAction = new QAction(tr("S&tatus"), this);
 	connect(statAction, SIGNAL(triggered()), this, SLOT(showTrayStatus()));
-	tray_menu->addAction(statAction);
-	tray_menu->addAction(disconReconAction);
-	tray_menu->addSeparator();
-	tray_menu->addAction(wpsAction);
-	tray_menu->addSeparator();
-	tray_menu->addAction(scanAction);
-	tray_menu->addAction(peersAction);
-	tray_menu->addSeparator();
-	tray_menu->addMenu(settingsMenu);
-	tray_menu->addMenu(helpMenu);
-	tray_menu->addSeparator();
-	tray_menu->addAction(quitAction);
 
-	tray_icon->setContextMenu(tray_menu);
-	tray_icon->show();
+	QMenu* trayMenu = new QMenu(this);
+	trayMenu->addAction(statAction);
+	trayMenu->addAction(disconReconAction);
+	trayMenu->addSeparator();
+	trayMenu->addAction(wpsAction);
+	trayMenu->addSeparator();
+	trayMenu->addAction(scanAction);
+	trayMenu->addAction(peersAction);
+	trayMenu->addSeparator();
+	trayMenu->addMenu(settingsMenu);
+	trayMenu->addMenu(helpMenu);
+	trayMenu->addSeparator();
+	trayMenu->addAction(quitAction);
+
+	trayIcon->setContextMenu(trayMenu);
+	trayIcon->show();
 
 	if (!QSystemTrayIcon::supportsMessages()) {
 		noTrayBalloonAction->setChecked(true);
@@ -2111,11 +2110,11 @@ void WpaGui::trayMessage(const QString &msg
 	if (logIt)
 		logHint(msg);
 
-	if (isVisible() || !tray_icon || !tray_icon->isVisible() ||
+	if (isVisible() || !trayIcon || !trayIcon->isVisible() ||
 		tally.contains(QuietMode) || !QSystemTrayIcon::supportsMessages())
 		return;
 
-	tray_icon->showMessage(ProjAppName, msg, type, sec * 1000);
+	trayIcon->showMessage(ProjAppName, msg, type, sec * 1000);
 }
 
 
@@ -2143,8 +2142,8 @@ void WpaGui::trayActivated(QSystemTrayIcon::ActivationReason how)
 }
 
 
-void WpaGui::showTrayStatus()
-{
+void WpaGui::showTrayStatus() {
+
 	if (noTrayBalloonAction->isChecked()) {
 		if (isVisible()) {
 			// FIXME When the window is behind some other window it comes
@@ -2201,38 +2200,33 @@ void WpaGui::showTrayStatus()
 		debug("%s", msg.toLocal8Bit().constData());
 	}
 
-	tray_icon->showMessage(title, msg
-	                     , QSystemTrayIcon::Information, 10 * 1000);
+	trayIcon->showMessage(title, msg
+	                    , QSystemTrayIcon::Information, 10 * 1000);
 }
 
 
-void WpaGui::updateTrayToolTip(const QString &msg)
-{
+void WpaGui::updateTrayToolTip(const QString &msg) {
 
-	if (!tray_icon || msg.isEmpty())
+	if (!trayIcon || msg.isEmpty())
 		return;
 
 	if (WpaCompleted == wpaState)
-		tray_icon->setToolTip(QString("%1 - %2")
-		                     .arg(ctrl_iface)
-		                     .arg(textSsid->text()));
+		trayIcon->setToolTip(QString("%1 - %2").arg(ctrl_iface).arg(textSsid->text()));
 	else if (ctrl_iface)
-		tray_icon->setToolTip(QString("%1 - %2")
-		                     .arg(ctrl_iface).arg(msg));
+		trayIcon->setToolTip(QString("%1 - %2").arg(ctrl_iface).arg(msg));
 	else
-		tray_icon->setToolTip(QString("%1 - %2")
-		                     .arg(ProjAppName).arg(msg));
+		trayIcon->setToolTip(QString("%1 - %2").arg(ProjAppName).arg(msg));
 }
 
 
-void WpaGui::updateTrayIcon(const TrayIconType type)
-{
+void WpaGui::updateTrayIcon(const TrayIconType type) {
+
 	static TrayIconType oldIconType(TrayIconNone);
 	QStringList names;
 	QIcon fallback_icon;
 
 
-	if (!tray_icon || type == oldIconType)
+	if (!trayIcon || type == oldIconType)
 		return;
 
 	oldIconType = type;
@@ -2292,13 +2286,12 @@ void WpaGui::updateTrayIcon(const TrayIconType type)
 		break;
 	}
 
-	tray_icon->setIcon(loadThemedIcon(names, fallback_icon));
+	trayIcon->setIcon(loadThemedIcon(names, fallback_icon));
 }
 
 
-QIcon WpaGui::loadThemedIcon(const QStringList &names,
-			     const QIcon &fallback)
-{
+QIcon WpaGui::loadThemedIcon(const QStringList &names, const QIcon &fallback) {
+
 	QIcon icon;
 
 	for (QStringList::ConstIterator it = names.begin();
@@ -2312,14 +2305,14 @@ QIcon WpaGui::loadThemedIcon(const QStringList &names,
 }
 
 
-void WpaGui::closeEvent(QCloseEvent *event)
-{
+void WpaGui::closeEvent(QCloseEvent *event) {
+
 	closeDialog(scanWindow);
 	closeDialog(peersWindow);
 	closeDialog(eventHistoryWindow);
 	closeDialog(wpsWindow);
 
-	if (tray_icon && !tally.contains(AckTrayIcon)) {
+	if (trayIcon && !tally.contains(AckTrayIcon)) {
 		/* give user a visual hint that the tray icon exists */
 		if (QSystemTrayIcon::supportsMessages()) {
 			hide();
@@ -2336,8 +2329,8 @@ void WpaGui::closeEvent(QCloseEvent *event)
 }
 
 
-void WpaGui::showEvent(QShowEvent *event)
-{
+void WpaGui::showEvent(QShowEvent *event) {
+
 	if (!signalMeterInterval)
 		updateSignalMeter();
     letTheDogOut(BorderCollie, enablePollingAction->isChecked());
@@ -2345,8 +2338,8 @@ void WpaGui::showEvent(QShowEvent *event)
 }
 
 
-void WpaGui::newDialog(DialogType type, QDialog* window)
-{
+void WpaGui::newDialog(DialogType type, QDialog* window) {
+
 	if (window) {
 		window->show();
 		window->showNormal();
@@ -2380,8 +2373,8 @@ void WpaGui::newDialog(DialogType type, QDialog* window)
 }
 
 
-void WpaGui::closeDialog(QDialog* window)
-{
+void WpaGui::closeDialog(QDialog* window) {
+
 	if (window)
 		window->close();
 
@@ -2389,20 +2382,20 @@ void WpaGui::closeDialog(QDialog* window)
 }
 
 
-void WpaGui::showScanWindow()
-{
+void WpaGui::showScanWindow() {
+
 	newDialog(ScanWindow, scanWindow);
 }
 
 
-void WpaGui::showPeersWindow()
-{
+void WpaGui::showPeersWindow() {
+
 	newDialog(PeersWindow, peersWindow);
 }
 
 
-void WpaGui::showEventHistoryWindow()
-{
+void WpaGui::showEventHistoryWindow() {
+
 	 newDialog(EventHistWindow, eventHistoryWindow);
 }
 

@@ -214,12 +214,16 @@ private:
 	        void setState(const WpaStateType state);
 
 	        void parseArgCV(WpaGuiApp *app);
+	        void createTrayIcon(bool);
 	        void newDialog(DialogType type, QDialog* window);
 	        void closeDialog(QDialog* window);
 
 
-	QSet<int> tally;
-	WpaStateType wpaState;
+	QSet<int>                  tally;
+	WpaStateType               wpaState;
+
+	QPointer<QSystemTrayIcon>  trayIcon;
+	TrayIconType               currentIconType;
 
 	QPointer<ScanResults>      scanWindow;
 	QPointer<Peers>            peersWindow;
@@ -236,10 +240,6 @@ private:
 	struct wpa_ctrl*           monitor_conn;
 	QPointer<QSocketNotifier>  msgNotifier;
 	WpaMsgList                 msgs;
-	QMenu *tray_menu;
-	QSystemTrayIcon *tray_icon;
-	TrayIconType currentIconType;
-	void createTrayIcon(bool);
 
 	QTimer *signalMeterTimer;
 	int signalMeterInterval;
