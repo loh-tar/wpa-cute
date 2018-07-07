@@ -55,6 +55,7 @@ enum TallyType {
 	StatusNeedsUpdate,
 	AssistanceDogAtWork,
 	ConfigUpdatesBlocked,
+	WpsIsSupported,
 	WpsReassoiciate,
 	WpsRunning,
 	WpsCleanUp
@@ -552,12 +553,11 @@ int WpaGui::openCtrlConnection(const char *ifname)
 		}
 	}
 
-	if (ctrlRequest("GET_CAPABILITY eap", buf, len) >= 0) {
-		QString res(buf);
-		QStringList types = res.split(QChar(' '));
-		bool wps = types.contains("WSC");
-		wpsAction->setEnabled(wps);
-	}
+	ctrlRequest("GET_CAPABILITY eap", buf, len);
+	if (QString(buf).split(' ').contains("WSC"))
+		tally.insert(WpsIsSupported);
+	else
+		logHint(tr("WPS is not supported"));
 
 	setState(WpaRunning);
 	return 0;
@@ -794,7 +794,7 @@ void WpaGui::setState(const WpaStateType state)
 			icon = TrayIconSignalNone;
 			stateText = tr("wpa_supplicant is running");
 			disconReconAction->setEnabled(true);
-			wpsAction->setEnabled(true);
+			wpsAction->setEnabled(tally.contains(WpsIsSupported));
 			scanAction->setEnabled(true);
 			peersAction->setEnabled(true);
 			eventHistoryAction->setEnabled(true);

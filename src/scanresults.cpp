@@ -40,6 +40,11 @@ ScanResults::ScanResults(WpaGui* _wpagui)
 	scanResultsWidget->setRootIsDecorated(false);
 	scanResultsWidget->setItemDelegate(new SignalBar(scanResultsWidget));
 
+	// FIXME When wpagui has some func to check tally, use tally instead
+	size_t len(100); char buf[len];
+	wpagui->ctrlRequest("GET_CAPABILITY eap", buf, len);
+	wpsIsSupported = QString(buf).split(' ').contains("WSC");
+
 	// No parent, ensure we have the icon
 	setWindowIcon(wpagui->windowIcon());
 
@@ -243,7 +248,7 @@ void ScanResults::networkSelected(QTreeWidgetItem* curr) {
 	QString flags = curr->text(4);
 
 	chooseButton->setEnabled(false);
-	wpsButton->setEnabled(true);
+	wpsButton->setEnabled(wpsIsSupported);
 	addButton->setEnabled(true);
 	addButton->setText(tr("Add Network"));
 	selectedNetworkId.clear();

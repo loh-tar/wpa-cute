@@ -38,6 +38,7 @@ protected slots:
 
 private:
 	WpaGui*             wpagui;
+	bool                wpsIsSupported;
 	QString             selectedNetworkId;
 	QTreeWidgetItem*    selectedNetwork;
 };
