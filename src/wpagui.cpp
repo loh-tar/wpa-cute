@@ -79,9 +79,9 @@ WpaGui::WpaGui(WpaGuiApp *app
 	restoreStatusHintTimer->setInterval(9 * 1000);
 	connect(restoreStatusHintTimer, SIGNAL(timeout()), SLOT(restoreStatusHint()));
 
-	logHint(tr("Start-up at %1")
-	       .arg(QDateTime::currentDateTime()
-	       .toString("dddd, yyyy-MM-dd")));
+	logHint(tr("Start-up of %1 at %2")
+	       .arg(ProjAppName)
+	       .arg(QDateTime::currentDateTime().toString("dddd, yyyy-MM-dd")));
 
 
 // Force polling when QSocketNotifier is not supported
@@ -418,6 +418,14 @@ int WpaGui::openCtrlConnection(const char *ifname)
 
 	try
 	{
+
+	if (WpaUnknown == wpaState)
+		logHint(tr("Connection to wpa_supplicant..."));
+	else if (WpaNotRunning == wpaState)
+		logHint(tr("Wait for wpa_supplicant..."));
+	else
+		logHint(tr("Changing adapter..."));
+
 	if (ctrl_iface == NULL) {
 #ifdef CONFIG_NATIVE_WINDOWS
 		static bool first = true;
@@ -455,14 +463,15 @@ int WpaGui::openCtrlConnection(const char *ifname)
 		monitor_conn = NULL;
 	}
 
-	logHint(tr("Connection to wpa_supplicant..."));
-
 	ctrl_conn = wpa_ctrl_open(cfile.toLocal8Bit().constData());
 	if (ctrl_conn == NULL) {
 		throw 3;
 	}
 
-	logHint(tr("...successful! Using interface %1").arg(ctrl_iface));
+	if (WpaNotRunning == wpaState)
+		logHint(tr("...came to an end! Using interface %1").arg(ctrl_iface));
+	else
+		logHint(tr("...successful! Using interface %1").arg(ctrl_iface));
 
 	monitor_conn = wpa_ctrl_open(cfile.toLocal8Bit().constData());
 	if (monitor_conn == NULL) {
@@ -513,8 +522,6 @@ int WpaGui::openCtrlConnection(const char *ifname)
 				adapterSelect->setEnabled(false);
 			logHint(tr("...Failed!"));
 			logHint(errTxt);
-			if (WpaFatal != wpaState)
-				logHint(tr("Wait for wpa_supplicant..."));
 		}
 
 		debug(" case %d : %s",e, dbgTxt.toLocal8Bit().constData());
@@ -1387,7 +1394,7 @@ void WpaGui::ping()
 			if (ctrlRequest("PING") < 0) {
 				logHint(tr("PING failed - trying to reconnect"));
 				dog = PomDog;
-				setState(WpaUnknown);
+				setState(WpaNotRunning);
 			} else {
 				debug("Play ping-pong");
 				updateStatus();
