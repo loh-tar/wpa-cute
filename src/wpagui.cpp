@@ -71,6 +71,9 @@ WpaGui::WpaGui(WpaGuiApp *app
 	setupUi(this);
 	this->setWindowFlags(Qt::Dialog);
 
+	signalMeterTimer = new QTimer(this);
+	connect(signalMeterTimer, SIGNAL(timeout()), SLOT(updateSignalMeter()));
+
 	assistanceDog = new QTimer(this);
 	assistanceDog->setSingleShot(true);
 	connect(assistanceDog, SIGNAL(timeout()), SLOT(assistanceDogOffice()));
@@ -211,7 +214,6 @@ WpaGui::WpaGui(WpaGuiApp *app
 	ctrl_conn = NULL;
 	monitor_conn = NULL;
 	ctrl_iface_dir = strdup("/var/run/wpa_supplicant");
-	signalMeterInterval = 0;
 
 	parseArgCV(app);
 
@@ -236,10 +238,6 @@ WpaGui::WpaGui(WpaGuiApp *app
 	watchdogTimer = new QTimer(this);
 	connect(watchdogTimer, SIGNAL(timeout()), SLOT(ping()));
 	letTheDogOut(PomDog, enablePollingAction->isChecked());
-
-	signalMeterTimer = new QTimer(this);
-	signalMeterTimer->setInterval(signalMeterInterval);
-	connect(signalMeterTimer, SIGNAL(timeout()), SLOT(updateSignalMeter()));
 
 	// Must done after creation of watchdogTimer due to showEvent catch
 	if (QSystemTrayIcon::isSystemTrayAvailable())
@@ -302,7 +300,7 @@ void WpaGui::parseArgCV(WpaGuiApp *app)
 			adapterSelect->setCurrentIndex(0);
 			break;
 		case 'm':
-			signalMeterInterval = atoi(optarg) * 1000;
+			signalMeterTimer->setInterval(atoi(optarg) * 1000);
 			break;
 		case 'p':
 			free(ctrl_iface_dir);
@@ -904,7 +902,6 @@ void WpaGui::setState(const WpaStateType state)
 			wpaState = WpaCompleted;
 			icon = TrayIconSignalExcellent;
 			stateText = tr("Connected");
-			signalMeterTimer->start();
 			disconReconAction->setText(DiscActTxt);
 			disconReconAction->setStatusTip(DiscActTTTxt);
 			disconReconAction->setEnabled(true);
@@ -1026,11 +1023,8 @@ void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 	if (WpaCompleted == wpaState && textIpAddress->text().isEmpty())
 		assistanceDogNeeded();
 
-	if (!signalMeterInterval)
-		updateSignalMeter();
-
+	updateSignalMeter();
 	updateNetworks(tally.contains(NetworkNeedsUpdate));
-
 	tally.remove(StatusNeedsUpdate);
 	debug("updateStatus <<<<<<");
 }
@@ -1358,7 +1352,6 @@ void WpaGui::ping()
 	switch (wpaState) {
 		case WpaFatal:
 			letTheDogOut(false);
-			signalMeterTimer->stop();
 			logHint(tr("Polling halted"));
 			debug("PING! <-<<<");
 			return;
@@ -1422,8 +1415,10 @@ void WpaGui::updateSignalMeter()
 	char *rssi;
 	int rssi_value;
 
-	if (WpaCompleted != wpaState)
+	if (WpaCompleted != wpaState) {
+		signalMeterTimer->stop();
 		return;
+	}
 
 	ctrlRequest("SIGNAL_POLL", buf, len);
 
@@ -1464,8 +1459,8 @@ void WpaGui::updateSignalMeter()
 	else
 		updateTrayIcon(TrayIconSignalNone);
 
-	if (!signalMeterInterval)
-		signalMeterTimer->stop();
+	if (signalMeterTimer->interval())
+		signalMeterTimer->start();
 }
 
 
@@ -2144,6 +2139,8 @@ void WpaGui::trayActivated(QSystemTrayIcon::ActivationReason how)
 
 void WpaGui::showTrayStatus() {
 
+	updateSignalMeter();
+
 	if (noTrayBalloonAction->isChecked()) {
 		if (isVisible()) {
 			// FIXME When the window is behind some other window it comes
@@ -2160,9 +2157,6 @@ void WpaGui::showTrayStatus() {
 
 		return;
 	}
-
-	if (!signalMeterInterval)
-		updateSignalMeter();
 
 	// A daring attempt to make that ugly info message looking nicer, sadly
 	// mean these Qt guys that pretty serious:
@@ -2331,8 +2325,7 @@ void WpaGui::closeEvent(QCloseEvent *event) {
 
 void WpaGui::showEvent(QShowEvent *event) {
 
-	if (!signalMeterInterval)
-		updateSignalMeter();
+	updateSignalMeter();
     letTheDogOut(BorderCollie, enablePollingAction->isChecked());
 	event->ignore();
 }

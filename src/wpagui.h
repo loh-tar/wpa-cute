@@ -230,6 +230,7 @@ private:
 	QPointer<EventHistory>     eventHistoryWindow;
 	QPointer<WpsDialog>        wpsWindow;
 
+	QTimer*                    signalMeterTimer;
 	QTimer*                    assistanceDog;
 	QTimer*                    watchdogTimer;
 	QTimer*                    restoreStatusHintTimer;
@@ -241,8 +242,6 @@ private:
 	QPointer<QSocketNotifier>  msgNotifier;
 	WpaMsgList                 msgs;
 
-	QTimer *signalMeterTimer;
-	int signalMeterInterval;
 
 #ifdef CONFIG_NATIVE_WINDOWS
 	QAction *fileStartServiceAction;
