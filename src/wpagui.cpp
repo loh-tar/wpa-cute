@@ -67,6 +67,9 @@ WpaGui::WpaGui(WpaGuiApp *app
              , Qt::WindowFlags)
 
       : QMainWindow(parent)
+	  , ctrlInterfaceDir("/var/run/wpa_supplicant")
+	  , ctrl_conn(nullptr)
+	  , monitor_conn(nullptr)
 {
 	setupUi(this);
 	this->setWindowFlags(Qt::Dialog);
@@ -210,11 +213,6 @@ WpaGui::WpaGui(WpaGuiApp *app
 	connect(wpsAction, SIGNAL(triggered())
 	      , this, SLOT(showWpsWindow()));
 
-	ctrl_iface = NULL;
-	ctrl_conn = NULL;
-	monitor_conn = NULL;
-	ctrl_iface_dir = strdup("/var/run/wpa_supplicant");
-
 	parseArgCV(app);
 
 	connect(disableNotifierAction, SIGNAL(toggled(bool))
@@ -274,9 +272,6 @@ WpaGui::~WpaGui()
 		delete add_iface;
 	}
 #endif /* CONFIG_NATIVE_WINDOWS */
-
-	free(ctrl_iface);
-	free(ctrl_iface_dir);
 }
 
 
@@ -293,18 +288,16 @@ void WpaGui::parseArgCV(WpaGuiApp *app)
 	while( (c = getopt(app->argc, app->argv, "i:m:p:tqNPW"))  > 0) {
 		switch (c) {
 		case 'i':
-			free(ctrl_iface);
-			ctrl_iface = strdup(optarg);
+			ctrlInterface = optarg;
 			adapterSelect->clear();
-			adapterSelect->addItem(ctrl_iface);
+			adapterSelect->addItem(ctrlInterface);
 			adapterSelect->setCurrentIndex(0);
 			break;
 		case 'm':
 			signalMeterTimer->setInterval(atoi(optarg) * 1000);
 			break;
 		case 'p':
-			free(ctrl_iface_dir);
-			ctrl_iface_dir = strdup(optarg);
+			ctrlInterfaceDir = optarg;
 			break;
 		case 't':
 			tally.insert(StartInTray);
@@ -341,30 +334,26 @@ void WpaGui::parseArgCV(WpaGuiApp *app)
 }
 
 
-int WpaGui::openCtrlConnection(const char *ifname)
-{
-	QString cfile;
-	size_t len(2048); char buf[len];
-	char *pos, *pos2;
+int WpaGui::openCtrlConnection(const QString& ifname) {
 
-	if (ifname) {
-		if (ifname != ctrl_iface) {
-			free(ctrl_iface);
-			ctrl_iface = strdup(ifname);
-		}
-	} else {
+	size_t len(2048); char buf[len];
+
+	ctrlInterface = ifname;
+
+	if (ifname.isEmpty()) {
 		adapterSelect->clear();
 		adapterSelect->addItem(tr("Not specified"));
 		adapterSelect->setCurrentIndex(0);
 #ifdef CONFIG_CTRL_IFACE_UDP
-		free(ctrl_iface);
-		ctrl_iface = strdup("udp");
+		ctrlInterface = "udp";
 #endif /* CONFIG_CTRL_IFACE_UDP */
 #ifdef CONFIG_CTRL_IFACE_UNIX
+		// FIXME I only did not have replaced this part by Qt stuff because I'm
+		// unsure about these 'system does not support d_type' check, what?
+		// And when you working on this, don't take first adapter,
+		// prefer 'foo' over 'p2p-dev-foo'
 		struct dirent *dent;
-		DIR *dir = opendir(ctrl_iface_dir);
-		free(ctrl_iface);
-		ctrl_iface = NULL;
+		DIR *dir = opendir(ctrlInterfaceDir.toLocal8Bit().constData());
 		if (dir) {
 			while ((dent = readdir(dir))) {
 #ifdef _DIRENT_HAVE_D_TYPE
@@ -380,9 +369,8 @@ int WpaGui::openCtrlConnection(const char *ifname)
 				if (strcmp(dent->d_name, ".") == 0 ||
 				    strcmp(dent->d_name, "..") == 0)
 					continue;
-				debug(" Selected interface '%s'",
-				      dent->d_name);
-				ctrl_iface = strdup(dent->d_name);
+				debug(" Selected interface '%s'", dent->d_name);
+				ctrlInterface = dent->d_name;
 				break;
 			}
 			closedir(dir);
@@ -392,8 +380,6 @@ int WpaGui::openCtrlConnection(const char *ifname)
 		struct wpa_ctrl *ctrl;
 		int ret;
 
-		free(ctrl_iface);
-		ctrl_iface = NULL;
 		// FIXME Possible to use ctrl_conn? See commit which introduce this line
 		ctrl = wpa_ctrl_open(NULL);
 		if (ctrl) {
@@ -406,7 +392,7 @@ int WpaGui::openCtrlConnection(const char *ifname)
 				pos = strchr(buf, '\n');
 				if (pos)
 					*pos = '\0';
-				ctrl_iface = strdup(buf);
+				ctrlInterface = buf;
 			}
 			wpa_ctrl_close(ctrl);
 		}
@@ -423,7 +409,7 @@ int WpaGui::openCtrlConnection(const char *ifname)
 	else
 		logHint(tr("Changing adapter..."));
 
-	if (ctrl_iface == NULL) {
+	if (ctrlInterface.isEmpty()) {
 #ifdef CONFIG_NATIVE_WINDOWS
 		static bool first = true;
 		if (first && !serviceRunning()) {
@@ -442,14 +428,13 @@ int WpaGui::openCtrlConnection(const char *ifname)
 	}
 
 #ifdef CONFIG_CTRL_IFACE_UNIX
-	cfile = QString("%1/%2").arg(ctrl_iface_dir).arg(ctrl_iface);
+	QString cfile = QString("%1/%2").arg(ctrlInterfaceDir).arg(ctrlInterface);
 #else /* CONFIG_CTRL_IFACE_UNIX */
-	cfile = ctrl_iface;
+	QString cfile = ctrlInterface;
 #endif /* CONFIG_CTRL_IFACE_UNIX */
 
 	if (ctrl_conn) {
 		wpa_ctrl_close(ctrl_conn);
-		ctrl_conn = NULL;
 	}
 
 	if (monitor_conn) {
@@ -465,22 +450,24 @@ int WpaGui::openCtrlConnection(const char *ifname)
 	}
 
 	if (WpaNotRunning == wpaState)
-		logHint(tr("...came to an end! Using interface %1").arg(ctrl_iface));
+		logHint(tr("...came to an end! Using interface %1").arg(ctrlInterface));
 	else
-		logHint(tr("...successful! Using interface %1").arg(ctrl_iface));
+		logHint(tr("...successful! Using interface %1").arg(ctrlInterface));
 
-	monitor_conn = wpa_ctrl_open(cfile.toLocal8Bit().constData());
-	if (monitor_conn == NULL) {
-		wpa_ctrl_close(ctrl_conn);
-		ctrl_conn = NULL;
-		throw 4;
-	}
-	if (wpa_ctrl_attach(monitor_conn)) {
-		wpa_ctrl_close(monitor_conn);
-		monitor_conn = NULL;
-		wpa_ctrl_close(ctrl_conn);
-		ctrl_conn = NULL;
-		throw 5;
+	if (!disableNotifierAction->isChecked()) {
+		monitor_conn = wpa_ctrl_open(cfile.toLocal8Bit().constData());
+		if (monitor_conn == NULL) {
+			wpa_ctrl_close(ctrl_conn);
+			ctrl_conn = NULL;
+			throw 4;
+		}
+		if (wpa_ctrl_attach(monitor_conn)) {
+			wpa_ctrl_close(monitor_conn);
+			monitor_conn = NULL;
+			wpa_ctrl_close(ctrl_conn);
+			ctrl_conn = NULL;
+			throw 5;
+		}
 	}
 	}
 	catch (int e)
@@ -497,8 +484,8 @@ int WpaGui::openCtrlConnection(const char *ifname)
 				break;
 			case 3:
 				dbgTxt = "Failed to open control connection to wpa_supplicant on adapter ";
-				dbgTxt.append(ctrl_iface);
-				errTxt = tr("No wpa_supplicant with adapter '%1' found").arg(ctrl_iface);
+				dbgTxt.append(ctrlInterface);
+				errTxt = tr("No wpa_supplicant with adapter '%1' found").arg(ctrlInterface);
 				setState(WpaNotRunning);
 				break;
 			case 4:
@@ -532,22 +519,14 @@ int WpaGui::openCtrlConnection(const char *ifname)
 	}
 
 	adapterSelect->clear();
-	adapterSelect->addItem(ctrl_iface);
+	adapterSelect->addItem(ctrlInterface);
 	adapterSelect->setCurrentIndex(0);
 
-	if (ctrlRequest("INTERFACES", buf, len) >= 0) {
-		pos = buf;
-		while (*pos) {
-			pos2 = strchr(pos, '\n');
-			if (pos2)
-				*pos2 = '\0';
-			if (strcmp(pos, ctrl_iface) != 0)
-				adapterSelect->addItem(pos);
-			if (pos2)
-				pos = pos2 + 1;
-			else
-				break;
-		}
+	ctrlRequest("INTERFACES", buf, len);
+	foreach(QString iface, QString(buf).split('\n')) {
+		if (iface == ctrlInterface || iface.isEmpty())
+			continue;
+		adapterSelect->addItem(iface);
 	}
 
 	ctrlRequest("GET_CAPABILITY eap", buf, len);
@@ -778,10 +757,7 @@ void WpaGui::setState(const WpaStateType state)
 			closeDialog(scanWindow);
 			closeDialog(peersWindow);
 			tally.insert(NetworkNeedsUpdate);
-			if (ctrl_conn) {
-				wpa_ctrl_close(ctrl_conn);
-				ctrl_conn = NULL;
-			}
+			if (ctrl_conn) { wpa_ctrl_close(ctrl_conn); ctrl_conn = NULL; }
 			rssiBar->hide();
 			// Now, polling is mandatory
 			letTheDogOut(PomDog);
@@ -963,8 +939,7 @@ void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 
 #ifdef CONFIG_NATIVE_WINDOWS
 		static bool first = true;
-		if (first && connectedToService &&
-		    (ctrl_iface == NULL || *ctrl_iface == '\0')) {
+		if (first && connectedToService && ctrlInterface.isEmpty()) {
 			first = false;
 			if (QMessageBox::information(
 				    this, ProjAppName,
@@ -1150,7 +1125,7 @@ void WpaGui::disableNotifier(bool yes)
 	enablePollingAction->setEnabled(!yes);
 	letTheDogOut(PomDog, yes);
 
-	openCtrlConnection(ctrl_iface);
+	openCtrlConnection(ctrlInterface);
 }
 
 
@@ -1371,7 +1346,7 @@ void WpaGui::ping()
 			break;
 		case WpaUnknown:
 		case WpaNotRunning:
-			if (openCtrlConnection(ctrl_iface) == 0) {
+			if (openCtrlConnection(ctrlInterface) == 0) {
 				updateStatus();
 				debug("PING! <<<-<");
 				return;
@@ -2041,20 +2016,20 @@ void WpaGui::configIsChanged(bool changed/* = true*/) {
 }
 
 
-void WpaGui::selectAdapter( const QString & sel )
-{
-	if (sel.compare(ctrl_iface) == 0)
+void WpaGui::selectAdapter(const QString& sel) {
+
+	if (sel == ctrlInterface)
 		return;
 
 	logHint(tr("User requests adapter change to %1").arg(sel));
-	openCtrlConnection(sel.toLocal8Bit().constData());
+	openCtrlConnection(sel);
 	updateNetworks();
 	updateStatus();
 }
 
 
-void WpaGui::createTrayIcon(bool trayOnly)
-{
+void WpaGui::createTrayIcon(bool trayOnly) {
+
 	QApplication::setQuitOnLastWindowClosed(false);
 
 	trayIcon = new QSystemTrayIcon(this);
@@ -2170,9 +2145,9 @@ void WpaGui::showTrayStatus() {
 	                          .arg(tr("A %1 frontend")
 	                          .arg("wpa_supplicant"));
 
-	if (ctrl_iface)
+	if (!ctrlInterface.isEmpty())
 		msg.append(mask.arg(adapterLabel->text() + ":", lw)
-		               .arg(ctrl_iface, tw));
+		               .arg(ctrlInterface, tw));
 
 	msg.append(mask.arg(statusLabel->text(), lw)
 	               .arg(textStatus->text(), tw));
@@ -2205,9 +2180,9 @@ void WpaGui::updateTrayToolTip(const QString &msg) {
 		return;
 
 	if (WpaCompleted == wpaState)
-		trayIcon->setToolTip(QString("%1 - %2").arg(ctrl_iface).arg(textSsid->text()));
-	else if (ctrl_iface)
-		trayIcon->setToolTip(QString("%1 - %2").arg(ctrl_iface).arg(msg));
+		trayIcon->setToolTip(QString("%1 - %2").arg(ctrlInterface).arg(textSsid->text()));
+	else if (!ctrlInterface.isEmpty())
+		trayIcon->setToolTip(QString("%1 - %2").arg(ctrlInterface).arg(msg));
 	else
 		trayIcon->setToolTip(QString("%1 - %2").arg(ProjAppName).arg(msg));
 }

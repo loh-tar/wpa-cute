@@ -198,7 +198,7 @@ private:
 		WpsWindow
 	};
 
-	        int  openCtrlConnection(const char *ifname);
+	        int  openCtrlConnection(const QString& ifname);
 
 	virtual void requestNetworkChange(const QString &req, const QString &sel);
 	virtual void logHint(const QString &hint);
@@ -235,8 +235,8 @@ private:
 	QTimer*                    watchdogTimer;
 	QTimer*                    restoreStatusHintTimer;
 
-	char*                      ctrl_iface;
-	char*                      ctrl_iface_dir;
+	QString                    ctrlInterface;
+	QString                    ctrlInterfaceDir;
 	struct wpa_ctrl*           ctrl_conn;
 	struct wpa_ctrl*           monitor_conn;
 	QPointer<QSocketNotifier>  msgNotifier;
