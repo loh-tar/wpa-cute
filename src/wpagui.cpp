@@ -210,7 +210,6 @@ WpaGui::WpaGui(WpaGuiApp *app
 	ctrl_iface = NULL;
 	ctrl_conn = NULL;
 	monitor_conn = NULL;
-	msgNotifier = NULL;
 	ctrl_iface_dir = strdup("/var/run/wpa_supplicant");
 	signalMeterInterval = 0;
 
@@ -457,7 +456,6 @@ int WpaGui::openCtrlConnection(const char *ifname)
 
 	if (monitor_conn) {
 		delete msgNotifier;
-		msgNotifier = NULL;
 		wpa_ctrl_detach(monitor_conn);
 		wpa_ctrl_close(monitor_conn);
 		monitor_conn = NULL;
@@ -531,8 +529,7 @@ int WpaGui::openCtrlConnection(const char *ifname)
 	if (disableNotifierAction->isChecked()) {
 		logHint(tr("Use polling to fetch news from wpa_supplicant"));
 	} else {
-		msgNotifier = new QSocketNotifier(wpa_ctrl_get_fd(monitor_conn),
-		                                  QSocketNotifier::Read, this);
+		msgNotifier = new QSocketNotifier(wpa_ctrl_get_fd(monitor_conn), QSocketNotifier::Read, this);
 		connect(msgNotifier, SIGNAL(activated(int)), SLOT(receiveMsgs()));
 	}
 

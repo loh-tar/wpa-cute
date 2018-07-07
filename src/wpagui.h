@@ -230,12 +230,12 @@ private:
 	QTimer*                    watchdogTimer;
 	QTimer*                    restoreStatusHintTimer;
 
-	char *ctrl_iface;
-	struct wpa_ctrl *ctrl_conn;
-	QSocketNotifier *msgNotifier;
-	WpaMsgList msgs;
-	char *ctrl_iface_dir;
-	struct wpa_ctrl *monitor_conn;
+	char*                      ctrl_iface;
+	char*                      ctrl_iface_dir;
+	struct wpa_ctrl*           ctrl_conn;
+	struct wpa_ctrl*           monitor_conn;
+	QPointer<QSocketNotifier>  msgNotifier;
+	WpaMsgList                 msgs;
 	QMenu *tray_menu;
 	QSystemTrayIcon *tray_icon;
 	TrayIconType currentIconType;
