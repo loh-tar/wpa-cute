@@ -21,7 +21,6 @@
 #include "ui_wpagui.h"
 #include "wpamsg.h"
 
-class AddInterface;
 class EventHistory;
 class Peers;
 class ScanResults;
@@ -243,12 +242,7 @@ private:
 
 
 #ifdef CONFIG_NATIVE_WINDOWS
-	QAction *fileStartServiceAction;
-	QAction *fileStopServiceAction;
-
-	bool serviceRunning();
-	QAction *addInterfaceAction;
-	AddInterface *add_iface;
+	bool                       serviceRunning();
 #endif /* CONFIG_NATIVE_WINDOWS */
 };
 

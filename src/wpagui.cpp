@@ -128,12 +128,12 @@ WpaGui::WpaGui(WpaGuiApp *app
 	reloadSaveBox->hide();
 
 #ifdef CONFIG_NATIVE_WINDOWS
-	fileStopServiceAction = new QAction(this);
+	QAction* fileStopServiceAction = new QAction(this);
 	fileStopServiceAction->setObjectName("Stop Service");
 	fileStopServiceAction->setIconText(tr("Stop Service"));
 	fileMenu->insertAction(actionWPS, fileStopServiceAction);
 
-	fileStartServiceAction = new QAction(this);
+	QAction* fileStartServiceAction = new QAction(this);
 	fileStartServiceAction->setObjectName("Start Service");
 	fileStartServiceAction->setIconText(tr("Start Service"));
 	fileMenu->insertAction(fileStopServiceAction, fileStartServiceAction);
@@ -143,14 +143,12 @@ WpaGui::WpaGui(WpaGuiApp *app
 	connect(fileStopServiceAction, SIGNAL(triggered())
 	      , this, SLOT(stopService()));
 
-	addInterfaceAction = new QAction(this);
+	QAction* addInterfaceAction = new QAction(this);
 	addInterfaceAction->setIconText(tr("Add Interface"));
 	fileMenu->insertAction(fileStartServiceAction, addInterfaceAction);
 
 	connect(addInterfaceAction, SIGNAL(triggered())
 	      , this, SLOT(addInterface()));
-
-	add_iface = NULL;
 #endif /* CONFIG_NATIVE_WINDOWS */
 
 	(void) statusBar();
@@ -260,13 +258,6 @@ WpaGui::~WpaGui()
 	if (ctrl_conn) {
 		wpa_ctrl_close(ctrl_conn);
 	}
-
-#ifdef CONFIG_NATIVE_WINDOWS
-	if (add_iface) {
-		add_iface->close();
-		delete add_iface;
-	}
-#endif /* CONFIG_NATIVE_WINDOWS */
 }
 
 
@@ -2600,15 +2591,10 @@ bool WpaGui::serviceRunning()
 	return running;
 }
 
-void WpaGui::addInterface()
-{
-	if (add_iface) {
-		add_iface->close();
-		delete add_iface;
-	}
-	add_iface = new AddInterface(this, this);
-// 	add_iface->show();
-	add_iface->exec();
+void WpaGui::addInterface() {
+
+	AddInterface addIface(this, this);
+	addIface.exec();
 }
 
 #endif /* CONFIG_NATIVE_WINDOWS */
