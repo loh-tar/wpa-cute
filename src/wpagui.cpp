@@ -73,17 +73,14 @@ WpaGui::WpaGui(WpaGuiApp *app
 	setupUi(this);
 	this->setWindowFlags(Qt::Dialog);
 
-	signalMeterTimer = new QTimer(this);
-	connect(signalMeterTimer, SIGNAL(timeout()), SLOT(updateSignalMeter()));
+	connect(&signalMeterTimer, SIGNAL(timeout()), SLOT(updateSignalMeter()));
 
-	assistanceDog = new QTimer(this);
-	assistanceDog->setSingleShot(true);
-	connect(assistanceDog, SIGNAL(timeout()), SLOT(assistanceDogOffice()));
+	assistanceDog.setSingleShot(true);
+	connect(&assistanceDog, SIGNAL(timeout()), SLOT(assistanceDogOffice()));
 
-	restoreStatusHintTimer = new QTimer(this);
-	restoreStatusHintTimer->setSingleShot(true);
-	restoreStatusHintTimer->setInterval(9 * 1000);
-	connect(restoreStatusHintTimer, SIGNAL(timeout()), SLOT(restoreStatusHint()));
+	restoreStatusHintTimer.setSingleShot(true);
+	restoreStatusHintTimer.setInterval(9 * 1000);
+	connect(&restoreStatusHintTimer, SIGNAL(timeout()), SLOT(restoreStatusHint()));
 
 	logHint(tr("Start-up of %1 at %2")
 	       .arg(ProjAppName)
@@ -232,8 +229,7 @@ WpaGui::WpaGui(WpaGuiApp *app
 	}
 #endif
 
-	watchdogTimer = new QTimer(this);
-	connect(watchdogTimer, SIGNAL(timeout()), SLOT(ping()));
+	connect(&watchdogTimer, SIGNAL(timeout()), SLOT(ping()));
 	letTheDogOut(PomDog, enablePollingAction->isChecked());
 
 	// Must done after creation of watchdogTimer due to showEvent catch
@@ -293,7 +289,7 @@ void WpaGui::parseArgCV(WpaGuiApp *app)
 			adapterSelect->setCurrentIndex(0);
 			break;
 		case 'm':
-			signalMeterTimer->setInterval(atoi(optarg) * 1000);
+			signalMeterTimer.setInterval(atoi(optarg) * 1000);
 			break;
 		case 'p':
 			ctrlInterfaceDir = optarg;
@@ -907,7 +903,7 @@ void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 	tally.remove(StatusNeedsUpdate);
 
 	// Wake the dog after network reconnect
-	if (!watchdogTimer->isActive() && enablePollingAction->isChecked())
+	if (!watchdogTimer.isActive() && enablePollingAction->isChecked())
 		letTheDogOut(PomDog);
 
 	if (WpaNotRunning == wpaState) {
@@ -1125,13 +1121,13 @@ void WpaGui::disableNotifier(bool yes)
 void WpaGui::letTheDogOut(int dog, bool yes)
 {
 	if (yes) {
-		if (watchdogTimer->interval() != dog || !watchdogTimer->isActive())
+		if (watchdogTimer.interval() != dog || !watchdogTimer.isActive())
 			debug("New dog on patrol %d", dog);
 
-		watchdogTimer->start(dog);
+		watchdogTimer.start(dog);
 	}
-	else if (watchdogTimer->isActive()) {
-		watchdogTimer->stop();
+	else if (watchdogTimer.isActive()) {
+		watchdogTimer.stop();
 		debug("No dog on patrol");
 	}
 }
@@ -1169,15 +1165,15 @@ void WpaGui::assistanceDogNeeded(bool needed/* = true*/) {
 	if (needed) {
 		if (tally.contains(AssistanceDogAtWork))
 			return;
-		if (!assistanceDog->isActive())
+		if (!assistanceDog.isActive())
 			debug("Assistance dog called");
 
-		assistanceDog->start(BorderCollie);
-	} else if (!assistanceDog->isActive()) {
+		assistanceDog.start(BorderCollie);
+	} else if (!assistanceDog.isActive()) {
 		return;
 	} else {
 		debug("Relax, assistance dog");
-		assistanceDog->stop();
+		assistanceDog.stop();
 	}
 }
 
@@ -1303,7 +1299,7 @@ void WpaGui::ping()
 	bool stateChanged(wpaState != oldState);
 	oldState = wpaState;
 
-	int dog(watchdogTimer->interval());
+	int dog(watchdogTimer.interval());
 	int maxDog(SnoozingDog);
 
 	if (stateChanged)
@@ -1384,7 +1380,7 @@ void WpaGui::updateSignalMeter()
 	int rssi_value;
 
 	if (WpaCompleted != wpaState) {
-		signalMeterTimer->stop();
+		signalMeterTimer.stop();
 		return;
 	}
 
@@ -1427,8 +1423,8 @@ void WpaGui::updateSignalMeter()
 	else
 		updateTrayIcon(TrayIconSignalNone);
 
-	if (signalMeterTimer->interval())
-		signalMeterTimer->start();
+	if (signalMeterTimer.interval())
+		signalMeterTimer.start();
 }
 
 
@@ -1455,7 +1451,7 @@ void WpaGui::logHint(const QString &hint) {
 
 	if (text.count('\n') == 0) {
 		statusHint->setText(text);
-		restoreStatusHintTimer->start();
+		restoreStatusHintTimer.start();
 	}
 
 	bool scroll = true;

@@ -230,10 +230,10 @@ private:
 	QPointer<EventHistory>     eventHistoryWindow;
 	QPointer<WpsDialog>        wpsWindow;
 
-	QTimer*                    signalMeterTimer;
-	QTimer*                    assistanceDog;
-	QTimer*                    watchdogTimer;
-	QTimer*                    restoreStatusHintTimer;
+	QTimer                     signalMeterTimer;
+	QTimer                     assistanceDog;
+	QTimer                     watchdogTimer;
+	QTimer                     restoreStatusHintTimer;
 
 	QString                    ctrlInterface;
 	QString                    ctrlInterfaceDir;
