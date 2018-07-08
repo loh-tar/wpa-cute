@@ -28,7 +28,7 @@ public:
 	AddInterface(WpaGui *_wpagui, QWidget *parent = 0);
 
 public slots:
-	virtual void interfaceSelected(QTreeWidgetItem *sel);
+	void interfaceSelected(QTreeWidgetItem *sel);
 
 private:
 	void addInterfaces();

@@ -41,7 +41,7 @@ public:
 	WpaGuiApp(int& argc, char** argv);
 
 #if !defined(QT_NO_SESSIONMANAGER) && QT_VERSION < 0x050000
-	virtual void saveState(QSessionManager& manager);
+	        void saveState(QSessionManager& manager);
 #endif
 
 	int     argc;
@@ -105,67 +105,66 @@ public:
 
 	~WpaGui();
 
-	virtual int ctrlRequest(const QString &cmd, char *buf, const size_t buflen);
-	virtual int ctrlRequest(const QString &cmd);
+	         int ctrlRequest(const QString &cmd, char *buf, const size_t buflen);
+	         int ctrlRequest(const QString &cmd);
 
-	virtual void editNetwork(const QString &id, const QString &bssid = "");
-	virtual void removeNetwork(const QString &sel);
-	virtual void enableNetwork(const QString &sel);
-	virtual void disableNetwork(const QString &sel);
-	virtual  int getNetworkDisabled(const QString &sel);
+	        void editNetwork(const QString &id, const QString &bssid = "");
+	        void removeNetwork(const QString &sel);
+	        void enableNetwork(const QString &sel);
+	        void disableNetwork(const QString &sel);
+	         int getNetworkDisabled(const QString &sel);
 #ifndef QT_NO_SESSIONMANAGER
-	void saveState();
+	        void saveState();
 #endif
 
 public slots:
-	virtual void updateStatus(bool needsUpdate = true);
-	virtual void updateNetworks(bool changed = true);
-	virtual void updateSignalMeter();
+	        void updateStatus(bool needsUpdate = true);
+	        void updateNetworks(bool changed = true);
+	        void updateSignalMeter();
 
-	virtual void disconnReconnect();
+	        void disconnReconnect();
 
-	virtual void showScanWindow();
-	virtual void showPeersWindow();
-	virtual void showEventHistoryWindow();
-	virtual void showWpsWindow();
+	        void showScanWindow();
+	        void showPeersWindow();
+	        void showEventHistoryWindow();
+	        void showWpsWindow();
 
-	virtual void saveConfig();
-	virtual void reloadConfig();
-	virtual void configIsChanged(bool changed = true);
+	        void saveConfig();
+	        void reloadConfig();
+	        void configIsChanged(bool changed = true);
 
-	virtual void addNetwork();
-	virtual void editListedNetwork();
-	virtual void chooseNetwork();
-	virtual void chooseNetwork(const QString& id, const QString& ssid);
-	virtual void disEnableNetwork();
-	virtual void enableAllNetworks();
-	virtual void disableAllNetworks();
-	virtual void removeListedNetwork();
-	virtual void removeAllNetworks();
-	virtual void scan4Networks();
+	        void addNetwork();
+	        void editListedNetwork();
+	        void chooseNetwork();
+	        void chooseNetwork(const QString& id, const QString& ssid);
+	        void disEnableNetwork();
+	        void enableAllNetworks();
+	        void disableAllNetworks();
+	        void removeListedNetwork();
+	        void removeAllNetworks();
+	        void scan4Networks();
 
-	virtual void disableNotifier(bool yes);
-	virtual void enablePolling(bool yes);
+	        void disableNotifier(bool yes);
+	        void enablePolling(bool yes);
 
-	virtual void helpIndex();
-	virtual void helpContents();
-	virtual void helpAbout();
+	        void helpIndex();
+	        void helpContents();
+	        void helpAbout();
 
-	virtual void ping();
-	virtual void processMsg(char *msg);
-	virtual void processCtrlReq(const QString& req);
-	virtual void receiveMsgs();
-	virtual void networkSelectionChanged();
+	        void ping();
+	        void processMsg(char* msg);
+	        void processCtrlReq(const QString& req);
+	        void receiveMsgs();
+	        void networkSelectionChanged();
 
-	virtual void selectAdapter(const QString &sel);
-	virtual void trayMessage(const QString &msg
-	           , bool logIt = false
-	           , QSystemTrayIcon::MessageIcon type = QSystemTrayIcon::Information
-	           , int sec = 5);
-	virtual void updateTrayIcon(TrayIconType type);
-	virtual void updateTrayToolTip(const QString &msg);
-	virtual QIcon loadThemedIcon(const QStringList &names,
-	                             const QIcon &fallback);
+	        void selectAdapter(const QString& sel);
+	        void trayMessage(const QString& msg
+	                       , bool logIt = false
+	                       , QSystemTrayIcon::MessageIcon type = QSystemTrayIcon::Information
+	                       , int sec = 5);
+	        void updateTrayIcon(TrayIconType type);
+	        void updateTrayToolTip(const QString& msg);
+	       QIcon loadThemedIcon(const QStringList& names, const QIcon& fallback);
 
 	        void wpsPbc(const QString& bssid = "");
 	        void wpsApPin(const QString& bssid, const QString& pin);
@@ -174,20 +173,20 @@ public slots:
 	        void wpsStop(const QString& reason);
 	        void wpsCancel();
 #ifdef CONFIG_NATIVE_WINDOWS
-	virtual void startService();
-	virtual void stopService();
-	virtual void addInterface();
+	        void startService();
+	        void stopService();
+	        void addInterface();
 #endif /* CONFIG_NATIVE_WINDOWS */
 
 protected slots:
 	        void assistanceDogOffice();
 	        void restoreStatusHint();
 	        void restoreConfigUpdates();
-	virtual void showTrayStatus();
-	virtual void languageChange();
-	virtual void trayActivated(QSystemTrayIcon::ActivationReason how);
-	virtual void closeEvent(QCloseEvent *event);
-	virtual void showEvent(QShowEvent *event);
+	        void showTrayStatus();
+	        void languageChange();
+	        void trayActivated(QSystemTrayIcon::ActivationReason how);
+	        void closeEvent(QCloseEvent* event);
+	        void showEvent(QShowEvent* event);
 
 private:
 
@@ -200,12 +199,12 @@ private:
 
 	        int  openCtrlConnection(const QString& ifname);
 
-	virtual void requestNetworkChange(const QString &req, const QString &sel);
-	virtual void logHint(const QString &hint);
+	        void requestNetworkChange(const QString &req, const QString &sel);
+	        void logHint(const QString &hint);
 
-	virtual void letTheDogOut(int dog, bool yes);
-	virtual void letTheDogOut(int dog = PomDog);
-	virtual void letTheDogOut(bool yes = true);
+	        void letTheDogOut(int dog, bool yes);
+	        void letTheDogOut(int dog = PomDog);
+	        void letTheDogOut(bool yes = true);
 	        void assistanceDogNeeded(bool needed = true);
 
 	        void wpaStateTranslate(const QString& state);

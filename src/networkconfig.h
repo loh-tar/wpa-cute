@@ -26,16 +26,16 @@ public:
 	            ~NetworkConfig();
 
 	        void editNetwork(const QString& id, const QString& bssid = "");
-	        void newNetwork(QTreeWidgetItem *sel);
+	        void newNetwork(QTreeWidgetItem* sel);
 	        void newNetwork();
 
 protected slots:
-	virtual void languageChange();
+	        void languageChange();
 
 	        void authChanged(int sel);
 	        void applyNetworkChanges();
-	        void encrChanged(const QString &sel);
-	        void writeWepKey(const QString& id, QLineEdit *edit, int keyId);
+	        void encrChanged(const QString& sel);
+	        void writeWepKey(const QString& id, QLineEdit* edit, int keyId);
 	        void removeNetwork();
 	        void eapChanged(int sel);
 	        void pullTheAce();

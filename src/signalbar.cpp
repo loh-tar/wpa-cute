@@ -15,8 +15,8 @@
 #include "signalbar.h"
 
 
-SignalBar::SignalBar(QObject *parent)
-	: QStyledItemDelegate(parent)
+SignalBar::SignalBar(QObject* parent)
+         : QStyledItemDelegate(parent)
 {
 }
 
@@ -26,9 +26,9 @@ SignalBar::~SignalBar()
 }
 
 
-void SignalBar::paint(QPainter *painter,
-		      const QStyleOptionViewItem &option,
-		      const QModelIndex &index) const
+void SignalBar::paint(QPainter* painter
+                    , const QStyleOptionViewItem& option
+                    , const QModelIndex& index) const
 {
 	QStyleOptionProgressBar opts;
 	int signal;

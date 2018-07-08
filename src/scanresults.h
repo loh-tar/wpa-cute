@@ -26,15 +26,15 @@ public:
 	~ScanResults();
 
 public slots:
-	virtual void requestScan();
-	virtual void updateResults();
+	        void requestScan();
+	        void updateResults();
 
 protected slots:
-	virtual void languageChange();
-	virtual void networkSelected(QTreeWidgetItem* curr);
-	virtual void addNetwork();
-	virtual void showWpsDialog();
-	virtual void chooseNetwork();
+	        void languageChange();
+	        void networkSelected(QTreeWidgetItem* curr);
+	        void addNetwork();
+	        void showWpsDialog();
+	        void chooseNetwork();
 
 private:
 	WpaGui*             wpagui;

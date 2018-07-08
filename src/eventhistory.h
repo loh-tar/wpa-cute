@@ -46,11 +46,11 @@ public:
 	~EventHistory();
 
 public slots:
-	virtual void addEvents(WpaMsgList msgs);
-	virtual void addEvent(WpaMsg msg);
+	        void addEvents(WpaMsgList msgs);
+	        void addEvent(WpaMsg msg);
 
 protected slots:
-	virtual void languageChange();
+	        void languageChange();
 
 private:
 	EventListModel *elm;

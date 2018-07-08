@@ -29,10 +29,10 @@ public:
 	            void pbcOverlapDetected();
 
 public slots:
-	virtual     void reject();
+	            void reject();
 
 protected slots:
-	virtual     void languageChange();
+	            void languageChange();
 
 	            void tabChanged();
 	            void wpsApPinChanged(const QString &text);

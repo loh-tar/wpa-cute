@@ -20,12 +20,12 @@ class SignalBar : public QStyledItemDelegate
 	Q_OBJECT
 
 public:
-	SignalBar(QObject *parent = 0);
+	SignalBar(QObject* parent);
 	~SignalBar();
 
-	virtual void paint(QPainter *painter,
-			   const QStyleOptionViewItem &option,
-			   const QModelIndex &index) const ;
+	void paint(QPainter* painter
+	         , const QStyleOptionViewItem& option
+	         , const QModelIndex& index) const ;
 };
 
 #endif /* SIGNALBAR_H */
