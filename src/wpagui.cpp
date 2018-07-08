@@ -1773,19 +1773,14 @@ void WpaGui::disableNetwork(const QString& sel) {
 
 void WpaGui::requestNetworkChange(const QString& req, const QString& sel) {
 
-	QString cmd(sel);
-
-	if (cmd.compare("all") != 0) {
-		if (!QRegExp("^\\d+").exactMatch(cmd)) {
-			debug("Invalid request target: %s '%s'",
-			      req.toLocal8Bit().constData(),
-			      cmd.toLocal8Bit().constData());
-			return;
-		}
+	if (sel != "all" && !QRegExp("^\\d+").exactMatch(sel)) {
+		debug("Invalid request target: %s '%s'",
+				req.toLocal8Bit().constData(),
+				sel.toLocal8Bit().constData());
+		return;
 	}
-	cmd.prepend(req);
-	ctrlRequest(cmd);
 
+	ctrlRequest(req + sel);
 	updateNetworks();
 }
 
@@ -1841,29 +1836,25 @@ void WpaGui::removeListedNetwork() {
 		return;
 	}
 
-	QString sel(networkList->currentItem()->text(0));
-	removeNetwork(sel);
+	removeNetwork(networkList->currentItem()->text(0));
 }
 
 
 void WpaGui::enableAllNetworks() {
 
-	QString sel("all");
-	enableNetwork(sel);
+	enableNetwork("all");
 }
 
 
 void WpaGui::disableAllNetworks() {
 
-	QString sel("all");
-	disableNetwork(sel);
+	disableNetwork("all");
 }
 
 
 void WpaGui::removeAllNetworks() {
 
-	QString sel("all");
-	removeNetwork(sel);
+	removeNetwork("all");
 }
 
 
@@ -1879,20 +1870,14 @@ void WpaGui::scan4Networks() {
 
 int WpaGui::getNetworkDisabled(const QString& sel) {
 
-	QString cmd(sel);
-	size_t len(10); char buf[len];
-
-	if (cmd.compare("all") != 0) {
-		if (!QRegExp("^\\d+").exactMatch(cmd)) {
-			debug("Invalid getNetworkDisabled '%s'",
-				cmd.toLocal8Bit().constData());
-			return -1;
-		}
+	if (sel != "all" && !QRegExp("^\\d+").exactMatch(sel)) {
+		debug("Invalid getNetworkDisabled '%s'", sel.toLocal8Bit().constData());
+		return -1;
 	}
-	cmd.prepend("GET_NETWORK ");
-	cmd.append(" disabled");
 
-	if (ctrlRequest(cmd, buf, len) < 0)
+	QString cmd("GET_NETWORK %1 disabled");
+	size_t len(10); char buf[len];
+	if (ctrlRequest(cmd.arg(sel), buf, len) < 0)
 		return -1;
 
 	return atoi(buf);
