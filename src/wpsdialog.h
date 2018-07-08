@@ -35,7 +35,7 @@ protected slots:
 	            void languageChange();
 
 	            void tabChanged();
-	            void wpsApPinChanged(const QString &text);
+	            void wpsApPinChanged(const QString& text);
 	            void wpsPbcButtonClicked();
 	            void wpsApPinButtonClicked();
 	            void wpsPinButtonClicked();

@@ -29,9 +29,9 @@
 #endif /* CONFIG_NATIVE_WINDOWS */
 
 
-AddInterface::AddInterface(WpaGui *_wpagui, QWidget *parent)
-	: QDialog(parent), wpagui(_wpagui)
-{
+AddInterface::AddInterface(WpaGui* _wpagui, QWidget*  parent)
+            : QDialog(parent), wpagui(_wpagui) {
+
 	setWindowTitle(tr("Select network interface to add"));
 	resize(400, 200);
 	vboxLayout = new QVBoxLayout(this);
@@ -56,8 +56,8 @@ AddInterface::AddInterface(WpaGui *_wpagui, QWidget *parent)
 }
 
 
-void AddInterface::addInterfaces()
-{
+void AddInterface::addInterfaces() {
+
 #ifdef CONFIG_CTRL_IFACE_NAMED_PIPE
 	struct wpa_ctrl *ctrl;
 	int ret;
@@ -102,8 +102,8 @@ void AddInterface::addInterfaces()
 
 
 #ifdef CONFIG_NATIVE_WINDOWS
-bool AddInterface::addRegistryInterface(const QString &ifname)
-{
+bool AddInterface::addRegistryInterface(const QString& ifname) {
+
 	HKEY hk, ihk;
 	LONG ret;
 	int id, tmp;
@@ -182,8 +182,8 @@ bool AddInterface::addRegistryInterface(const QString &ifname)
 #endif /* CONFIG_NATIVE_WINDOWS */
 
 
-void AddInterface::interfaceSelected(QTreeWidgetItem *sel)
-{
+void AddInterface::interfaceSelected(QTreeWidgetItem* sel) {
+
 	if (!sel)
 		return;
 

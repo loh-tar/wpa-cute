@@ -98,20 +98,20 @@ public:
 	};
 
 	WpaGui(WpaGuiApp *app
-	     , QWidget *parent = 0
-	     , const char *name = 0
+	     , QWidget*  parent = 0
+	     , const char* name = 0
 	     , Qt::WindowFlags fl = 0);
 
 	~WpaGui();
 
-	         int ctrlRequest(const QString &cmd, char *buf, const size_t buflen);
-	         int ctrlRequest(const QString &cmd);
+	         int ctrlRequest(const QString& cmd, char* buf, const size_t buflen);
+	         int ctrlRequest(const QString& cmd);
 
-	        void editNetwork(const QString &id, const QString &bssid = "");
-	        void removeNetwork(const QString &sel);
-	        void enableNetwork(const QString &sel);
-	        void disableNetwork(const QString &sel);
-	         int getNetworkDisabled(const QString &sel);
+	        void editNetwork(const QString& id, const QString& bssid = "");
+	        void removeNetwork(const QString& sel);
+	        void enableNetwork(const QString& sel);
+	        void disableNetwork(const QString& sel);
+	         int getNetworkDisabled(const QString& sel);
 #ifndef QT_NO_SESSIONMANAGER
 	        void saveState();
 #endif
@@ -198,8 +198,8 @@ private:
 
 	        int  openCtrlConnection(const QString& ifname);
 
-	        void requestNetworkChange(const QString &req, const QString &sel);
-	        void logHint(const QString &hint);
+	        void requestNetworkChange(const QString& req, const QString& sel);
+	        void logHint(const QString& hint);
 
 	        void letTheDogOut(int dog, bool yes);
 	        void letTheDogOut(int dog = PomDog);

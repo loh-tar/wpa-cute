@@ -9,26 +9,25 @@
  * See COPYING for more details.
  */
 
-#include <QHeaderView>
 #include <QScrollBar>
 
 #include "eventhistory.h"
 
 
-int EventListModel::rowCount(const QModelIndex &) const
-{
+int EventListModel::rowCount(const QModelIndex& ) const {
+
 	return msgList.count();
 }
 
 
-int EventListModel::columnCount(const QModelIndex &) const
-{
+int EventListModel::columnCount(const QModelIndex& ) const {
+
 	return 2;
 }
 
 
-QVariant EventListModel::data(const QModelIndex &index, int role) const
-{
+QVariant EventListModel::data(const QModelIndex& index, int role) const {
+
 	if (!index.isValid())
 		return QVariant();
 
@@ -47,13 +46,12 @@ QVariant EventListModel::data(const QModelIndex &index, int role) const
 }
 
 
-QVariant EventListModel::headerData(int section, Qt::Orientation orientation,
-				    int role) const
-{
+QVariant EventListModel::headerData(int section, Qt::Orientation o, int role) const {
+
 	if (role != Qt::DisplayRole)
 		return QVariant();
 
-	if (orientation == Qt::Horizontal) {
+	if (o == Qt::Horizontal) {
 		switch (section) {
 		case 0:
 			return QString(tr("Timestamp"));
@@ -67,8 +65,8 @@ QVariant EventListModel::headerData(int section, Qt::Orientation orientation,
 }
 
 
-void EventListModel::addEvent(QString time, QString msg)
-{
+void EventListModel::addEvent(QString time, QString msg) {
+
 	beginInsertRows(QModelIndex(), msgList.size(), msgList.size() + 1);
 	timeList << time;
 	msgList << msg;
@@ -76,7 +74,7 @@ void EventListModel::addEvent(QString time, QString msg)
 }
 
 
-EventHistory::EventHistory(QWidget *widget)
+EventHistory::EventHistory(QWidget*  widget)
             : QDialog(0) // No parent so wpagui can above us
 {
 	setupUi(this);
@@ -91,27 +89,26 @@ EventHistory::EventHistory(QWidget *widget)
 }
 
 
-EventHistory::~EventHistory()
-{
+EventHistory::~EventHistory() {
 }
 
 
-void EventHistory::languageChange()
-{
+void EventHistory::languageChange() {
+
 	retranslateUi(this);
 }
 
 
-void EventHistory::addEvents(WpaMsgList msgs)
-{
+void EventHistory::addEvents(WpaMsgList msgs) {
+
 	WpaMsgList::iterator it;
 	for (it = msgs.begin(); it != msgs.end(); it++)
 		addEvent(*it);
 }
 
 
-void EventHistory::addEvent(WpaMsg msg)
-{
+void EventHistory::addEvent(WpaMsg msg) {
+
 	bool scroll = true;
 
 	if (eventListView->verticalScrollBar()->value() <

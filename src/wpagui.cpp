@@ -62,14 +62,13 @@ enum TallyType {
 
 
 WpaGui::WpaGui(WpaGuiApp *app
-             , QWidget *parent, const char *
+             , QWidget*  parent, const char*
              , Qt::WindowFlags)
-
       : QMainWindow(parent)
 	  , ctrlInterfaceDir("/var/run/wpa_supplicant")
 	  , ctrl_conn(nullptr)
-	  , monitor_conn(nullptr)
-{
+	  , monitor_conn(nullptr) {
+
 	setupUi(this);
 	this->setWindowFlags(Qt::Dialog);
 
@@ -242,8 +241,8 @@ WpaGui::WpaGui(WpaGuiApp *app
 }
 
 
-WpaGui::~WpaGui()
-{
+WpaGui::~WpaGui() {
+
 	closeDialog(scanWindow);
 	closeDialog(peersWindow);
 	closeDialog(eventHistoryWindow);
@@ -261,14 +260,14 @@ WpaGui::~WpaGui()
 }
 
 
-void WpaGui::languageChange()
-{
+void WpaGui::languageChange() {
+
 	retranslateUi(this);
 }
 
 
-void WpaGui::parseArgCV(WpaGuiApp *app)
-{
+void WpaGui::parseArgCV(WpaGuiApp *app) {
+
 	int c;
 	bool hasN(false), hasP(false);
 	while( (c = getopt(app->argc, app->argv, "i:m:p:tqNPW"))  > 0) {
@@ -520,8 +519,8 @@ int WpaGui::openCtrlConnection(const QString& ifname) {
 }
 
 
-int WpaGui::ctrlRequest(const QString &cmd, char *buf, const size_t buflen)
-{
+int WpaGui::ctrlRequest(const QString& cmd, char* buf, const size_t buflen) {
+
 	int ret;
 	size_t len = buflen;
 
@@ -546,8 +545,8 @@ int WpaGui::ctrlRequest(const QString &cmd, char *buf, const size_t buflen)
 }
 
 
-int WpaGui::ctrlRequest(const QString &cmd)
-{
+int WpaGui::ctrlRequest(const QString& cmd) {
+
 	size_t len(100); char buf[len];
 	return ctrlRequest(cmd, buf, len);
 }
@@ -652,8 +651,8 @@ void WpaGui::restoreConfigUpdates() {
 }
 
 
-void WpaGui::setState(const WpaStateType state)
-{
+void WpaGui::setState(const WpaStateType state) {
+
 	static int oldState = -1;
 	TrayIconType icon   = TrayIconNone;
 	QString stateText;
@@ -981,13 +980,13 @@ void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 	updateSignalMeter();
 	updateNetworks(tally.contains(NetworkNeedsUpdate));
 	tally.remove(StatusNeedsUpdate);
-	debug("updateStatus <<<<<<");
+	debug(" updateStatus <<<<<<");
 }
 
 
-void WpaGui::updateNetworks(bool changed/* = true*/)
-{
-	debug("updateNetworks() ??");
+void WpaGui::updateNetworks(bool changed/* = true*/) {
+
+	debug(" updateNetworks() ??");
 
 	if (!changed)
 		return;
@@ -1086,14 +1085,14 @@ void WpaGui::updateNetworks(bool changed/* = true*/)
 	networkSelectionChanged();
 
 	if (scanWindow)
-			scanWindow->updateResults();
+		scanWindow->updateResults();
 
 	debug("updateNetworks() <<<<<<");
 }
 
 
-void WpaGui::disableNotifier(bool yes)
-{
+void WpaGui::disableNotifier(bool yes) {
+
 	if (yes)
 		logHint(tr("User requests to disable QSocketNotifier"));
 	else
@@ -1109,8 +1108,8 @@ void WpaGui::disableNotifier(bool yes)
 }
 
 
-void WpaGui::letTheDogOut(int dog, bool yes)
-{
+void WpaGui::letTheDogOut(int dog, bool yes) {
+
 	if (yes) {
 		if (watchdogTimer.interval() != dog || !watchdogTimer.isActive())
 			debug("New dog on patrol %d", dog);
@@ -1124,14 +1123,14 @@ void WpaGui::letTheDogOut(int dog, bool yes)
 }
 
 
-void WpaGui::letTheDogOut(int dog/* = PomDog*/)
-{
+void WpaGui::letTheDogOut(int dog/* = PomDog*/) {
+
 	letTheDogOut(dog, true);
 }
 
 
-void WpaGui::letTheDogOut(bool yes/* = true*/)
-{
+void WpaGui::letTheDogOut(bool yes/* = true*/) {
+
 	letTheDogOut(PomDog, yes);
 }
 
@@ -1169,8 +1168,8 @@ void WpaGui::assistanceDogNeeded(bool needed/* = true*/) {
 }
 
 
-void WpaGui::enablePolling(bool yes)
-{
+void WpaGui::enablePolling(bool yes) {
+
 	if (yes)
 		logHint(tr("User requests to enable polling"));
 	else
@@ -1180,20 +1179,20 @@ void WpaGui::enablePolling(bool yes)
 }
 
 
-void WpaGui::helpIndex()
-{
+void WpaGui::helpIndex() {
+
 	debug("helpIndex");
 }
 
 
-void WpaGui::helpContents()
-{
+void WpaGui::helpContents() {
+
 	debug("helpContents");
 }
 
 
-void WpaGui::helpAbout()
-{
+void WpaGui::helpAbout() {
+
 	const QString copyright(tr("%1 - A graphical wpa_supplicant front end\n")
 	                       .arg(ProjAppName) + tr(
 	            "Copyright (C) 2018 loh.tar@googlemail.com\n"
@@ -1258,8 +1257,8 @@ void WpaGui::helpAbout()
 }
 
 
-void WpaGui::disconnReconnect()
-{
+void WpaGui::disconnReconnect() {
+
 	disconReconAction->setEnabled(false);
 
 	if (WpaDisconnected == wpaState) {
@@ -1278,8 +1277,8 @@ void WpaGui::disconnReconnect()
 }
 
 
-void WpaGui::ping()
-{
+void WpaGui::ping() {
+
 	static WpaStateType oldState(WpaUnknown);
 
 	debug("PING! >>>>> state: %d / %d",oldState, wpaState);
@@ -1364,10 +1363,10 @@ void WpaGui::ping()
 }
 
 
-void WpaGui::updateSignalMeter()
-{
+void WpaGui::updateSignalMeter() {
+
 	size_t len(128); char buf[len];
-	char *rssi;
+	char* rssi;
 	int rssi_value;
 
 	if (WpaCompleted != wpaState) {
@@ -1425,7 +1424,7 @@ void WpaGui::restoreStatusHint() {
 }
 
 
-void WpaGui::logHint(const QString &hint) {
+void WpaGui::logHint(const QString& hint) {
 
 	QString text(hint);
 	static QString lastHint;
@@ -1463,15 +1462,15 @@ void WpaGui::logHint(const QString &hint) {
 }
 
 
-static int str_match(const char *a, const char *b)
-{
+static int str_match(const char* a, const char* b) {
+
 	return strncmp(a, b, strlen(b)) == 0;
 }
 
 
-void WpaGui::processMsg(char *msg)
-{
-	char *pos = msg;
+void WpaGui::processMsg(char* msg) {
+
+	char* pos = msg;
 	int priority = 2;
 
 	if (*pos == '<') {
@@ -1637,8 +1636,8 @@ void WpaGui::processMsg(char *msg)
 }
 
 
-void WpaGui::processCtrlReq(const QString& req)
-{
+void WpaGui::processCtrlReq(const QString& req) {
+
 	// The request message looks like "CTRL-REQ-<type>-<id>:<text>"
 	// e.g. "CTRL-REQ-PASSWORD-1:Password needed for SSID foobar"
 	// or   "CTRL-REQ-OTP-2:Challenge 1235663 needed for SSID foobar"
@@ -1697,8 +1696,8 @@ void WpaGui::processCtrlReq(const QString& req)
 }
 
 
-void WpaGui::receiveMsgs()
-{
+void WpaGui::receiveMsgs() {
+
 	char buf[256];
 	size_t len;
 
@@ -1717,9 +1716,9 @@ void WpaGui::receiveMsgs()
 }
 
 
-void WpaGui::networkSelectionChanged()
-{
-	QTreeWidgetItem *selectedNetwork = networkList->currentItem();
+void WpaGui::networkSelectionChanged() {
+
+	QTreeWidgetItem* selectedNetwork = networkList->currentItem();
 	if (!selectedNetwork) {
 		debug("networkSelectionChanged - NULL");
 		networkEditAction->setEnabled(false);
@@ -1755,14 +1754,14 @@ void WpaGui::networkSelectionChanged()
 }
 
 
-void WpaGui::enableNetwork(const QString &sel)
-{
+void WpaGui::enableNetwork(const QString& sel) {
+
 	requestNetworkChange("ENABLE_NETWORK ", sel);
 }
 
 
-void WpaGui::disableNetwork(const QString &sel)
-{
+void WpaGui::disableNetwork(const QString& sel) {
+
 	requestNetworkChange("DISABLE_NETWORK ", sel);
 	if (WpaScanning == wpaState)
 		// After some time the supplicant goes in some deep sleep where he
@@ -1772,8 +1771,8 @@ void WpaGui::disableNetwork(const QString &sel)
 }
 
 
-void WpaGui::requestNetworkChange(const QString &req, const QString &sel)
-{
+void WpaGui::requestNetworkChange(const QString& req, const QString& sel) {
+
 	QString cmd(sel);
 
 	if (cmd.compare("all") != 0) {
@@ -1791,7 +1790,7 @@ void WpaGui::requestNetworkChange(const QString &req, const QString &sel)
 }
 
 
-void WpaGui::editNetwork(const QString &id, const QString &bssid/* = ""*/) {
+void WpaGui::editNetwork(const QString& id, const QString& bssid/* = ""*/) {
 
 	NetworkConfig nc(this);
 
@@ -1804,8 +1803,8 @@ void WpaGui::editNetwork(const QString &id, const QString &bssid/* = ""*/) {
 }
 
 
-void WpaGui::editListedNetwork()
-{
+void WpaGui::editListedNetwork() {
+
 	if (!networkList->currentItem()) {
 		QMessageBox::information(this, tr("Select A Network"),
 					 tr("Select a network from the list to"
@@ -1820,21 +1819,21 @@ void WpaGui::editListedNetwork()
 }
 
 
-void WpaGui::addNetwork()
-{
+void WpaGui::addNetwork() {
+
 	editNetwork("-1");
 }
 
 
-void WpaGui::removeNetwork(const QString &sel)
-{
+void WpaGui::removeNetwork(const QString& sel) {
+
 	requestNetworkChange("REMOVE_NETWORK ", sel);
 	configIsChanged();
 }
 
 
-void WpaGui::removeListedNetwork()
-{
+void WpaGui::removeListedNetwork() {
+
 	if (!networkList->currentItem()) {
 		QMessageBox::information(this, tr("Select A Network"),
 					 tr("Select a network from the list "
@@ -1847,22 +1846,22 @@ void WpaGui::removeListedNetwork()
 }
 
 
-void WpaGui::enableAllNetworks()
-{
+void WpaGui::enableAllNetworks() {
+
 	QString sel("all");
 	enableNetwork(sel);
 }
 
 
-void WpaGui::disableAllNetworks()
-{
+void WpaGui::disableAllNetworks() {
+
 	QString sel("all");
 	disableNetwork(sel);
 }
 
 
-void WpaGui::removeAllNetworks()
-{
+void WpaGui::removeAllNetworks() {
+
 	QString sel("all");
 	removeNetwork(sel);
 }
@@ -1878,8 +1877,8 @@ void WpaGui::scan4Networks() {
 }
 
 
-int WpaGui::getNetworkDisabled(const QString &sel)
-{
+int WpaGui::getNetworkDisabled(const QString& sel) {
+
 	QString cmd(sel);
 	size_t len(10); char buf[len];
 
@@ -1902,7 +1901,7 @@ int WpaGui::getNetworkDisabled(const QString &sel)
 
 void WpaGui::chooseNetwork() {
 
-	QTreeWidgetItem *selectedNetwork = networkList->currentItem();
+	QTreeWidgetItem* selectedNetwork = networkList->currentItem();
 	chooseNetwork(selectedNetwork->text(0), selectedNetwork->text(1));
 }
 
@@ -1927,9 +1926,9 @@ void WpaGui::chooseNetwork(const QString& id, const QString& ssid) {
 }
 
 
-void WpaGui::disEnableNetwork()
-{
-	QTreeWidgetItem *selectedNetwork = networkList->currentItem();
+void WpaGui::disEnableNetwork() {
+
+	QTreeWidgetItem* selectedNetwork = networkList->currentItem();
 	switch (getNetworkDisabled(selectedNetwork->text(0))) {
 	case 1:
 		enableNetwork(selectedNetwork->text(0));
@@ -1945,8 +1944,8 @@ void WpaGui::disEnableNetwork()
 }
 
 
-void WpaGui::saveConfig()
-{
+void WpaGui::saveConfig() {
+
 	if (ctrlRequest("SAVE_CONFIG") < 0)
 		QMessageBox::warning(
 			this, tr("Failed to save configuration"),
@@ -1962,8 +1961,8 @@ void WpaGui::saveConfig()
 }
 
 
-void WpaGui::reloadConfig()
-{
+void WpaGui::reloadConfig() {
+
 	if (ctrlRequest("RECONFIGURE") < 0) {
 		// No tr() here, guess will never happens, but if I want an english hint
 		logHint("Failed to reload the configuration");
@@ -2018,12 +2017,11 @@ void WpaGui::createTrayIcon(bool trayOnly) {
 	connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason))
 	      , this, SLOT(trayActivated(QSystemTrayIcon::ActivationReason)));
 
-	QAction *statAction;
-	statAction = new QAction(tr("S&tatus"), this);
-	connect(statAction, SIGNAL(triggered()), this, SLOT(showTrayStatus()));
+	QAction* statusAction = new QAction(tr("S&tatus"), this);
+	connect(statusAction, SIGNAL(triggered()), this, SLOT(showTrayStatus()));
 
 	QMenu* trayMenu = new QMenu(this);
-	trayMenu->addAction(statAction);
+	trayMenu->addAction(statusAction);
 	trayMenu->addAction(disconReconAction);
 	trayMenu->addSeparator();
 	trayMenu->addAction(wpsAction);
@@ -2052,11 +2050,11 @@ void WpaGui::createTrayIcon(bool trayOnly) {
 }
 
 
-void WpaGui::trayMessage(const QString &msg
+void WpaGui::trayMessage(const QString& msg
 	       , bool logIt/* = false*/
 	       , QSystemTrayIcon::MessageIcon type/* = QSystemTrayIcon::Information*/
-	       , int sec/* = 5*/)
-{
+	       , int sec/* = 5*/) {
+
 	if (logIt)
 		logHint(msg);
 
@@ -2068,8 +2066,8 @@ void WpaGui::trayMessage(const QString &msg
 }
 
 
-void WpaGui::trayActivated(QSystemTrayIcon::ActivationReason how)
-{
+void WpaGui::trayActivated(QSystemTrayIcon::ActivationReason how) {
+
 	switch (how) {
 	/* use close() here instead of hide() and allow the
 	 * custom closeEvent handler take care of children */
@@ -2154,7 +2152,7 @@ void WpaGui::showTrayStatus() {
 }
 
 
-void WpaGui::updateTrayToolTip(const QString &msg) {
+void WpaGui::updateTrayToolTip(const QString& msg) {
 
 	if (!trayIcon || msg.isEmpty())
 		return;
@@ -2239,13 +2237,10 @@ void WpaGui::updateTrayIcon(const TrayIconType type) {
 }
 
 
-QIcon WpaGui::loadThemedIcon(const QStringList &names, const QIcon &fallback) {
+QIcon WpaGui::loadThemedIcon(const QStringList& names, const QIcon& fallback) {
 
-	QIcon icon;
-
-	for (QStringList::ConstIterator it = names.begin();
-	     it != names.end(); it++) {
-		icon = QIcon::fromTheme(*it);
+	for (QStringList::ConstIterator it = names.begin(); it != names.end(); it++) {
+		QIcon icon = QIcon::fromTheme(*it);
 		if (!icon.isNull())
 			return icon;
 	}
@@ -2254,7 +2249,7 @@ QIcon WpaGui::loadThemedIcon(const QStringList &names, const QIcon &fallback) {
 }
 
 
-void WpaGui::closeEvent(QCloseEvent *event) {
+void WpaGui::closeEvent(QCloseEvent* event) {
 
 	closeDialog(scanWindow);
 	closeDialog(peersWindow);
@@ -2278,7 +2273,7 @@ void WpaGui::closeEvent(QCloseEvent *event) {
 }
 
 
-void WpaGui::showEvent(QShowEvent *event) {
+void WpaGui::showEvent(QShowEvent* event) {
 
 	updateSignalMeter();
     letTheDogOut(BorderCollie, enablePollingAction->isChecked());
@@ -2473,21 +2468,22 @@ void WpaGui::wpsCancel() {
 
 class ErrorMsg : public QMessageBox {
 public:
-	ErrorMsg(QWidget *parent, DWORD last_err = GetLastError());
+	ErrorMsg(QWidget* parent, DWORD last_err = GetLastError());
 	void showMsg(QString msg);
 private:
 	DWORD err;
 };
 
-ErrorMsg::ErrorMsg(QWidget *parent, DWORD last_err) :
-	QMessageBox(parent), err(last_err)
-{
+ErrorMsg::ErrorMsg(QWidget* parent, DWORD last_err)
+        : QMessageBox(parent), err(last_err) {
+
 	setWindowTitle(ProjAppName + tr(" error"));
 	setIcon(QMessageBox::Warning);
 }
 
-void ErrorMsg::showMsg(QString msg)
-{
+
+void ErrorMsg::showMsg(QString msg) {
+
 	LPTSTR buf;
 
 	setText(msg);
@@ -2506,8 +2502,8 @@ void ErrorMsg::showMsg(QString msg)
 }
 
 
-void WpaGui::startService()
-{
+void WpaGui::startService() {
+
 	SC_HANDLE svc, scm;
 
 	scm = OpenSCManager(0, 0, SC_MANAGER_CONNECT);
@@ -2533,8 +2529,8 @@ void WpaGui::startService()
 }
 
 
-void WpaGui::stopService()
-{
+void WpaGui::stopService() {
+
 	SC_HANDLE svc, scm;
 	SERVICE_STATUS status;
 
@@ -2561,8 +2557,8 @@ void WpaGui::stopService()
 }
 
 
-bool WpaGui::serviceRunning()
-{
+bool WpaGui::serviceRunning() {
+
 	SC_HANDLE svc, scm;
 	SERVICE_STATUS status;
 	bool running = false;
@@ -2591,17 +2587,17 @@ bool WpaGui::serviceRunning()
 	return running;
 }
 
+
 void WpaGui::addInterface() {
 
 	AddInterface addIface(this, this);
 	addIface.exec();
 }
-
 #endif /* CONFIG_NATIVE_WINDOWS */
 
 #ifndef QT_NO_SESSIONMANAGER
-void WpaGui::saveState()
-{
+void WpaGui::saveState() {
+
 	QSettings settings("wpa_supplicant", ProjAppName);
 	settings.beginGroup("state");
 	settings.setValue("session_id", qApp->sessionId());

@@ -21,21 +21,21 @@ WpaGuiApp::WpaGuiApp(int& argc, char** argv)
          : QApplication(argc, argv)
          , argc(argc)
          , argv(argv)
-         , mainWindow(NULL)
-{
+         , mainWindow(NULL) {
+
 }
 
 #if !defined(QT_NO_SESSIONMANAGER) && QT_VERSION < 0x050000
-void WpaGuiApp::saveState(QSessionManager& manager)
-{
+void WpaGuiApp::saveState(QSessionManager& manager) {
+
 	QApplication::saveState(manager);
 	mainWindow->saveState();
 }
 #endif
 
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char* argv[]) {
+
 	WpaGuiApp app(argc, argv);
 	QTranslator translator;
 	QString locale;

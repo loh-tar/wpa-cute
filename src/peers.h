@@ -24,7 +24,7 @@ class Peers : public QDialog, public Ui::Peers
 	Q_OBJECT
 
 public:
-	Peers(WpaGui *_wpagui);
+	Peers(WpaGui* _wpagui);
 	~Peers();
 
 	void event_notify(WpaMsg msg);
@@ -61,11 +61,11 @@ protected slots:
 private:
 	void add_station(QString info);
 	void add_stations();
-	void add_single_station(const char *addr);
-	bool add_bss(const QString &cmd);
+	void add_single_station(const char* addr);
+	bool add_bss(const QString& cmd);
 	void remove_bss(int id);
 	void add_scan_results();
-	void add_persistent(int id, const char *ssid, const char *bssid);
+	void add_persistent(int id, const char* ssid, const char* bssid);
 	void add_persistent_groups();
 	void update_peers();
 	QStandardItem* find_addr(QString addr);

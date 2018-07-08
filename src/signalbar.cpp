@@ -16,20 +16,18 @@
 
 
 SignalBar::SignalBar(QObject* parent)
-         : QStyledItemDelegate(parent)
-{
+         : QStyledItemDelegate(parent) {
 }
 
 
-SignalBar::~SignalBar()
-{
+SignalBar::~SignalBar() {
 }
 
 
 void SignalBar::paint(QPainter* painter
                     , const QStyleOptionViewItem& option
-                    , const QModelIndex& index) const
-{
+                    , const QModelIndex& index) const {
+
 	QStyleOptionProgressBar opts;
 	int signal;
 

@@ -17,7 +17,7 @@
 class ScanResultsItem : public QTreeWidgetItem
 {
 public:
-	ScanResultsItem(QTreeWidget *tree) : QTreeWidgetItem(tree) {}
+	ScanResultsItem(QTreeWidget* tree) : QTreeWidgetItem(tree) {}
 	bool operator< (const QTreeWidgetItem &other) const;
 };
 

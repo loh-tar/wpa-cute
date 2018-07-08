@@ -14,7 +14,7 @@
 
 #include <QDialog>
 #include <QLineEdit>
-#include <QGridLayout>
+
 
 class StringQuery : public QDialog
 {
@@ -25,7 +25,7 @@ public:
 	QString get_string();
 
 private:
-	QLineEdit *edit;
+	QLineEdit edit;
 };
 
 #endif /* STRINGQUERY_H */

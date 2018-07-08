@@ -21,19 +21,17 @@ class EventListModel : public QAbstractTableModel
 	Q_OBJECT
 
 public:
-	EventListModel(QObject *parent)	: QAbstractTableModel(parent) {};
+	EventListModel(QObject* parent)	: QAbstractTableModel(parent) {};
 
-	int rowCount(const QModelIndex &parent = QModelIndex()) const;
-	int columnCount(const QModelIndex &parent = QModelIndex()) const;
-	QVariant data(const QModelIndex &index, int role) const;
-	QVariant headerData(int section, Qt::Orientation orientation,
-	                    int role = Qt::DisplayRole) const;
-
-	void addEvent(QString time, QString msg);
+	         int rowCount(const QModelIndex& parent = QModelIndex()) const;
+	         int columnCount(const QModelIndex& parent = QModelIndex()) const;
+	    QVariant data(const QModelIndex& index, int role) const;
+	    QVariant headerData(int section, Qt::Orientation o, int role = Qt::DisplayRole) const;
+	        void addEvent(QString time, QString msg);
 
 private:
-	QStringList timeList;
-	QStringList msgList;
+	 QStringList timeList;
+	 QStringList msgList;
 };
 
 
@@ -42,7 +40,7 @@ class EventHistory : public QDialog, public Ui::EventHistory
 	Q_OBJECT
 
 public:
-	EventHistory(QWidget *widget);
+	 EventHistory(QWidget* widget);
 	~EventHistory();
 
 public slots:
@@ -53,7 +51,7 @@ protected slots:
 	        void languageChange();
 
 private:
-	EventListModel *elm;
+	EventListModel* elm;
 };
 
 #endif /* EVENTHISTORY_H */

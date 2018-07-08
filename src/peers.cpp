@@ -65,11 +65,11 @@ enum peer_type {
 };
 
 
-Peers::Peers(WpaGui *_wpagui)
+Peers::Peers(WpaGui* _wpagui)
      : QDialog(0) // No parent so wpagui can above us
      , wpagui(_wpagui)
-     , hide_ap(false)
-{
+     , hide_ap(false) {
+
 	setupUi(this);
 
 	if (QImageReader::supportedImageFormats().contains(QByteArray("svg")))
@@ -103,8 +103,8 @@ Peers::Peers(WpaGui *_wpagui)
 }
 
 
-Peers::~Peers()
-{
+Peers::~Peers() {
+
 	delete default_icon;
 	delete ap_icon;
 	delete laptop_icon;
@@ -113,14 +113,14 @@ Peers::~Peers()
 }
 
 
-void Peers::languageChange()
-{
+void Peers::languageChange() {
+
 	retranslateUi(this);
 }
 
 
-QString Peers::ItemType(int type)
-{
+QString Peers::ItemType(int type) {
+
 	QString title;
 	switch (type) {
 	case PEER_TYPE_ASSOCIATED_STATION:
@@ -170,8 +170,8 @@ QString Peers::ItemType(int type)
 }
 
 
-void Peers::context_menu(const QPoint &pos)
-{
+void Peers::context_menu(const QPoint &pos) {
+
 	QMenu *menu = new QMenu;
 	if (menu == NULL)
 		return;
@@ -300,8 +300,8 @@ void Peers::context_menu(const QPoint &pos)
 }
 
 
-void Peers::enter_pin()
-{
+void Peers::enter_pin() {
+
 	if (ctx_item == NULL)
 		return;
 
@@ -337,14 +337,14 @@ void Peers::enter_pin()
 }
 
 
-void Peers::ctx_refresh()
-{
+void Peers::ctx_refresh() {
+
 	update_peers();
 }
 
 
-void Peers::ctx_p2p_start()
-{
+void Peers::ctx_p2p_start() {
+
 	if (wpagui->ctrlRequest("P2P_FIND") < 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
@@ -354,14 +354,14 @@ void Peers::ctx_p2p_start()
 }
 
 
-void Peers::ctx_p2p_stop()
-{
+void Peers::ctx_p2p_stop() {
+
 	wpagui->ctrlRequest("P2P_STOP_FIND");
 }
 
 
-void Peers::ctx_p2p_listen()
-{
+void Peers::ctx_p2p_listen() {
+
 	if (wpagui->ctrlRequest("P2P_LISTEN 3600") < 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
@@ -371,8 +371,8 @@ void Peers::ctx_p2p_listen()
 }
 
 
-void Peers::ctx_p2p_start_group()
-{
+void Peers::ctx_p2p_start_group() {
+
 	if (wpagui->ctrlRequest("P2P_GROUP_ADD") < 0) {
 		QMessageBox msg;
 		msg.setIcon(QMessageBox::Warning);
@@ -382,8 +382,8 @@ void Peers::ctx_p2p_start_group()
 }
 
 
-void Peers::add_station(QString info)
-{
+void Peers::add_station(QString info) {
+
 	QStringList lines = info.split(QRegExp("\\n"));
 	QString name;
 
@@ -432,8 +432,8 @@ void Peers::add_station(QString info)
 }
 
 
-void Peers::add_stations()
-{
+void Peers::add_stations() {
+
 	size_t len(2048); char buf[len];
 	QString cmd("STA-NEXT %1");
 
@@ -455,8 +455,8 @@ void Peers::add_stations()
 }
 
 
-void Peers::add_single_station(const char *addr)
-{
+void Peers::add_single_station(const char *addr) {
+
 	size_t len(2048); char buf[len];
 	QString cmd("STA %1");
 
@@ -476,8 +476,8 @@ void Peers::add_single_station(const char *addr)
 }
 
 
-void Peers::add_p2p_group_client(QStandardItem * /*parent*/, QString params)
-{
+void Peers::add_p2p_group_client(QStandardItem * /*parent*/, QString params) {
+
 	/*
 	 * dev=02:b5:64:63:30:63 iface=02:b5:64:63:30:63 dev_capab=0x0
 	 * dev_type=1-0050f204-1 dev_name='Wireless Client'
@@ -525,8 +525,8 @@ void Peers::add_p2p_group_client(QStandardItem * /*parent*/, QString params)
 }
 
 
-void Peers::remove_bss(int id)
-{
+void Peers::remove_bss(int id) {
+
 	if (model.rowCount() == 0)
 		return;
 
@@ -538,8 +538,8 @@ void Peers::remove_bss(int id)
 }
 
 
-bool Peers::add_bss(const QString &cmd)
-{
+bool Peers::add_bss(const QString& cmd) {
+
 	size_t len(2048); char buf[len];
 
 	if (hide_ap)
@@ -620,8 +620,8 @@ bool Peers::add_bss(const QString &cmd)
 }
 
 
-void Peers::add_scan_results()
-{
+void Peers::add_scan_results() {
+
 	int index;
 	QString cmd("BSS %1");
 
@@ -636,8 +636,8 @@ void Peers::add_scan_results()
 }
 
 
-void Peers::add_persistent(int id, const char *ssid, const char *bssid)
-{
+void Peers::add_persistent(int id, const char *ssid, const char *bssid) {
+
 	size_t len(100); char buf[len];
 	int mode;
 
@@ -673,8 +673,8 @@ void Peers::add_persistent(int id, const char *ssid, const char *bssid)
 }
 
 
-void Peers::add_persistent_groups()
-{
+void Peers::add_persistent_groups() {
+
 	size_t len(2048);
 	char buf[len], *start, *end, *id, *ssid, *bssid, *flags;
 
@@ -721,8 +721,8 @@ void Peers::add_persistent_groups()
 }
 
 
-void Peers::update_peers()
-{
+void Peers::update_peers() {
+
 	model.clear();
 	if (wpagui == NULL)
 		return;
@@ -735,8 +735,8 @@ void Peers::update_peers()
 }
 
 
-QStandardItem * Peers::find_addr(QString addr)
-{
+QStandardItem * Peers::find_addr(QString addr) {
+
 	if (model.rowCount() == 0)
 		return NULL;
 
@@ -748,8 +748,8 @@ QStandardItem * Peers::find_addr(QString addr)
 }
 
 
-QStandardItem * Peers::find_addr_type(QString addr, int type)
-{
+QStandardItem * Peers::find_addr_type(QString addr, int type) {
+
 	if (model.rowCount() == 0)
 		return NULL;
 
@@ -764,8 +764,8 @@ QStandardItem * Peers::find_addr_type(QString addr, int type)
 }
 
 
-QStandardItem * Peers::find_uuid(QString uuid)
-{
+QStandardItem * Peers::find_uuid(QString uuid) {
+
 	if (model.rowCount() == 0)
 		return NULL;
 
@@ -777,8 +777,8 @@ QStandardItem * Peers::find_uuid(QString uuid)
 }
 
 
-void Peers::event_notify(WpaMsg msg)
-{
+void Peers::event_notify(WpaMsg msg) {
+
 	QString text = msg.getMsg();
 
 	if (text.startsWith(WPS_EVENT_PIN_NEEDED)) {
@@ -1287,8 +1287,8 @@ void Peers::event_notify(WpaMsg msg)
 }
 
 
-void Peers::ctx_p2p_connect()
-{
+void Peers::ctx_p2p_connect() {
+
 	if (ctx_item == NULL)
 		return;
 	QString addr = ctx_item->data(peer_role_address).toString();
@@ -1343,8 +1343,8 @@ void Peers::ctx_p2p_connect()
 }
 
 
-void Peers::ctx_p2p_req_pin()
-{
+void Peers::ctx_p2p_req_pin() {
+
 	if (ctx_item == NULL)
 		return;
 
@@ -1363,8 +1363,8 @@ void Peers::ctx_p2p_req_pin()
 }
 
 
-void Peers::ctx_p2p_show_pin()
-{
+void Peers::ctx_p2p_show_pin() {
+
 	if (ctx_item == NULL)
 		return;
 
@@ -1383,8 +1383,8 @@ void Peers::ctx_p2p_show_pin()
 }
 
 
-void Peers::ctx_p2p_display_pin()
-{
+void Peers::ctx_p2p_display_pin() {
+
 	if (ctx_item == NULL)
 		return;
 
@@ -1406,8 +1406,8 @@ void Peers::ctx_p2p_display_pin()
 }
 
 
-void Peers::ctx_p2p_display_pin_pd()
-{
+void Peers::ctx_p2p_display_pin_pd() {
+
 	if (ctx_item == NULL)
 		return;
 
@@ -1430,8 +1430,8 @@ void Peers::ctx_p2p_display_pin_pd()
 }
 
 
-void Peers::ctx_p2p_enter_pin()
-{
+void Peers::ctx_p2p_enter_pin() {
+
 	if (ctx_item == NULL)
 		return;
 
@@ -1453,8 +1453,8 @@ void Peers::ctx_p2p_enter_pin()
 }
 
 
-void Peers::ctx_p2p_remove_group()
-{
+void Peers::ctx_p2p_remove_group() {
+
 	if (ctx_item == NULL)
 		return;
 
@@ -1470,23 +1470,23 @@ void Peers::ctx_p2p_remove_group()
 }
 
 
-void Peers::closeEvent(QCloseEvent *)
-{
+void Peers::closeEvent(QCloseEvent *) {
+
 	if (wpagui) {
 		wpagui->ctrlRequest("WPS_ER_STOP");
 	}
 }
 
 
-void Peers::done(int r)
-{
+void Peers::done(int r) {
+
 	QDialog::done(r);
 	close();
 }
 
 
-void Peers::remove_enrollee_uuid(QString uuid)
-{
+void Peers::remove_enrollee_uuid(QString uuid) {
+
 	if (model.rowCount() == 0)
 		return;
 
@@ -1504,8 +1504,8 @@ void Peers::remove_enrollee_uuid(QString uuid)
 }
 
 
-void Peers::properties()
-{
+void Peers::properties() {
+
 	if (ctx_item == NULL)
 		return;
 
@@ -1622,8 +1622,8 @@ void Peers::properties()
 }
 
 
-void Peers::connect_pbc()
-{
+void Peers::connect_pbc() {
+
 	if (ctx_item == NULL)
 		return;
 
@@ -1649,8 +1649,8 @@ void Peers::connect_pbc()
 }
 
 
-void Peers::learn_ap_config()
-{
+void Peers::learn_ap_config() {
+
 	if (ctx_item == NULL)
 		return;
 
@@ -1673,8 +1673,8 @@ void Peers::learn_ap_config()
 }
 
 
-void Peers::ctx_hide_ap()
-{
+void Peers::ctx_hide_ap() {
+
 	hide_ap = true;
 
 	if (model.rowCount() == 0)
@@ -1696,15 +1696,15 @@ void Peers::ctx_hide_ap()
 }
 
 
-void Peers::ctx_show_ap()
-{
+void Peers::ctx_show_ap() {
+
 	hide_ap = false;
 	add_scan_results();
 }
 
 
-void Peers::ctx_p2p_show_passphrase()
-{
+void Peers::ctx_p2p_show_passphrase() {
+
 	size_t len(64); char buf[len];
 
 	if (wpagui->ctrlRequest("P2P_GET_PASSPHRASE", buf, len) < 0) {
@@ -1720,8 +1720,8 @@ void Peers::ctx_p2p_show_passphrase()
 }
 
 
-void Peers::ctx_p2p_start_persistent()
-{
+void Peers::ctx_p2p_start_persistent() {
+
 	if (ctx_item == NULL)
 		return;
 
@@ -1739,8 +1739,8 @@ void Peers::ctx_p2p_start_persistent()
 }
 
 
-void Peers::ctx_p2p_invite()
-{
+void Peers::ctx_p2p_invite() {
+
 	if (ctx_item == NULL)
 		return;
 
@@ -1756,16 +1756,16 @@ void Peers::ctx_p2p_invite()
 }
 
 
-void Peers::ctx_p2p_delete()
-{
+void Peers::ctx_p2p_delete() {
+
 	if (ctx_item == NULL)
 		return;
 	model.removeRow(ctx_item->row());
 }
 
 
-void Peers::enable_persistent(int id)
-{
+void Peers::enable_persistent(int id) {
+
 	if (model.rowCount() == 0)
 		return;
 

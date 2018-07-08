@@ -22,7 +22,7 @@ class NetworkConfig : public QDialog, public Ui::NetworkConfig
 	Q_OBJECT
 
 public:
-	             NetworkConfig(WpaGui *parent);
+	             NetworkConfig(WpaGui* parent);
 	            ~NetworkConfig();
 
 	        void editNetwork(const QString& id, const QString& bssid = "");

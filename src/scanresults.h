@@ -22,7 +22,7 @@ class ScanResults : public QDialog, public Ui::ScanResults
 	Q_OBJECT
 
 public:
-	ScanResults(WpaGui* _wpagui);
+	 ScanResults(WpaGui* _wpagui);
 	~ScanResults();
 
 public slots:
@@ -37,10 +37,10 @@ protected slots:
 	        void chooseNetwork();
 
 private:
-	WpaGui*             wpagui;
-	bool                wpsIsSupported;
-	QString             selectedNetworkId;
-	QTreeWidgetItem*    selectedNetwork;
+	           WpaGui* wpagui;
+	              bool wpsIsSupported;
+	           QString selectedNetworkId;
+	  QTreeWidgetItem* selectedNetwork;
 };
 
 #endif /* SCANRESULTS_H */

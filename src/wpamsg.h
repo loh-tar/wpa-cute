@@ -17,7 +17,7 @@
 
 class WpaMsg {
 public:
-	WpaMsg(const QString &_msg, int _priority = 2)
+	WpaMsg(const QString& _msg, int _priority = 2)
 		: msg(_msg), priority(_priority)
 	{
 		timestamp = QDateTime::currentDateTime();

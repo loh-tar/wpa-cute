@@ -31,10 +31,10 @@ enum {
 #define InQuotes true
 
 
-NetworkConfig::NetworkConfig(WpaGui *parent)
+NetworkConfig::NetworkConfig(WpaGui* parent)
              : QDialog(parent)
-             , wpagui(parent)
-{
+             , wpagui(parent) {
+
 	setupUi(this);
 
 	encrBox->setVisible(false);
@@ -55,18 +55,18 @@ NetworkConfig::NetworkConfig(WpaGui *parent)
 }
 
 
-NetworkConfig::~NetworkConfig()
-{
+NetworkConfig::~NetworkConfig() {
+
 }
 
 
-void NetworkConfig::languageChange()
-{
+void NetworkConfig::languageChange() {
+
 	retranslateUi(this);
 }
 
 
-void NetworkConfig::newNetwork(QTreeWidgetItem *sel) {
+void NetworkConfig::newNetwork(QTreeWidgetItem* sel) {
 
 	/* SSID BSSID signal frequency flags */
 	setWindowTitle(sel->text(0));
@@ -104,8 +104,8 @@ void NetworkConfig::newNetwork(QTreeWidgetItem *sel) {
 }
 
 
-void NetworkConfig::authChanged(int sel)
-{
+void NetworkConfig::authChanged(int sel) {
+
 	encrBox->setVisible(sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP &&
 			       sel != AUTH_NONE_WEP_SHARED && sel != AUTH_IEEE8021X);
 	pskBox->setVisible(sel == AUTH_WPA_PSK || sel == AUTH_WPA2_PSK ||
@@ -151,8 +151,8 @@ void NetworkConfig::authChanged(int sel)
 }
 
 
-void NetworkConfig::eapChanged(int sel)
-{
+void NetworkConfig::eapChanged(int sel) {
+
 	QString prev_val = phase2Select->currentText();
 	while (phase2Select->count())
 		phase2Select->removeItem(0);
@@ -410,8 +410,8 @@ void NetworkConfig::applyNetworkChanges() {
 }
 
 
-int NetworkConfig::setNetworkParam(const QString& id, const QString &parm,
-                                   const QString &val, bool quote/* = false*/) {
+int NetworkConfig::setNetworkParam(const QString& id, const QString& parm,
+                                   const QString& val, bool quote/* = false*/) {
 
 	QString cmd;
 	if (quote)
@@ -423,13 +423,13 @@ int NetworkConfig::setNetworkParam(const QString& id, const QString &parm,
 }
 
 
-void NetworkConfig::encrChanged(const QString &)
-{
+void NetworkConfig::encrChanged(const QString &) {
+
 }
 
 
-void NetworkConfig::wepEnabled(bool enabled)
-{
+void NetworkConfig::wepEnabled(bool enabled) {
+
 	wepBox->setVisible(enabled);
 
 	wep0Edit->setEnabled(enabled);
@@ -444,7 +444,7 @@ void NetworkConfig::wepEnabled(bool enabled)
 }
 
 
-void NetworkConfig::writeWepKey(const QString& id, QLineEdit *edit, int keyId) {
+void NetworkConfig::writeWepKey(const QString& id, QLineEdit* edit, int keyId) {
 
 	bool hex;
 	size_t len;
@@ -648,7 +648,7 @@ void NetworkConfig::editNetwork(const QString& id, const QString& bssid/* = ""*/
 	}
 
 	for (i = 0; i < 4; i++) {
-		QLineEdit *wepEdit;
+		QLineEdit* wepEdit;
 		switch (i) {
 		default:
 		case 0:
@@ -747,8 +747,8 @@ void NetworkConfig::newNetwork() {
 }
 
 
-void NetworkConfig::getEapCapa()
-{
+void NetworkConfig::getEapCapa() {
+
 	size_t len(256); char buf[len];
 
 	if (wpagui == NULL)
