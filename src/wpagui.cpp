@@ -669,9 +669,6 @@ void WpaGui::setState(const WpaStateType state) {
 	const QString StpWpsActTTTxt(tr("Stop running WPS procedure"));
 
 	if (state == oldState) {
-		if (WpaScanning == state)
-			// Don't forget our emergency dressing
-			assistanceDogNeeded();
 		return;
 	}
 
@@ -687,8 +684,16 @@ void WpaGui::setState(const WpaStateType state) {
 
 	tally.insert(StatusNeedsUpdate);
 
+	// There are differend types of states...
+	//   F) Fixed states, can be (virtually) for ever
+	//   T) Temporary states, only a view seconds or less
+	//   R) States reported by status command
+	//   C) Custom/Control states used to control the prgram
+	// ...whereas a state can belong to more than type.
+	// In most F states must be polling enabled due to the lack of a
+	// "STATE-HAS-CHANGED" message by wpa_supplicant, very ugly!
 	switch (state) {
-		case WpaFatal:
+		case WpaFatal: // FC - Only set in openCtrlConnection()
 			wpaState = WpaFatal;
 			icon = TrayIconError;
 			stateText = tr("Fatal Error!");
@@ -700,15 +705,16 @@ void WpaGui::setState(const WpaStateType state) {
 			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(networksTab), false);
 			wpaguiTab->setCurrentWidget(eventTab);
 			rssiBar->hide();
+			letTheDogOut(PomDog);
 			break;
-		case WpaUnknown:
+		case WpaUnknown: // TC
 			wpaState = WpaUnknown;
 // 			icon = ;
 			stateText = tr("Unknown");
 			tally.insert(NetworkNeedsUpdate);
 			rssiBar->hide();
 			break;
-		case WpaObscure:
+		case WpaObscure: // TC
 			wpaState = WpaObscure;
 			stateText = tr("Obscure");
 			// Unclear situation, possible supplicant shut down where any
@@ -719,7 +725,7 @@ void WpaGui::setState(const WpaStateType state) {
 			// ...but if that doesn't come, ensure not to hang
 			assistanceDogNeeded();
 			break;
-		case WpaNotRunning:
+		case WpaNotRunning: // FC
 			wpaState = WpaNotRunning;
 			icon = TrayIconError;
 			stateText = tr("No running wpa_supplicant");
@@ -745,7 +751,7 @@ void WpaGui::setState(const WpaStateType state) {
 			// Now, polling is mandatory
 			letTheDogOut(PomDog);
 			break;
-		case WpaRunning:
+		case WpaRunning: // TC
 			wpaState = WpaRunning;
 			icon = TrayIconSignalNone;
 			stateText = tr("wpa_supplicant is running");
@@ -759,10 +765,8 @@ void WpaGui::setState(const WpaStateType state) {
 			networkMenu->setEnabled(true);
 			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(networksTab), true);
 			adapterSelect->setEnabled(true);
-			// Disable polling when not needed
-			letTheDogOut(enablePollingAction->isChecked());
 			break;
-		case WpaDisabled:
+		case WpaDisabled: // FR
 			wpaState = WpaDisabled;
 			stateText = tr("Adapter is disabled");
 			logHint(tr("You have to enable the adapter by some 'rfkill switch'"));
@@ -776,36 +780,36 @@ void WpaGui::setState(const WpaStateType state) {
 			// Now, polling is mandatory
 			letTheDogOut(PomDog);
 			break;
-		case WpaAuthenticating:
+		case WpaAuthenticating: // TR
 			wpaState = WpaAuthenticating;
 			stateText = tr("Authenticating...");
 			icon = TrayIconAcquiring;
 			break;
-		case WpaAssociating:
+		case WpaAssociating: // TR
 			wpaState = WpaAssociating;
 			stateText = tr("Associating...");
 			icon = TrayIconAcquiring;
 			break;
-		case WpaAssociated:
+		case WpaAssociated: // TR
 			wpaState = WpaAssociated;
 			stateText = tr("Associated");
 			icon = TrayIconAcquiring;
 			break;
-		case Wpa4WayHandshake:
+		case Wpa4WayHandshake: // TR
 			wpaState = Wpa4WayHandshake;
 			stateText = tr("4-Way Handshake");
 			icon = TrayIconAcquiring;
 			break;
-		case WpaGroupHandshake:
+		case WpaGroupHandshake: // TR
 			wpaState = WpaGroupHandshake;
 			stateText = tr("Group Handshake");
 			icon = TrayIconAcquiring;
 			break;
-		case WpaWait4Registrar:
+		case WpaWait4Registrar: // TR
 			stateText = tr("Wait for registrar");
 			icon = TrayIconAcquiring;
 			break;
-		case WpaWpsRunning:
+		case WpaWpsRunning: // TC
 			wpaState = WpaWpsRunning;
 			icon = TrayIconScanning;
 			stateText = tr("Running WPS...");
@@ -815,7 +819,7 @@ void WpaGui::setState(const WpaStateType state) {
 			tally.insert(WpsRunning);
 			rssiBar->hide();
 			break;
-		case WpaInactive:
+		case WpaInactive: // FR
 			wpaState = WpaInactive;
 			icon = TrayIconInactive;
 			stateText = tr("Inactive");
@@ -826,11 +830,9 @@ void WpaGui::setState(const WpaStateType state) {
 			rssiBar->hide();
 			// The wpa_supplicant doesn't report the change
 			// inactive -> disconnected, so we need a work around,
-			// but I like to avoid to enable polling
-			if (oldState != WpaDisconnected && oldState != WpaRunning)
-				assistanceDogNeeded();
+			letTheDogOut(PomDog);
 			break;
-		case WpaScanning:
+		case WpaScanning: // FTR
 			wpaState = WpaScanning;
 			icon = TrayIconScanning;
 			stateText = tr("Scanning...");
@@ -843,10 +845,9 @@ void WpaGui::setState(const WpaStateType state) {
 			rssiBar->hide();
 			// The wpa_supplicant doesn't report the change
 			// scanning -> disconnected, so we need a work around
-			// but I like to avoid to enable polling as long as possible
-			assistanceDogNeeded();
+			letTheDogOut(PomDog);
 			break;
-		case WpaDisconnected:
+		case WpaDisconnected: // FR
 			wpaState = WpaDisconnected;
 			icon = TrayIconOffline;
 			stateText = tr("Disconnected");
@@ -858,14 +859,13 @@ void WpaGui::setState(const WpaStateType state) {
 			// The wpa_supplicant doesn't report the change
 			// disconnected -> inactive, so we need a work around because that
 			// happens when you disable your connected network with no alternatives left
-			if (oldState != WpaInactive  && oldState != WpaRunning)
-				assistanceDogNeeded();
+			letTheDogOut(PomDog);
 			if (WpaCompleted == oldState)
 				trayMessage(stateText
 				           + tr(" from %1 - %2").arg(textSsid->text()).arg(textBssid->text())
 				           , LogThis);
 			break;
-		case WpaLostSignal:
+		case WpaLostSignal: // TC
 			wpaState = WpaLostSignal;
 			icon = TrayIconSignalNone;
 			stateText = tr("Lost signal");
@@ -874,7 +874,7 @@ void WpaGui::setState(const WpaStateType state) {
 			           + tr(" from %1 - %2").arg(textSsid->text()).arg(textBssid->text())
 			           , LogThis, QSystemTrayIcon::Warning);
 			break;
-		case WpaCompleted:
+		case WpaCompleted: // FR
 			wpaState = WpaCompleted;
 			icon = TrayIconSignalExcellent;
 			stateText = tr("Connected");
@@ -1003,13 +1003,13 @@ void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 	updateSignalMeter();
 	updateNetworks(tally.contains(NetworkNeedsUpdate));
 	tally.remove(StatusNeedsUpdate);
-	debug(" updateStatus <<<<<<");
+	debug("updateStatus <<<<<<");
 }
 
 
 void WpaGui::updateNetworks(bool changed/* = true*/) {
 
-	debug(" updateNetworks() ??");
+	debug("updateNetworks() ??");
 
 	if (!changed)
 		return;
