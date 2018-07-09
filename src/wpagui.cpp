@@ -574,6 +574,8 @@ void WpaGui::wpaStateTranslate(const QString& state) {
 		setState(WpaCompleted);
 	else if (state == "NOT_RUNNING")
 		setState(WpaNotRunning);
+	else if (state == "INTERFACE_DISABLED")
+		setState(WpaDisabled);
 	else  if (state == "Unknown")
 		setState(WpaUnknown);
 	else {
@@ -760,6 +762,20 @@ void WpaGui::setState(const WpaStateType state) {
 			// Disable polling when not needed
 			letTheDogOut(enablePollingAction->isChecked());
 			break;
+		case WpaDisabled:
+			wpaState = WpaDisabled;
+			stateText = tr("Adapter is disabled");
+			logHint(tr("You have to enable the adapter by some 'rfkill switch'"));
+			icon = TrayIconOffline;
+			disconReconAction->setEnabled(false);
+			wpsAction->setEnabled(false);
+			scanAction->setEnabled(false);
+			peersAction->setEnabled(false);
+			tally.insert(NetworkNeedsUpdate);
+			rssiBar->hide();
+			// Now, polling is mandatory
+			letTheDogOut(PomDog);
+			break;
 		case WpaAuthenticating:
 			wpaState = WpaAuthenticating;
 			stateText = tr("Authenticating...");
@@ -821,6 +837,9 @@ void WpaGui::setState(const WpaStateType state) {
 			disconReconAction->setText(DiscActTxt);
 			disconReconAction->setStatusTip(DiscActTTTxt);
 			disconReconAction->setEnabled(true);
+			wpsAction->setEnabled(tally.contains(WpsIsSupported));
+			scanAction->setEnabled(true);
+			peersAction->setEnabled(true);
 			rssiBar->hide();
 			// The wpa_supplicant doesn't report the change
 			// scanning -> disconnected, so we need a work around
@@ -871,6 +890,8 @@ void WpaGui::setState(const WpaStateType state) {
 				// The supplicant tries unruly to save the new network, so we
 				// wait some time with the restore of update_config
 				QTimer::singleShot(BassetHound, this, SLOT(restoreConfigUpdates()));
+			// Disable polling when not needed
+			letTheDogOut(enablePollingAction->isChecked());
 			break;
 	}
 
@@ -1334,6 +1355,7 @@ void WpaGui::ping() {
 			}
 			maxDog = BassetHound;
 			break;
+		case WpaDisabled:
 		case WpaAssociated:
 		case WpaCompleted:
 			if (ctrlRequest("PING") < 0) {

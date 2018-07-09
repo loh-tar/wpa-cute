@@ -76,6 +76,7 @@ public:
 		WpaNotRunning,
 		WpaObscure,
 		WpaRunning,
+		WpaDisabled,
 		WpaAuthenticating,
 		WpaAssociating,
 		WpaAssociated,
