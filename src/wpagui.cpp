@@ -576,8 +576,10 @@ void WpaGui::wpaStateTranslate(const QString& state) {
 		setState(WpaNotRunning);
 	else  if (state == "Unknown")
 		setState(WpaUnknown);
-	else
-		debug(" FATAL: Unknown state: %s", state.toLocal8Bit().constData());
+	else {
+		setState(WpaUnknown);
+		logHint(QString("FATAL: Unknown state: %1").arg(state));
+	}
 }
 
 
@@ -596,7 +598,7 @@ bool WpaGui::checkUpdateConfigSetting(const int config/* = -1*/) {
 		ctrlRequest("SET update_config 0");
 		newConfig = 0;
 	} else if (config < -1 || config > 1) {
-		debug(" FATAL: Wrong checkUpdateConfigSetting parm");
+		logHint("FATAL: Wrong checkUpdateConfigSetting parm");
 	}
 
 	ctrlRequest("GET update_config", buf, len);
@@ -2418,7 +2420,7 @@ void WpaGui::wpsStop(const QString& reason) {
 		return;
 	} else {
 		// Yeah, I become lazy, 'reason' should be some enum
-		debug("FATAL: Unknown reason: %s", reason.toLocal8Bit().constData());
+		logHint(QString("FATAL: Unknown reason: %1").arg(reason));
 	}
 
 	// Only needed if not successful
