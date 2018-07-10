@@ -203,7 +203,7 @@ private:
 	        void logHint(const QString& hint);
 
 	        void letTheDogOut(int dog, bool yes);
-	        void letTheDogOut(int dog = PomDog);
+	        void letTheDogOut(int dog);
 	        void letTheDogOut(bool yes = true);
 	        void assistanceDogNeeded(bool needed = true);
 

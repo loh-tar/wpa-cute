@@ -705,7 +705,7 @@ void WpaGui::setState(const WpaStateType state) {
 			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(networksTab), false);
 			wpaguiTab->setCurrentWidget(eventTab);
 			rssiBar->hide();
-			letTheDogOut(PomDog);
+			letTheDogOut();
 			break;
 		case WpaUnknown: // TC
 			wpaState = WpaUnknown;
@@ -749,7 +749,7 @@ void WpaGui::setState(const WpaStateType state) {
 			if (ctrl_conn) { wpa_ctrl_close(ctrl_conn); ctrl_conn = NULL; }
 			rssiBar->hide();
 			// Now, polling is mandatory
-			letTheDogOut(PomDog);
+			letTheDogOut();
 			break;
 		case WpaRunning: // TC
 			wpaState = WpaRunning;
@@ -778,7 +778,7 @@ void WpaGui::setState(const WpaStateType state) {
 			tally.insert(NetworkNeedsUpdate);
 			rssiBar->hide();
 			// Now, polling is mandatory
-			letTheDogOut(PomDog);
+			letTheDogOut();
 			break;
 		case WpaAuthenticating: // TR
 			wpaState = WpaAuthenticating;
@@ -830,7 +830,7 @@ void WpaGui::setState(const WpaStateType state) {
 			rssiBar->hide();
 			// The wpa_supplicant doesn't report the change
 			// inactive -> disconnected, so we need a work around,
-			letTheDogOut(PomDog);
+			letTheDogOut();
 			break;
 		case WpaScanning: // FTR
 			wpaState = WpaScanning;
@@ -845,7 +845,7 @@ void WpaGui::setState(const WpaStateType state) {
 			rssiBar->hide();
 			// The wpa_supplicant doesn't report the change
 			// scanning -> disconnected, so we need a work around
-			letTheDogOut(PomDog);
+			letTheDogOut(BorderCollie); // No PomDog, the scan need some time
 			break;
 		case WpaDisconnected: // FR
 			wpaState = WpaDisconnected;
@@ -859,7 +859,7 @@ void WpaGui::setState(const WpaStateType state) {
 			// The wpa_supplicant doesn't report the change
 			// disconnected -> inactive, so we need a work around because that
 			// happens when you disable your connected network with no alternatives left
-			letTheDogOut(PomDog);
+			letTheDogOut();
 			if (WpaCompleted == oldState)
 				trayMessage(stateText
 				           + tr(" from %1 - %2").arg(textSsid->text()).arg(textBssid->text())
@@ -917,7 +917,7 @@ void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 
 	// Wake the dog after network reconnect
 	if (!watchdogTimer.isActive() && enablePollingAction->isChecked())
-		letTheDogOut(PomDog);
+		letTheDogOut();
 
 	if (WpaNotRunning == wpaState) {
 		textAuthentication->clear();
@@ -1146,7 +1146,7 @@ void WpaGui::letTheDogOut(int dog, bool yes) {
 }
 
 
-void WpaGui::letTheDogOut(int dog/* = PomDog*/) {
+void WpaGui::letTheDogOut(int dog) {
 
 	letTheDogOut(dog, true);
 }
