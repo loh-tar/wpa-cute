@@ -47,7 +47,7 @@ CLASS="REPLACEABLE"
 ><I
 >seconds</I
 ></TT
->] [-N] [-P] [-p <TT
+>] [-N] [-p <TT
 CLASS="REPLACEABLE"
 ><I
 >path-to-ctrl-sockets</I
@@ -57,7 +57,7 @@ CLASS="REPLACEABLE"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN22"
+NAME="AEN21"
 ></A
 ><H2
 >Overview</H2
@@ -77,7 +77,7 @@ NAME="AEN22"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN27"
+NAME="AEN26"
 ></A
 ><H2
 >Command Arguments</H2
@@ -106,20 +106,14 @@ CLASS="OPTION"
 >-m</CODE
 > the
   signal meter is only updated at each status update.
-  See also <CODE
-CLASS="OPTION"
->-P</CODE
-> and the notes about polling and pinging.</P
+  See also the notes about polling and pinging.</P
 ></DD
 ><DT
 >-N</DT
 ><DD
 ><P
->Force not to use QSocketNotifier, use polling instead so it
-  implies <CODE
-CLASS="OPTION"
->-P</CODE
->. It's more for testing purposes.</P
+>Force not to use QSocketNotifier, use only polling.
+  It's more for testing purposes.</P
 ></DD
 ><DT
 >-p path</DT
@@ -127,18 +121,6 @@ CLASS="OPTION"
 ><P
 >Change the path where control sockets should
   be found.</P
-></DD
-><DT
->-P</DT
-><DD
-><P
->Enable polling and pinging wpa_supplicant independent to the
-  use of QSocketNotifier.</P
-><P
->This may useful when you have more than one wpa_supplicant front end
-  running because the wpa_supplicant does not send a message when the configured
-  networks are changed, the status changes to Inactive or from
-  Scanning/Inactive to Disconnected.</P
 ></DD
 ><DT
 >-q</DT
@@ -177,39 +159,43 @@ CLASS="OPTION"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN69"
+NAME="AEN61"
 ></A
 ><H2
 >Things Of Interest</H2
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN71"
+NAME="AEN63"
 ></A
 ><H3
 >Polling And Pinging</H3
 ><P
->QSocketNotifier is not supported on all systems but used by
-  default. On such systems is wpa_supplicant polled and pinged to fetch
-  status changes.
+>On systems where QSocketNotifier is not supported is wpa_supplicant only
+  polled to fetch status changes.
   </P
 ><P
->The polling is not done in a fixed interval but depends on
+>One ambitious development goal was to drop the need for Polling &#38; Pinging
+  on systems where QSocketNotifier is supported. But it turned out that this
+  was a road to ruin due to the lack of some 'Status Has Changed Message' from
+  wpa_supplicant. And finally would than still the problem be left that
+  wpa_supplicant could silently die without some sigh. So, we are doomed to poll!
+  </P
+><P
+>The polling is now not done in a fixed interval but depends on
   current status and reach from high frequent polling in 1sec, when
-  probably changes are on the way, down to 20sec in normal Connected
-  mode where only is checked if all looks good.
+  probably changes are on the way, down to 20sec in some static status where
+  primally is checked if someone is still alive.
   </P
 ><P
->With the main window visible is polled in 2.5sec.
-  When in Inactive or Scanning status is polled in 9sec.
-  Will the adapter disconnected is still polled in 20sec.
-  In case of an fatal error is polling halted.
+>With the main window visible is polled in 5sec.
+  Only in (the unthinkable) case of an fatal error is polling halted.
   </P
 ></DIV
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN76"
+NAME="AEN69"
 ></A
 ><H3
 >Edit Network</H3
@@ -252,7 +238,7 @@ NAME="AEN76"
 ><DIV
 CLASS="REFSECT2"
 ><A
-NAME="AEN84"
+NAME="AEN77"
 ></A
 ><H3
 >Peers</H3
@@ -267,7 +253,7 @@ NAME="AEN84"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN87"
+NAME="AEN80"
 ></A
 ><H2
 >See Also</H2
@@ -291,7 +277,7 @@ CLASS="REFENTRYTITLE"
 ><DIV
 CLASS="REFSECT1"
 ><A
-NAME="AEN96"
+NAME="AEN89"
 ></A
 ><H2
 >Legal</H2

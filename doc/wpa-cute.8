@@ -3,13 +3,13 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "WPA-CUTE" "8" "02 Juli 2018" "" ""
+.TH "WPA-CUTE" "8" "10 Juli 2018" "" ""
 
 .SH NAME
 wpaCute \- A graphical wpa_supplicant front end
 .SH SYNOPSIS
 
-\fBwpa-cute\fR [ \fB-i \fIifname\fB\fR ] [ \fB-m \fIseconds\fB\fR ] [ \fB-N\fR ] [ \fB-P\fR ] [ \fB-p \fIpath-to-ctrl-sockets\fB\fR ] [ \fB-q\fR ] [ \fB-t\fR ] [ \fB-W\fR ]
+\fBwpa-cute\fR [ \fB-i \fIifname\fB\fR ] [ \fB-m \fIseconds\fB\fR ] [ \fB-N\fR ] [ \fB-p \fIpath-to-ctrl-sockets\fB\fR ] [ \fB-q\fR ] [ \fB-t\fR ] [ \fB-W\fR ]
 
 .SH "OVERVIEW"
 .PP
@@ -37,24 +37,15 @@ strength meter.
 
 This value must be a positive integer. Without \fB-m\fR the
 signal meter is only updated at each status update.
-See also \fB-P\fR and the notes about polling and pinging.
+See also the notes about polling and pinging.
 .TP
 \fB-N\fR
-Force not to use QSocketNotifier, use polling instead so it
-implies \fB-P\fR\&. It's more for testing purposes.
+Force not to use QSocketNotifier, use only polling.
+It's more for testing purposes.
 .TP
 \fB-p path\fR
 Change the path where control sockets should
 be found.
-.TP
-\fB-P\fR
-Enable polling and pinging wpa_supplicant independent to the
-use of QSocketNotifier.
-
-This may useful when you have more than one wpa_supplicant front end
-running because the wpa_supplicant does not send a message when the configured
-networks are changed, the status changes to Inactive or from
-Scanning/Inactive to Disconnected.
 .TP
 \fB-q\fR
 Run program in the quiet mode - do not display tray
@@ -76,19 +67,22 @@ network disabled after a "WRONG_KEY" message.
 .SH "THINGS OF INTEREST"
 .SS "POLLING AND PINGING"
 .PP
-QSocketNotifier is not supported on all systems but used by
-default. On such systems is wpa_supplicant polled and pinged to fetch
-status changes.
+On systems where QSocketNotifier is not supported is wpa_supplicant only
+polled to fetch status changes.
 .PP
-The polling is not done in a fixed interval but depends on
+One ambitious development goal was to drop the need for Polling & Pinging
+on systems where QSocketNotifier is supported. But it turned out that this
+was a road to ruin due to the lack of some 'Status Has Changed Message' from
+wpa_supplicant. And finally would than still the problem be left that
+wpa_supplicant could silently die without some sigh. So, we are doomed to poll!
+.PP
+The polling is now not done in a fixed interval but depends on
 current status and reach from high frequent polling in 1sec, when
-probably changes are on the way, down to 20sec in normal Connected
-mode where only is checked if all looks good.
+probably changes are on the way, down to 20sec in some static status where
+primally is checked if someone is still alive.
 .PP
-With the main window visible is polled in 2.5sec.
-When in Inactive or Scanning status is polled in 9sec.
-Will the adapter disconnected is still polled in 20sec.
-In case of an fatal error is polling halted.
+With the main window visible is polled in 5sec.
+Only in (the unthinkable) case of an fatal error is polling halted.
 .SS "EDIT NETWORK"
 .PP
 The window morphs its look to show always only what is needed, or can be
