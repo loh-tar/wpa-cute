@@ -72,14 +72,15 @@ WpaGui::WpaGui(WpaGuiApp *app
 	setupUi(this);
 	this->setWindowFlags(Qt::Dialog);
 
+	connect(&watchdogTimer, SIGNAL(timeout()), SLOT(ping()));
 	connect(&signalMeterTimer, SIGNAL(timeout()), SLOT(updateSignalMeter()));
-
-	assistanceDog.setSingleShot(true);
-	connect(&assistanceDog, SIGNAL(timeout()), SLOT(assistanceDogOffice()));
 
 	restoreStatusHintTimer.setSingleShot(true);
 	restoreStatusHintTimer.setInterval(9 * 1000);
 	connect(&restoreStatusHintTimer, SIGNAL(timeout()), SLOT(restoreStatusHint()));
+
+	assistanceDog.setSingleShot(true);
+	connect(&assistanceDog, SIGNAL(timeout()), SLOT(assistanceDogOffice()));
 
 	logHint(tr("Start-up of %1 at %2")
 	       .arg(ProjAppName)
@@ -226,17 +227,13 @@ WpaGui::WpaGui(WpaGuiApp *app
 	}
 #endif
 
-	connect(&watchdogTimer, SIGNAL(timeout()), SLOT(ping()));
-	letTheDogOut(PomDog, enablePollingAction->isChecked());
-
-	// Must done after creation of watchdogTimer due to showEvent catch
 	if (QSystemTrayIcon::isSystemTrayAvailable())
 		createTrayIcon(tally.contains(StartInTray));
 	else
 		show();
 
+	letTheDogOut();
 	setState(WpaUnknown);
-
 	ping();
 }
 
@@ -909,7 +906,7 @@ void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 
 	debug(" updateStatus ??");
 
-	if (!needsUpdate)
+	if (!needsUpdate || (ctrl_conn == nullptr))
 		return;
 
 	debug(" updateStatus >>");
@@ -1133,6 +1130,9 @@ void WpaGui::disableNotifier(bool yes) {
 
 void WpaGui::letTheDogOut(int dog, bool yes) {
 
+	if (dog < PomDog)
+		yes = false;
+
 	if (yes) {
 		if (watchdogTimer.interval() != dog || !watchdogTimer.isActive())
 			debug("New dog on patrol %d", dog);
@@ -1303,21 +1303,18 @@ void WpaGui::disconnReconnect() {
 void WpaGui::ping() {
 
 	static WpaStateType oldState(WpaUnknown);
+	int dog(watchdogTimer.interval());
+	int maxDog(SnoozingDog);
 
-	debug("PING! >>>>> state: %d / %d",oldState, wpaState);
+	debug("PING! >>>>> state: %d / %d  dog:%d", oldState, wpaState, dog);
 	if (wpaState > WpaNotRunning)
 		receiveMsgs();
 	debug("PING! ----- state: %d / %d",oldState, wpaState);
 
-	bool stateChanged(wpaState != oldState);
-	oldState = wpaState;
-
-	int dog(watchdogTimer.interval());
-	int maxDog(SnoozingDog);
-
-	if (stateChanged)
+	if (wpaState != oldState) {
+		oldState = wpaState;
 		dog = PomDog;
-	else {
+	} else {
 		if (BassetHound < dog)
 			dog += BassetHound;
 		else if (BorderCollie < dog)
@@ -1333,56 +1330,44 @@ void WpaGui::ping() {
 			debug("PING! <-<<<");
 			return;
 			break;
-		case WpaDisconnected:
-// 			maxDog = SnoozingDog;
-			break;
-		case WpaObscure:
-			stateChanged = true;
-			break;
-		case WpaInactive:
-		case WpaScanning:
-			// The wpa_supplicant doesn't report the change from inactive or
-			// scanning to disconnected, so we must force status updates
-			stateChanged = true;
-			maxDog = BassetHound;
-			break;
 		case WpaUnknown:
 		case WpaNotRunning:
-			if (openCtrlConnection(ctrlInterface) == 0) {
-				updateStatus();
-				debug("PING! <<<-<");
+			if (openCtrlConnection(ctrlInterface) != 0) {
+				maxDog = BassetHound;
+				if (dog > maxDog) dog = maxDog;
+				letTheDogOut(dog);
+				debug("PING! <<-<<");
 				return;
-			}
-			maxDog = BassetHound;
-			break;
-		case WpaDisabled:
-		case WpaAssociated:
-		case WpaCompleted:
-			if (ctrlRequest("PING") < 0) {
-				logHint(tr("PING failed - trying to reconnect"));
-				dog = PomDog;
-				setState(WpaNotRunning);
-			} else {
-				debug("Play ping-pong");
-				updateStatus();
 			}
 			break;
 		default :
-			debug("wpaState ignored by PING: %d", wpaState);
 			break;
 	}
 
 	if (isVisible())
-		maxDog = BorderCollie;
+		maxDog = 2 * BorderCollie;
 
-	if (dog > maxDog)
+	if (dog > maxDog) {
 		dog = maxDog;
+		if (ctrlRequest("PING") < 0) {
+			logHint(tr("PING failed - trying to reconnect"));
+			setState(WpaNotRunning);
+			debug("PING! <<<-<");
+			return;
+		}
+		debug("Play ping-pong");
+		if (isVisible())
+			// Catch changes done by some other front end
+			tally.insert(NetworkNeedsUpdate);
+	}
 
+	debug("PING! >->->");
+	updateStatus();
+	if (wpaState != oldState) {
+		oldState = wpaState;
+		dog = PomDog;
+	}
 	letTheDogOut(dog);
-
-	if (stateChanged)
-		updateStatus();
-
 	debug("PING! <<<<<");
 }
 
@@ -2285,7 +2270,7 @@ void WpaGui::closeEvent(QCloseEvent* event) {
 void WpaGui::showEvent(QShowEvent* event) {
 
 	updateSignalMeter();
-    letTheDogOut(BorderCollie, enablePollingAction->isChecked());
+	letTheDogOut();
 	event->ignore();
 }
 

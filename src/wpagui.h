@@ -92,6 +92,7 @@ public:
 	};
 
 	enum DogBreed {
+		NoDog          = 0,
 		PomDog         = 1000,
 		BorderCollie   = 2500,
 		BassetHound    = 9000,
@@ -229,10 +230,10 @@ private:
 	QPointer<EventHistory>     eventHistoryWindow;
 	QPointer<WpsDialog>        wpsWindow;
 
-	QTimer                     signalMeterTimer;
-	QTimer                     assistanceDog;
 	QTimer                     watchdogTimer;
+	QTimer                     signalMeterTimer;
 	QTimer                     restoreStatusHintTimer;
+	QTimer                     assistanceDog;
 
 	QString                    ctrlInterface;
 	QString                    ctrlInterfaceDir;
