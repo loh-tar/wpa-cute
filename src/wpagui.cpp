@@ -102,8 +102,6 @@ WpaGui::WpaGui(WpaGuiApp *app
 // #endif /* CONFIG_CTRL_IFACE_NAMED_PIPE */
 #if !defined(CONFIG_CTRL_IFACE_UNIX) && !defined(CONFIG_CTRL_IFACE_UDP)
 	logHint(tr("QSocketNotifier not supported, polling is mandatory"));
-	enablePollingAction->setEnabled(false);
-	enablePollingAction->setChecked(true);
 	disableNotifierAction->setEnabled(false);
 	disableNotifierAction->setChecked(true);
 #endif
@@ -266,7 +264,6 @@ void WpaGui::languageChange() {
 void WpaGui::parseArgCV(WpaGuiApp *app) {
 
 	int c;
-	bool hasN(false), hasP(false);
 	while( (c = getopt(app->argc, app->argv, "i:m:p:tqNPW"))  > 0) {
 		switch (c) {
 		case 'i':
@@ -289,28 +286,14 @@ void WpaGui::parseArgCV(WpaGuiApp *app) {
 			tally.insert(QuietMode);
 			break;
 		case 'N':
-			hasN = true;
-			break;
-		case 'P':
-			hasP = true;
+			if (disableNotifierAction->isEnabled() && !disableNotifierAction->isChecked()) {
+				disableNotifierAction->setChecked(true);
+				logHint(tr("QSocketNotifier disabled by command line option -N"));
+			}
 			break;
 		case 'W':
 			disableWrongKeyNetworks->setChecked(false);
 			break;
-		}
-	}
-
-	if(hasN) {
-		if (disableNotifierAction->isEnabled()) {
-			disableNotifierAction->setChecked(true);
-			enablePollingAction->setChecked(true);
-			enablePollingAction->setEnabled(false);
-			logHint(tr("QSocketNotifier disabled by command line option -N"));
-		}
-	} else if(hasP) {
-		if (enablePollingAction->isEnabled()) {
-			enablePollingAction->setChecked(true);
-			logHint(tr("Polling enabled by command line -P"));
 		}
 	}
 }
@@ -887,8 +870,6 @@ void WpaGui::setState(const WpaStateType state) {
 				// The supplicant tries unruly to save the new network, so we
 				// wait some time with the restore of update_config
 				QTimer::singleShot(BassetHound, this, SLOT(restoreConfigUpdates()));
-			// Disable polling when not needed
-			letTheDogOut(enablePollingAction->isChecked());
 			break;
 	}
 
@@ -911,10 +892,6 @@ void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 
 	debug(" updateStatus >>");
 	tally.remove(StatusNeedsUpdate);
-
-	// Wake the dog after network reconnect
-	if (!watchdogTimer.isActive() && enablePollingAction->isChecked())
-		letTheDogOut();
 
 	if (WpaNotRunning == wpaState) {
 		textAuthentication->clear();
@@ -1000,13 +977,13 @@ void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 	updateSignalMeter();
 	updateNetworks(tally.contains(NetworkNeedsUpdate));
 	tally.remove(StatusNeedsUpdate);
-	debug("updateStatus <<<<<<");
+	debug(" updateStatus <<<<<<");
 }
 
 
 void WpaGui::updateNetworks(bool changed/* = true*/) {
 
-	debug("updateNetworks() ??");
+	debug(" updateNetworks() ??");
 
 	if (!changed)
 		return;
@@ -1118,12 +1095,6 @@ void WpaGui::disableNotifier(bool yes) {
 	else
 		logHint(tr("User requests to enable QSocketNotifier"));
 
-	// So much effort only to block the log hint
-	const QSignalBlocker blocker(enablePollingAction);
-	enablePollingAction->setChecked(yes);
-	enablePollingAction->setEnabled(!yes);
-	letTheDogOut(PomDog, yes);
-
 	openCtrlConnection(ctrlInterface);
 }
 
@@ -1172,9 +1143,6 @@ void WpaGui::assistanceDogNeeded(bool needed/* = true*/) {
 
 	// Several people who has some disabilities trust on such a good friend to
 	// master there everyday life, so as we do now with wpa_supplicant's faults
-	if (enablePollingAction->isChecked())
-		return;
-
 	if (needed) {
 		if (tally.contains(AssistanceDogAtWork))
 			return;

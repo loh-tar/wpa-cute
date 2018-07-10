@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>522</width>
-    <height>600</height>
+    <height>586</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -130,7 +130,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="statusTab">
          <attribute name="title">
@@ -599,7 +599,6 @@
     <property name="title">
      <string>Settin&amp;gs</string>
     </property>
-    <addaction name="enablePollingAction"/>
     <addaction name="disableNotifierAction"/>
     <addaction name="noTrayBalloonAction"/>
     <addaction name="separator"/>
