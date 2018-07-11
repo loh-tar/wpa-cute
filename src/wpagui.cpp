@@ -16,22 +16,25 @@
 
 #include <cstdio>
 #include <unistd.h>
+
 #include <QCloseEvent>
+#include <QCryptographicHash>
 #include <QImageReader>
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QScrollBar>
 #include <QSettings>
 
-#include "ui_about.h"
-
 #include "common/wpa_ctrl.h"
+
 #include "dirent.h"
 #include "eventhistory.h"
 #include "networkconfig.h"
 #include "peers.h"
 #include "scanresults.h"
 #include "wpsdialog.h"
+#include "ui_about.h"
+
 #include "wpagui.h"
 
 #ifndef QT_NO_DEBUG
@@ -1024,6 +1027,10 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 
 	debug("updateNetworks() >>>>>>");
 
+	// Avoid unneeded updates of Scan Results
+	QCryptographicHash cryptoHash(QCryptographicHash::Md5);
+	static QString oldHash;
+
 	foreach(QString line, QString(buf).split('\n')) {
 
 		QStringList data = line.split('\t');
@@ -1047,7 +1054,13 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 		if (data.at(3).contains("[CURRENT]")) {
 			currentNetwork = item;
 		}
+
+		cryptoHash.addData(line.toLocal8Bit());
 	}
+
+	QString newHash = cryptoHash.result().toHex();
+	changed = oldHash != newHash;
+	oldHash = newHash;
 
 	if (!selectedNetwork) {
 		if (substitudeNetwork) {
@@ -1084,7 +1097,7 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 
 	networkSelectionChanged();
 
-	if (scanWindow)
+	if (scanWindow && changed)
 		scanWindow->updateResults();
 
 	debug("updateNetworks() <<<<<<");
