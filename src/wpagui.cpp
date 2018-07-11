@@ -877,6 +877,9 @@ void WpaGui::setState(const WpaStateType state) {
 
 	oldState = state;
 
+	// FIXME Qt<5.11.1 Bug? Was needed on system with Qt 5.9.2
+	disconReconButton->setText(disconReconAction->text());
+
 	textStatus->setText(stateText);
 	updateTrayToolTip(stateText);
 	updateTrayIcon(icon);
@@ -1723,6 +1726,9 @@ void WpaGui::networkSelectionChanged() {
 			networkDisEnableAction->setEnabled(false);  // TODO Hint user
 			break;
 	}
+
+	// FIXME Qt<5.11.1 Bug? Was needed on system with Qt 5.9.2
+	disEnableNetworkButton->setText(networkDisEnableAction->text());
 
 	if (selectedNetwork->text(3).contains("[CURRENT]"))
 		networkChooseAction->setEnabled(false);
