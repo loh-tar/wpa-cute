@@ -17,17 +17,17 @@ So, sorry experts, if I may have trash some of your super effective tricks and
 replaced that with some "bloated" Qt class. However, I think the code not only
 looks better now, but works much better too.
 
-Furthermore I add some new stuff where I think it's an improvement and probably
+Furthermore I add some new stuff where I think it's an improvement but probably
 I have introduced some new bugs too which you will find faster than it is dear
 to me. For details please read the commit log or just check it out!
 
-I'm an average user and haven't tested much more than to connect to my own WLAN,
-not even tested some WPS, P2P never mind some expert needs.
+I'm an average user and haven't tested much more than to connect to my own WLAN.
+No tests of P2P and never mind some expert needs.
 
 I use only Arch Linux but tried my best not to broke the code for other systems.
 
 
-Last, and very first, version is 0.7 Jun, 2018
+Last, and very first, version is 0.7, Jul 2018
 
 
 Installation
@@ -48,7 +48,7 @@ Because there is no make install target yet, run on Unices
   # install -Dm755 wpa-cute /usr/bin/wpa-cute
   # install -Dm644 icons/wpa_gui.svg /usr/share/pixmaps/wpa_gui.svg
   # install -Dm644 wpa-cute.desktop /usr/share/applications/wpa-cute.desktop
-  # install -Dm644 doc/wpa-cute.8" /usr/share/man/man8/wpa-cute.8"
+  # install -Dm644 ../doc/wpa-cute.8 /usr/share/man/man8/wpa-cute.8
 
 Additional is the man page available as HTML and PDF but not yet referenced
 by wpaCute itself.
@@ -66,7 +66,7 @@ Contributing
 ==============
 
 If you intend to submit improvements to the project, please see CONTRIBUTIONS
-file for more information.
+file for more information. There is also some TODO list.
 
 
 License
@@ -83,4 +83,3 @@ developers which are highly honored.
 
 wpa_gui for wpa_supplicant
 Copyright (C) 2005-2015 Jouni Malinen <j@w1.fi> and contributors
-

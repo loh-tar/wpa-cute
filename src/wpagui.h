@@ -30,7 +30,7 @@ class WpsDialog;
 
 #define ProjAppName "wpaCute"
 #define ProjVersion "0.7"
-#define ProjRelease "Jun 2018"
+#define ProjRelease "Jul 2018"
 
 
 class WpaGuiApp : public QApplication
