@@ -3,7 +3,7 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "WPA-CUTE" "8" "10 Juli 2018" "" ""
+.TH "WPA-CUTE" "8" "12 Juli 2018" "" ""
 
 .SH NAME
 wpaCute \- A graphical wpa_supplicant front end
@@ -27,9 +27,9 @@ version 2.6
 .SH "COMMAND ARGUMENTS"
 .TP
 \fB-i ifname\fR
-Specify the interface that is being
-configured. By default, choose the first interface found with
-a control socket in the socket path.
+Specify the interface that is be configured.
+Without \fB-i\fR choose the first interface found in the socket path
+which start not with 'p2p-dev-' otherwise the last found interface is chosen.
 .TP
 \fB-m seconds\fR
 Set an independent update interval in seconds for the signal

@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 #include <QCloseEvent>
+#include <QDir>
 #include <QCryptographicHash>
 #include <QImageReader>
 #include <QInputDialog>
@@ -27,7 +28,6 @@
 
 #include "common/wpa_ctrl.h"
 
-#include "dirent.h"
 #include "eventhistory.h"
 #include "networkconfig.h"
 #include "peers.h"
@@ -316,32 +316,14 @@ int WpaGui::openCtrlConnection(const QString& ifname) {
 		ctrlInterface = "udp";
 #endif /* CONFIG_CTRL_IFACE_UDP */
 #ifdef CONFIG_CTRL_IFACE_UNIX
-		// FIXME I only did not have replaced this part by Qt stuff because I'm
-		// unsure about these 'system does not support d_type' check, what?
-		// And when you working on this, don't take first adapter,
-		// prefer 'foo' over 'p2p-dev-foo'
-		struct dirent *dent;
-		DIR *dir = opendir(ctrlInterfaceDir.toLocal8Bit().constData());
-		if (dir) {
-			while ((dent = readdir(dir))) {
-#ifdef _DIRENT_HAVE_D_TYPE
-				/* Skip the file if it is not a socket.
-				 * Also accept DT_UNKNOWN (0) in case
-				 * the C library or underlying file
-				 * system does not support d_type. */
-				if (dent->d_type != DT_SOCK &&
-				    dent->d_type != DT_UNKNOWN)
-					continue;
-#endif /* _DIRENT_HAVE_D_TYPE */
-
-				if (strcmp(dent->d_name, ".") == 0 ||
-				    strcmp(dent->d_name, "..") == 0)
-					continue;
-				debug(" Selected interface '%s'", dent->d_name);
-				ctrlInterface = dent->d_name;
-				break;
-			}
-			closedir(dir);
+		if (WpaUnknown == wpaState)
+			logHint(tr("Interface not specified"));
+		QDir dir(ctrlInterfaceDir);
+		foreach(QString iface, dir.entryList(QDir::System)) {
+			ctrlInterface = iface;
+			if (ctrlInterface.startsWith("p2p-dev-"))
+				continue;
+			break;
 		}
 #endif /* CONFIG_CTRL_IFACE_UNIX */
 #ifdef CONFIG_CTRL_IFACE_NAMED_PIPE

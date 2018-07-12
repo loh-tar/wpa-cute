@@ -44,9 +44,9 @@
     <variablelist>
       <varlistentry>
   <term>-i ifname</term>
-  <listitem><para>Specify the interface that is being
-  configured. By default, choose the first interface found with
-  a control socket in the socket path.</para></listitem>
+  <listitem><para>Specify the interface that is be configured.
+  Without <option>-i</option> choose the first interface found in the socket path
+  which start not with 'p2p-dev-' otherwise the last found interface is chosen.</para></listitem>
       </varlistentry>
 
       <varlistentry>
