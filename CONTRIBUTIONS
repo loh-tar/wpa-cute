@@ -62,7 +62,7 @@ General Jobs
     not so bad but it could be nicer/meaning fuller
 
 
-Unncertainly
+Uncertainly
 -------------
 - What the big deal of update_config=0? It is surprisingly possible to overwrite
   the configuraten when you unset this setting. But you can't save
