@@ -3,7 +3,7 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "WPA-CUTE" "8" "12 Juli 2018" "" ""
+.TH "WPA-CUTE" "8" "13 Juli 2018" "" ""
 
 .SH NAME
 wpaCute \- A graphical wpa_supplicant front end
@@ -82,7 +82,8 @@ probably changes are on the way, down to 20sec in some static status where
 primally is checked if someone is still alive.
 .PP
 With the main window visible is polled in 5sec.
-Only in (the unthinkable) case of an fatal error is polling halted.
+Only in case of an fatal error is polling halted, which e.g. occurs when the user
+not belongs to the configured 'ctrl_interface_group=foo'.
 .SS "EDIT NETWORK"
 .PP
 The window morphs its look to show always only what is needed, or can be

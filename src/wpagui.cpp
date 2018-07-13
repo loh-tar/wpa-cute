@@ -307,6 +307,30 @@ int WpaGui::openCtrlConnection(const QString& ifname) {
 	size_t len(2048); char buf[len];
 
 	ctrlInterface = ifname;
+#ifdef CONFIG_NATIVE_WINDOWS
+	static bool first = true;
+	if (first && !serviceRunning()) {
+		first = false;
+		if (QMessageBox::warning(
+				this, ProjAppName,
+				tr("wpa_supplicant service is not "
+					"running.\n"
+					"Do you want to start it?"),
+				QMessageBox::Yes | QMessageBox::No) ==
+			QMessageBox::Yes)
+			startService();
+	}
+#endif /* CONFIG_NATIVE_WINDOWS */
+
+	if (WpaUnknown == wpaState)
+		logHint(tr("Connection to wpa_supplicant..."));
+	else if (WpaNotRunning == wpaState)
+		logHint(tr("Wait for wpa_supplicant..."));
+	else
+		logHint(tr("Changing adapter..."));
+
+	try
+	{
 
 	if (ifname.isEmpty()) {
 		adapterSelect->clear();
@@ -316,9 +340,13 @@ int WpaGui::openCtrlConnection(const QString& ifname) {
 		ctrlInterface = "udp";
 #endif /* CONFIG_CTRL_IFACE_UDP */
 #ifdef CONFIG_CTRL_IFACE_UNIX
-		if (WpaUnknown == wpaState)
-			logHint(tr("Interface not specified"));
 		QDir dir(ctrlInterfaceDir);
+		if (!dir.exists())
+			throw 1;
+		if (!dir.isReadable())
+			throw 2;
+		if (WpaUnknown == wpaState)
+			logHint(tr("...interface not specified..."));
 		foreach(QString iface, dir.entryList(QDir::System)) {
 			ctrlInterface = iface;
 			if (ctrlInterface.startsWith("p2p-dev-"))
@@ -340,38 +368,17 @@ int WpaGui::openCtrlConnection(const QString& ifname) {
 				}
 			}
 		}
+		if (ctrlInterface.isEmpty())
+			throw 6;
 #endif /* CONFIG_CTRL_IFACE_NAMED_PIPE */
 	}
 
-	try
-	{
-
-	if (WpaUnknown == wpaState)
-		logHint(tr("Connection to wpa_supplicant..."));
-	else if (WpaNotRunning == wpaState)
-		logHint(tr("Wait for wpa_supplicant..."));
-	else
-		logHint(tr("Changing adapter..."));
-
-	if (ctrlInterface.isEmpty()) {
-#ifdef CONFIG_NATIVE_WINDOWS
-		static bool first = true;
-		if (first && !serviceRunning()) {
-			first = false;
-			if (QMessageBox::warning(
-				    this, ProjAppName,
-				    tr("wpa_supplicant service is not "
-				       "running.\n"
-				       "Do you want to start it?"),
-				    QMessageBox::Yes | QMessageBox::No) ==
-			    QMessageBox::Yes)
-				startService();
-		}
-#endif /* CONFIG_NATIVE_WINDOWS */
-		throw 1;
-	}
-
 #ifdef CONFIG_CTRL_IFACE_UNIX
+	QDir dir(ctrlInterfaceDir);
+	if (!dir.exists())
+		throw 1;
+	if (!dir.isReadable())
+		throw 2;
 	QString cfile = QString("%1/%2").arg(ctrlInterfaceDir).arg(ctrlInterface);
 #else /* CONFIG_CTRL_IFACE_UNIX */
 	QString cfile = ctrlInterface;
@@ -413,6 +420,7 @@ int WpaGui::openCtrlConnection(const QString& ifname) {
 			throw 5;
 		}
 	}
+
 	}
 	catch (int e)
 	{
@@ -422,9 +430,19 @@ int WpaGui::openCtrlConnection(const QString& ifname) {
 
 		switch (e) {
 			case 1:
-				dbgTxt = "Failed to open control connection to wpa_supplicant.";
+				dbgTxt = "ctrlInterfaceDir does not exists";
 				errTxt = tr("No running wpa_supplicant found");
 				setState(WpaNotRunning);
+				break;
+			case 6:
+				dbgTxt = "Some unsuccessful named pipe problem";
+				errTxt = tr("No running wpa_supplicant found");
+				setState(WpaNotRunning);
+				break;
+			case 2:
+				dbgTxt = "ctrlInterfaceDir is not readable";
+				errTxt = tr("You have not the permissions to control wpa_supplicant");
+				setState(WpaFatal);
 				break;
 			case 3:
 				dbgTxt = "Failed to open control connection to wpa_supplicant on adapter ";

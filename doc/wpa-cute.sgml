@@ -117,7 +117,8 @@
   primally is checked if someone is still alive.
   </para>
   <para>With the main window visible is polled in 5sec.
-  Only in (the unthinkable) case of an fatal error is polling halted.
+  Only in case of an fatal error is polling halted, which e.g. occurs when the user
+  not belongs to the configured 'ctrl_interface_group=foo'.
   </para>
   </refsect2>
 
