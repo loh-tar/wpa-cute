@@ -682,6 +682,9 @@ void WpaGui::setState(const WpaStateType state) {
 			stateText = tr("Fatal Error!");
 			disconReconAction->setEnabled(false);
 			wpsAction->setEnabled(false);
+			scanAction->setEnabled(false);
+			peersAction->setEnabled(false);
+			eventHistoryAction->setEnabled(false);
 			saveConfigAction->setEnabled(false);
 			reloadConfigAction->setEnabled(false);
 			networkMenu->setEnabled(false);
