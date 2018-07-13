@@ -2240,6 +2240,11 @@ void WpaGui::closeEvent(QCloseEvent* event) {
 	closeDialog(eventHistoryWindow);
 	closeDialog(wpsWindow);
 
+	if (WpaFatal == wpaState) {
+		qApp->quit();
+		return;
+	}
+
 	if (trayIcon && !tally.contains(AckTrayIcon)) {
 		/* give user a visual hint that the tray icon exists */
 		if (QSystemTrayIcon::supportsMessages()) {

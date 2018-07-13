@@ -29,7 +29,7 @@ class WpsDialog;
 
 
 #define ProjAppName "wpaCute"
-#define ProjVersion "0.7"
+#define ProjVersion "0.7.1"
 #define ProjRelease "Jul 2018"
 
 
