@@ -26,8 +26,17 @@ No tests of P2P and never mind some expert needs.
 
 I use only Arch Linux but tried my best not to broke the code for other systems.
 
+Last, and (almost) very first, version is 0.7.1, Jul 2018
 
-Last, and very first, version is 0.7, Jul 2018
+
+Features
+----------
+
+  - Change, add or remove network profiles
+  - Scan for networks and connect to them by WPS
+  - Run in background to show WLAN status icon in system tray
+  - Small memory foot print, download ~300k, install ~800k, running ~10M
+
 
 
 Installation
@@ -59,7 +68,36 @@ Non Unices user has do something similar.
 Packages
 ----------
 
-Arch Linux has an AUR
+Arch Linux has an AUR, search for wpa-cute.
+
+
+Post Install Steps
+====================
+
+wpaCute itself need no more configuration steps but you should ensure that your
+network interfaces will set up properly and that wpa_supplicant is configured
+and running. Consult the man pages of wpa_supplicant and/or your distribution
+documentation how to do that.
+
+Ensure you have the rights to manage the interface in question, typically done
+by set 'ctrl_interface_group=wheel' in the .conf file.
+
+Just as example, here a setup that was enough on my Arch:
+
+  $ cat /etc/wpa_supplicant/wpa_supplicant-wlp2s0.conf
+  ctrl_interface=/run/wpa_supplicant
+  ctrl_interface_group=wheel
+  update_config=1
+
+  $ cat /etc/systemd/network/wlp2s0.network
+  [Match]
+  Name=wlp2s0
+
+  [Network]
+  DHCP=ipv4
+
+  # systemctl start systemd-networkd.service
+  # systemctl start wpa_supplicant@wlp2s0.service
 
 
 Contributing
