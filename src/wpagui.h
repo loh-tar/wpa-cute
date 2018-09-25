@@ -29,7 +29,7 @@ class WpsDialog;
 
 
 #define ProjAppName "wpaCute"
-#define ProjVersion "0.7.1"
+#define ProjVersion "0.7.2"
 #define ProjRelease "Jul 2018"
 
 
@@ -89,6 +89,13 @@ public:
 		WpaDisconnected,
 		WpaLostSignal,
 		WpaCompleted
+	};
+
+	enum NetworkListColumn {
+		NLColId = 0,
+		NLColSsid,
+		NLColBssid,
+		NLColFlags,
 	};
 
 	enum DogBreed {

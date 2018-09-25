@@ -1006,12 +1006,12 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 	QTreeWidgetItem* selectedNetwork = networkList->currentItem();
 
 	if (selectedNetwork) {
-		selectedNetworkId = selectedNetwork->text(0);
+		selectedNetworkId = selectedNetwork->text(NLColId);
 		substitudeNetwork = networkList->itemBelow(selectedNetwork);
 		if (!substitudeNetwork)
 			substitudeNetwork = networkList->itemAbove(selectedNetwork);
 		if (substitudeNetwork)
-			substitudeNetworkId = substitudeNetwork->text(0);
+			substitudeNetworkId = substitudeNetwork->text(NLColId);
 	}
 
 	selectedNetwork = nullptr;
@@ -1041,10 +1041,10 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 			continue;
 
 		QTreeWidgetItem *item = new QTreeWidgetItem(networkList);
-		item->setText(0, data.at(0) /*id*/);
-		item->setText(1, data.at(1) /*ssid*/);
-		item->setText(2, data.at(2) /*bssid*/);
-		item->setText(3, data.at(3) /*flags*/);
+		item->setText(NLColId, data.at(0));
+		item->setText(NLColSsid, data.at(1));
+		item->setText(NLColBssid, data.at(2));
+		item->setText(NLColFlags, data.at(3));
 
 		if (data.at(0) == substitudeNetworkId) {
 			substitudeNetwork = item;
@@ -1729,7 +1729,7 @@ void WpaGui::networkSelectionChanged() {
 	networkRemoveAction->setEnabled(true);
 	networkDisEnableAction->setEnabled(true);
 
-	switch (getNetworkDisabled(selectedNetwork->text(0))) {
+	switch (getNetworkDisabled(selectedNetwork->text(NLColId))) {
 		case 1:
 			networkDisEnableAction->setText(tr("Enable"));
 			networkDisEnableAction->setStatusTip(tr("Enable selected network"));
@@ -1746,7 +1746,7 @@ void WpaGui::networkSelectionChanged() {
 	// FIXME Qt<5.11.1 Bug? Was needed on system with Qt 5.9.2
 	disEnableNetworkButton->setText(networkDisEnableAction->text());
 
-	if (selectedNetwork->text(3).contains("[CURRENT]"))
+	if (selectedNetwork->text(NLColFlags).contains("[CURRENT]"))
 		networkChooseAction->setEnabled(false);
 	else
 		networkChooseAction->setEnabled(true);
@@ -1805,8 +1805,8 @@ void WpaGui::editListedNetwork() {
 					    " edit it.\n"));
 		return;
 	}
-	QString sel(networkList->currentItem()->text(0));
-	if (networkList->currentItem()->text(3).contains("[CURRENT]"))
+	QString sel(networkList->currentItem()->text(NLColId));
+	if (networkList->currentItem()->text(NLColFlags).contains("[CURRENT]"))
 		editNetwork(sel, textBssid->text());
 	else
 		editNetwork(sel);
@@ -1835,7 +1835,7 @@ void WpaGui::removeListedNetwork() {
 		return;
 	}
 
-	removeNetwork(networkList->currentItem()->text(0));
+	removeNetwork(networkList->currentItem()->text(NLColId));
 }
 
 
@@ -1886,7 +1886,7 @@ int WpaGui::getNetworkDisabled(const QString& sel) {
 void WpaGui::chooseNetwork() {
 
 	QTreeWidgetItem* selectedNetwork = networkList->currentItem();
-	chooseNetwork(selectedNetwork->text(0), selectedNetwork->text(1));
+	chooseNetwork(selectedNetwork->text(NLColId), selectedNetwork->text(NLColSsid));
 }
 
 
@@ -1895,7 +1895,7 @@ void WpaGui::chooseNetwork(const QString& id, const QString& ssid) {
 	logHint(tr("User choose network %1 - %2").arg(id).arg(ssid));
 
 	// 'SELECT_NETWORK <id>' set the '[CURRENT]' flag of network <id> regardless of its success
-// 	ctrlRequest("SELECT_NETWORK " + selectedNetwork->text(0));
+// 	ctrlRequest("SELECT_NETWORK " + selectedNetwork->text(NLColId));
 	// So we must code around that
 	disableNetwork("all");
 	enableNetwork(id);
@@ -1913,12 +1913,12 @@ void WpaGui::chooseNetwork(const QString& id, const QString& ssid) {
 void WpaGui::disEnableNetwork() {
 
 	QTreeWidgetItem* selectedNetwork = networkList->currentItem();
-	switch (getNetworkDisabled(selectedNetwork->text(0))) {
+	switch (getNetworkDisabled(selectedNetwork->text(NLColId))) {
 	case 1:
-		enableNetwork(selectedNetwork->text(0));
+		enableNetwork(selectedNetwork->text(NLColId));
 		break;
 	case 0:
-		disableNetwork(selectedNetwork->text(0));
+		disableNetwork(selectedNetwork->text(NLColId));
 		break;
 	default:
 		// We should never read this

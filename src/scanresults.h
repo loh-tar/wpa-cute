@@ -37,6 +37,14 @@ protected slots:
 	        void chooseNetwork();
 
 private:
+	enum ScanResultsColumn {
+		SRColSsid = 0,
+		SRColBssid,
+		SRColSignal,
+		SRColFreq,
+		SRColFlags,
+	};
+
 	           WpaGui* wpagui;
 	              bool wpsIsSupported;
 	           QString selectedNetworkId;

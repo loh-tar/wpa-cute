@@ -69,11 +69,11 @@ void NetworkConfig::languageChange() {
 void NetworkConfig::newNetwork(QTreeWidgetItem* sel) {
 
 	/* SSID BSSID signal frequency flags */
-	setWindowTitle(sel->text(0));
-	ssidEdit->setText(sel->text(0));
-	bssidEdit->setText(sel->text(1));
+	setWindowTitle(sel->text(WpaGui::NLColSsid));
+	ssidEdit->setText(sel->text(WpaGui::NLColSsid));
+	bssidEdit->setText(sel->text(WpaGui::NLColBssid));
 
-	QString flags = sel->text(4);
+	QString flags = sel->text(WpaGui::NLColFlags);
 	int auth, encr = 0;
 	if (flags.indexOf("[WPA2-EAP") >= 0)
 		auth = AUTH_WPA2_EAP;
