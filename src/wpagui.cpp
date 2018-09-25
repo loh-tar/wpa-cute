@@ -504,27 +504,35 @@ int WpaGui::openCtrlConnection(const QString& ifname) {
 
 int WpaGui::ctrlRequest(const QString& cmd, char* buf, const size_t buflen) {
 
-	int ret;
 	size_t len = buflen;
+	lastCtrlRequestResult.clear();
 
-	if (ctrl_conn == NULL)
-		return -3;
+	if (ctrl_conn == NULL) {
+		lastCtrlRequestReturnValue = -3;
+		return lastCtrlRequestReturnValue;
+	}
 
-	ret = wpa_ctrl_request(ctrl_conn, cmd.toLocal8Bit().constData()
-	                     , strlen(cmd.toLocal8Bit().constData())
-	                     , buf, &len, NULL);
+	lastCtrlRequestReturnValue = wpa_ctrl_request(ctrl_conn
+	                                            , cmd.toLocal8Bit().constData()
+	                                            , strlen(cmd.toLocal8Bit().constData())
+	                                            , buf, &len, NULL);
 
-	if (ret == -2)
+	if (lastCtrlRequestReturnValue == -2)
 		debug("'%s' command timed out.", cmd.toLocal8Bit().constData());
-	else if (ret < 0)
+	else if (lastCtrlRequestReturnValue < 0)
 		debug("'%s' command failed.", cmd.toLocal8Bit().constData());
 
 	buf[len] = '\0';
+	lastCtrlRequestResult = QString(buf);
+	lastCtrlRequestResult.remove(QRegExp("^\""));
+	lastCtrlRequestResult.remove(QRegExp("\"$"));
 
-	if (!ret && memcmp(buf, "FAIL", 4) == 0)
-		ret = -1;
+	if (lastCtrlRequestResult.startsWith("FAIL\n")) {
+		lastCtrlRequestResult.clear();
+		lastCtrlRequestReturnValue = -1;
+	}
 
-	return ret;
+	return lastCtrlRequestReturnValue;
 }
 
 
@@ -532,6 +540,25 @@ int WpaGui::ctrlRequest(const QString& cmd) {
 
 	size_t len(100); char buf[len];
 	return ctrlRequest(cmd, buf, len);
+}
+
+
+QString  WpaGui::getLastCtrlRequestResult() {
+
+	return lastCtrlRequestResult;
+}
+
+
+int  WpaGui::getLastCtrlRequestReturnValue() {
+
+	return lastCtrlRequestReturnValue;
+}
+
+
+QString WpaGui::getData(const QString& cmd) {
+
+	ctrlRequest(cmd);
+	return getLastCtrlRequestResult();
 }
 
 

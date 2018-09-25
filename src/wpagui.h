@@ -115,6 +115,9 @@ public:
 
 	         int ctrlRequest(const QString& cmd, char* buf, const size_t buflen);
 	         int ctrlRequest(const QString& cmd);
+	     QString getLastCtrlRequestResult();
+	         int getLastCtrlRequestReturnValue();
+	     QString getData(const QString& cmd);
 
 	        void editNetwork(const QString& id, const QString& bssid = "");
 	        void removeNetwork(const QString& sel);
@@ -248,6 +251,8 @@ private:
 	struct wpa_ctrl*           monitor_conn;
 	QPointer<QSocketNotifier>  msgNotifier;
 	WpaMsgList                 msgs;
+	QString                    lastCtrlRequestResult;
+	int                        lastCtrlRequestReturnValue;
 
 
 #ifdef CONFIG_NATIVE_WINDOWS
