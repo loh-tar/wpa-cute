@@ -1057,11 +1057,10 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 
 	selectedNetwork = nullptr;
 
-	const QSignalBlocker blocker(networkList);
-	networkList->clear();
-
-	if (ctrl_conn == nullptr)
+	if (ctrl_conn == nullptr) {
+		networkList->clear();
 		return;
+	}
 
 	debug("updateNetworks() >>");
 
@@ -1071,7 +1070,9 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 
 	debug("updateNetworks() >>>>>>");
 
-	// Avoid unneeded updates of Scan Results
+	// Avoid annoying fidgeting of a full filled network list
+	// FIXME If there is better/simpler solution
+	QList<QTreeWidgetItem*> newNetworkList;
 	QCryptographicHash cryptoHash(QCryptographicHash::Md5);
 	static QString oldHash;
 
@@ -1084,7 +1085,7 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 		QString cmd("GET_NETWORK %1 %2");
 		cmd = cmd.arg(data.at(0));
 
-		QTreeWidgetItem *item = new QTreeWidgetItem(networkList);
+		QTreeWidgetItem *item = new QTreeWidgetItem();
 		item->setText(NLColId, data.at(0));
 		item->setText(NLColIdVisible, data.at(0).rightJustified(3, ' '));
 		item->setText(NLColSsid, data.at(1));
@@ -1096,7 +1097,6 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 			substitudeNetwork = item;
 		}
 		if (data.at(0) == selectedNetworkId) {
-			networkList->setCurrentItem(item);
 			selectedNetwork = item;
 			debug("restore old selection: %d", selectedNetworkId.toInt());
 		}
@@ -1104,14 +1104,33 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 			currentNetwork = item;
 		}
 
+		newNetworkList.append(item);
 		cryptoHash.addData(line.toLocal8Bit());
+		cryptoHash.addData(item->text(NLColPrio).toLocal8Bit());
+		cryptoHash.addData(item->text(NLColFlags).toLocal8Bit());
 	}
 
-	QString newHash = cryptoHash.result().toHex();
-	changed = oldHash != newHash;
-	oldHash = newHash;
+	const QString newHash = cryptoHash.result().toHex();
 
-	if (!selectedNetwork) {
+	if (newHash == oldHash) {
+		debug("updateNetworks() <<<<<< NO CHANGE");
+		foreach(QTreeWidgetItem *item, newNetworkList) {
+			delete item;
+		}
+		return;
+	}
+
+	oldHash = newHash;
+	const QSignalBlocker blocker(networkList);
+	networkList->clear();
+
+	foreach(QTreeWidgetItem *item, newNetworkList) {
+		networkList->addTopLevelItem(item);
+	}
+
+	if (selectedNetwork) {
+		networkList->setCurrentItem(selectedNetwork);
+	} else {
 		if (substitudeNetwork) {
 			networkList->setCurrentItem(substitudeNetwork);
 			selectedNetwork = substitudeNetwork;
@@ -1146,7 +1165,7 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 
 	networkSelectionChanged();
 
-	if (scanWindow && changed)
+	if (scanWindow)
 		scanWindow->updateResults();
 
 	debug("updateNetworks() <<<<<<");
