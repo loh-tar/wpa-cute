@@ -164,10 +164,12 @@ void ScanResults::updateResults() {
 			QString wrongKeyId = "not-set";
 			if (currentBSSID == bssid) {
 				customFlags = QString("[CURRENT-%1]").arg(currentId);
+				customFlags.append(wpagui->getIdFlag(currentId));
 				currentNetwork = item;
 				wrongKeyId = currentId;
 			} else if (knownNet.contains(bssid) && knownNet.value(bssid) == ssid) {
 				customFlags = QString("[KNOWN-%1]").arg(idByBSSID.value(bssid));
+				customFlags.append(wpagui->getIdFlag(idByBSSID.value(bssid)));
 				bestAltOption = item;
 				wrongKeyId = idByBSSID.value(bssid);
 			} else if (lookalike.contains(ssid)) {
@@ -175,6 +177,7 @@ void ScanResults::updateResults() {
 				bestAltOption = item;
 			} else if (idBySSID.contains(ssid)) {
 				customFlags = QString("[CANDIDATE-%1]").arg(idBySSID.value(ssid));
+				customFlags.append(wpagui->getIdFlag(idBySSID.value(ssid)));
 				if (usedCandidate.contains(customFlags)) {
 					foreach(QTreeWidgetItem* item, scanResultsWidget->findItems(customFlags, Qt::MatchContains, SRColFlags)) {
 						QString txt = item->text(SRColFlags).replace(customFlags, "[CANDIDATE]");
@@ -189,9 +192,10 @@ void ScanResults::updateResults() {
 				}
 				bestAltOption = item;
 			}
-			if (wrongKey.contains(wrongKeyId)) {
+
+			if (wrongKey.contains(wrongKeyId))
 				customFlags.append("[WRONG-KEY]");
-			}
+
 			if (!customFlags.isEmpty())
 				customFlags.prepend("* ");
 

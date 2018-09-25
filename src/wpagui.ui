@@ -130,7 +130,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="statusTab">
          <attribute name="title">
@@ -386,22 +386,32 @@
             </property>
             <column>
              <property name="text">
-              <string>ID</string>
+              <string notr="true">ID-Intern</string>
              </property>
             </column>
             <column>
              <property name="text">
-              <string>SSID</string>
+              <string notr="true">ID</string>
              </property>
             </column>
             <column>
              <property name="text">
-              <string>BSSID</string>
+              <string notr="true">SSID</string>
              </property>
             </column>
             <column>
              <property name="text">
-              <string>Flags</string>
+              <string notr="true">BSSID</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string notr="true">Prio</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string notr="true">Flags</string>
              </property>
             </column>
            </widget>
@@ -865,6 +875,14 @@
    </property>
    <property name="statusTip">
     <string>Enable selected network, disable all others</string>
+   </property>
+  </action>
+  <action name="preferIDStringAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show ID-String instead of SSID if available</string>
    </property>
   </action>
  </widget>

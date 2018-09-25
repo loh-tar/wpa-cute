@@ -93,8 +93,10 @@ public:
 
 	enum NetworkListColumn {
 		NLColId = 0,
+		NLColIdVisible,
 		NLColSsid,
 		NLColBssid,
+		NLColPrio,
 		NLColFlags,
 	};
 
@@ -118,6 +120,7 @@ public:
 	     QString getLastCtrlRequestResult();
 	         int getLastCtrlRequestReturnValue();
 	     QString getData(const QString& cmd);
+	     QString getIdFlag(const QString& id);
 
 	        void editNetwork(const QString& id, const QString& bssid = "");
 	        void removeNetwork(const QString& sel);

@@ -115,6 +115,8 @@ WpaGui::WpaGui(WpaGuiApp *app
 	disconReconAction->setToolTip("");
 	networkDisEnableAction->setToolTip("");
 
+	networkList->setColumnHidden(NLColId, true);
+
 	disconReconButton->setDefaultAction(disconReconAction);
 	scanButton->setDefaultAction(scanAction);
 	addNetworkButton->setDefaultAction(networkAddAction);
@@ -559,6 +561,18 @@ QString WpaGui::getData(const QString& cmd) {
 
 	ctrlRequest(cmd);
 	return getLastCtrlRequestResult();
+}
+
+
+QString WpaGui::getIdFlag(const QString& id) {
+
+	QString cmd("GET_NETWORK %1 %2");
+	QString idstr = getData(cmd.arg(id).arg("id_str"));
+	if (!idstr.isEmpty()) {
+		idstr = QString("[ID=%1]").arg(idstr);
+	}
+
+	return idstr;
 }
 
 
@@ -1067,11 +1081,16 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 		if (!data.at(0).contains(QRegExp("^[0-9]+$")))
 			continue;
 
+		QString cmd("GET_NETWORK %1 %2");
+		cmd = cmd.arg(data.at(0));
+
 		QTreeWidgetItem *item = new QTreeWidgetItem(networkList);
 		item->setText(NLColId, data.at(0));
+		item->setText(NLColIdVisible, data.at(0).rightJustified(3, ' '));
 		item->setText(NLColSsid, data.at(1));
 		item->setText(NLColBssid, data.at(2));
-		item->setText(NLColFlags, data.at(3));
+		item->setText(NLColPrio, getData(cmd.arg("priority")).rightJustified(3, ' '));
+		item->setText(NLColFlags, getIdFlag(data.at(0)) + data.at(3));
 
 		if (data.at(0) == substitudeNetworkId) {
 			substitudeNetwork = item;

@@ -27,7 +27,6 @@ General Jobs
 --------------
 - Fix the missing highlighting of the signal meter when some selection is made
   on the Scan window
-- Add the network block prio to the Networks list
 - Investigate and fix (if needed) handling of SSIDs with includet quotes. The
   supplicant seems to support it but not our networkconfig
 - Add a status bar to Edit Network window. Surprisingly tricky to add one to a
