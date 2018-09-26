@@ -16,9 +16,6 @@ TODO
 - Fill Optional Settings tab in Edit Network window. Sadly no command to get a
   list of available varaiables. Help says: Please see wpa_supplicant.conf
   documentation for full list of available variables.
-- Limit the count of entries in the Events tab, or it will it endless filled.
-  I think at least the very first line should be kept and then a note inserted
-  about how many lines are removed.
 - Do some checks with tools like valgrind if there are ugly mistakes
 - Print version/copyright and help to the command line
 

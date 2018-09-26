@@ -1489,6 +1489,7 @@ void WpaGui::logHint(const QString& hint) {
 
 	QString text(hint);
 	static QString lastHint;
+	static int removed = 0;
 
 	if (hint == lastHint)
 		return;
@@ -1517,6 +1518,11 @@ void WpaGui::logHint(const QString& hint) {
 	item->setText(0, now);
 	item->setText(1, text);
 
+	if (eventList->topLevelItemCount() > 100) {
+		eventList->topLevelItem(1)->setText(0, now);
+		eventList->topLevelItem(1)->setText(1, tr("Entries removed: %1").arg(++removed));
+		eventList->takeTopLevelItem(2);
+	}
 
 	if (scroll)
 		eventList->scrollToBottom();
