@@ -28,6 +28,7 @@
 
 #include "common/wpa_ctrl.h"
 
+#include "about.h"
 #include "eventhistory.h"
 #include "networkconfig.h"
 #include "peers.h"
@@ -1268,67 +1269,17 @@ void WpaGui::helpContents() {
 
 void WpaGui::helpAbout() {
 
-	const QString copyright(tr("%1 - A graphical wpa_supplicant front end\n")
-	                       .arg(ProjAppName) + tr(
-	            "Copyright (C) 2018 loh.tar@googlemail.com\n"
-	            "\n"
-	            ProjAppName " is a fork from wpa_gui shipped with \n"
-	            "wpa_supplicant version 2.6\n"
-	            "\n"
-	            "wpa_gui for wpa_supplicant\n"
-	            "Copyright (C) 2005-2015 Jouni Malinen <j@w1.fi> \n"
-	            "and contributors\n"));
-
-	const QString msg(copyright + tr("\n"
-	            "This software may be distributed under\n"
-	            "the terms of the BSD license.\n\n"
-	            "%1 for details.\n"));
-
-	const QString license(copyright + tr("\n"
-	"\n"
-	"License\n"
-	"=========\n"
-	"This software may be distributed, used, and modified under the terms of\n"
-	"BSD license:\n"
-	"\n"
-	"Redistribution and use in source and binary forms, with or without\n"
-	"modification, are permitted provided that the following conditions are\n"
-	"met:\n"
-	"\n"
-	"1. Redistributions of source code must retain the above copyright\n"
-	"   notice, this list of conditions and the following disclaimer.\n"
-	"\n"
-	"2. Redistributions in binary form must reproduce the above copyright\n"
-	"   notice, this list of conditions and the following disclaimer in the\n"
-	"   documentation and/or other materials provided with the distribution.\n"
-	"\n"
-	"3. Neither the name(s) of the above-listed copyright holder(s) nor the\n"
-	"   names of its contributors may be used to endorse or promote products\n"
-	"   derived from this software without specific prior written permission.\n"
-	"\n"
-	"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"
-	"\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"
-	"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR\n"
-	"A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT\n"
-	"OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,\n"
-	"SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT\n"
-	"LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,\n"
-	"DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\n"
-	"THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n"
-	"(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n"
-	"OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"));
-
 	QDialog msgBox(this);
-	Ui::aboutDialog ui;
 
+	Ui::aboutDialog ui;
 	ui.setupUi(&msgBox);
 	ui.appName->setText(ProjAppName);
 	ui.appVersion->setText(tr("Version %1, %2").arg(ProjVersion).arg(ProjRelease));
-	ui.aboutText->setText(msg.arg(tr("See License tab")));
-	ui.licenseText->setText(license);
+	ui.aboutText->setText(About::text(tr("See License tab")));
+	ui.licenseText->setText(About::license());
+
 	msgBox.setWindowTitle(tr("About %1").arg(ProjAppName));
 	msgBox.exec();
-
 }
 
 

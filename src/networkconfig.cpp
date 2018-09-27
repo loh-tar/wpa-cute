@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <QMessageBox>
 
+#include "about.h"
 #include "networkconfig.h"
 #include "wpagui.h"
 

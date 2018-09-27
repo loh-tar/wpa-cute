@@ -10,6 +10,7 @@ TODO
 - Save/Restore window position between hide()/show()
 - Save/Restore program state between runs independent to some session manager
 - Add/Enable Help->Index/Contents to view at least the man page
+- Remove the license from about.cpp and read them out of the (installed) file
 - Add a window/tab to set/change all kind of wpa_supplicant varaiables that can
   be configured in the .config file. A list is fetch able with
     ctrlRequest"DUMP", buf, len) when len is long enough.
@@ -17,7 +18,6 @@ TODO
   list of available varaiables. Help says: Please see wpa_supplicant.conf
   documentation for full list of available variables.
 - Do some checks with tools like valgrind if there are ugly mistakes
-- Print version/copyright and help to the command line
 
 
 General Jobs

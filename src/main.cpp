@@ -12,9 +12,13 @@
 #ifdef CONFIG_NATIVE_WINDOWS
 #include <winsock.h>
 #endif /* CONFIG_NATIVE_WINDOWS */
+
 #include <QApplication>
+#include <QProcess>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QTranslator>
+
+#include "about.h"
 #include "wpagui.h"
 
 WpaGuiApp::WpaGuiApp(int& argc, char** argv)
@@ -33,6 +37,15 @@ void WpaGuiApp::saveState(QSessionManager& manager) {
 }
 #endif
 
+#ifndef CONFIG_NATIVE_WINDOWS
+#include <QTextStream>
+// Thanks to https://stackoverflow.com/a/3886128
+QTextStream& qStdOut() {
+
+    static QTextStream ts(stdout);
+    return ts;
+}
+#endif
 
 int main(int argc, char* argv[]) {
 
@@ -41,6 +54,33 @@ int main(int argc, char* argv[]) {
 	QString locale;
 	QString resourceDir;
 	int ret;
+
+#ifndef CONFIG_NATIVE_WINDOWS
+// It seems console output on Windows need more effort
+// feel free to fix it https://stackoverflow.com/q/3360548
+	for (int i = 1; i < argc; i++) {
+		QString arg(argv[i]);
+		if (arg.startsWith("-h") || arg.startsWith("-?") ) {
+			qStdOut() << About::slogan() << "\n";
+			qStdOut() << "version : " ProjVersion ", " ProjRelease "\n";
+			qStdOut() << "usage   : wpa-cute [-i <ifname>][-m <seconds>][-p <dir>][-t][-p][-q][-N][-W]\n";
+			qStdOut() << "help    : wpa-cute --h\n";
+			qStdOut() << "license : wpa-cute --l\n";
+			return 0;
+		}
+		if (arg.startsWith("--h")) {
+			// To avoid redundance and list all stuff again here, call our neat man page
+			// But it would be nicer to print some data by an option listed currently
+			// in WpaGui::helpAbout()
+			QProcess::execute("man wpa-cute");
+			return 0;
+		}
+		if (arg.startsWith("--l")) {
+			qStdOut() << About::license() << "\n";
+			return 0;
+		}
+	}
+#endif
 
 	locale = QLocale::system().name();
 	resourceDir = QLibraryInfo::location(QLibraryInfo::TranslationsPath);

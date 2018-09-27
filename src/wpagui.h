@@ -28,11 +28,6 @@ class WpaGui;
 class WpsDialog;
 
 
-#define ProjAppName "wpaCute"
-#define ProjVersion "0.8"
-#define ProjRelease "Sep 2018"
-
-
 class WpaGuiApp : public QApplication
 {
 	Q_OBJECT
