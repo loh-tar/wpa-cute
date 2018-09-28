@@ -28,6 +28,7 @@
 
 #include "common/wpa_ctrl.h"
 
+#include "about.h"
 #include "eventhistory.h"
 #include "networkconfig.h"
 #include "peers.h"
@@ -114,6 +115,8 @@ WpaGui::WpaGui(WpaGuiApp *app
 	// Disable completely, is not a simple task, what a cheese!
 	disconReconAction->setToolTip("");
 	networkDisEnableAction->setToolTip("");
+
+	networkList->setColumnHidden(NLColId, true);
 
 	disconReconButton->setDefaultAction(disconReconAction);
 	scanButton->setDefaultAction(scanAction);
@@ -504,27 +507,35 @@ int WpaGui::openCtrlConnection(const QString& ifname) {
 
 int WpaGui::ctrlRequest(const QString& cmd, char* buf, const size_t buflen) {
 
-	int ret;
 	size_t len = buflen;
+	lastCtrlRequestResult.clear();
 
-	if (ctrl_conn == NULL)
-		return -3;
+	if (ctrl_conn == NULL) {
+		lastCtrlRequestReturnValue = -3;
+		return lastCtrlRequestReturnValue;
+	}
 
-	ret = wpa_ctrl_request(ctrl_conn, cmd.toLocal8Bit().constData()
-	                     , strlen(cmd.toLocal8Bit().constData())
-	                     , buf, &len, NULL);
+	lastCtrlRequestReturnValue = wpa_ctrl_request(ctrl_conn
+	                                            , cmd.toLocal8Bit().constData()
+	                                            , strlen(cmd.toLocal8Bit().constData())
+	                                            , buf, &len, NULL);
 
-	if (ret == -2)
+	if (lastCtrlRequestReturnValue == -2)
 		debug("'%s' command timed out.", cmd.toLocal8Bit().constData());
-	else if (ret < 0)
+	else if (lastCtrlRequestReturnValue < 0)
 		debug("'%s' command failed.", cmd.toLocal8Bit().constData());
 
 	buf[len] = '\0';
+	lastCtrlRequestResult = QString(buf);
+	lastCtrlRequestResult.remove(QRegExp("^\""));
+	lastCtrlRequestResult.remove(QRegExp("\"$"));
 
-	if (!ret && memcmp(buf, "FAIL", 4) == 0)
-		ret = -1;
+	if (lastCtrlRequestResult.startsWith("FAIL\n")) {
+		lastCtrlRequestResult.clear();
+		lastCtrlRequestReturnValue = -1;
+	}
 
-	return ret;
+	return lastCtrlRequestReturnValue;
 }
 
 
@@ -532,6 +543,37 @@ int WpaGui::ctrlRequest(const QString& cmd) {
 
 	size_t len(100); char buf[len];
 	return ctrlRequest(cmd, buf, len);
+}
+
+
+QString  WpaGui::getLastCtrlRequestResult() {
+
+	return lastCtrlRequestResult;
+}
+
+
+int  WpaGui::getLastCtrlRequestReturnValue() {
+
+	return lastCtrlRequestReturnValue;
+}
+
+
+QString WpaGui::getData(const QString& cmd) {
+
+	ctrlRequest(cmd);
+	return getLastCtrlRequestResult();
+}
+
+
+QString WpaGui::getIdFlag(const QString& id) {
+
+	QString cmd("GET_NETWORK %1 %2");
+	QString idstr = getData(cmd.arg(id).arg("id_str"));
+	if (!idstr.isEmpty()) {
+		idstr = QString("[ID=%1]").arg(idstr);
+	}
+
+	return idstr;
 }
 
 
@@ -1006,21 +1048,20 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 	QTreeWidgetItem* selectedNetwork = networkList->currentItem();
 
 	if (selectedNetwork) {
-		selectedNetworkId = selectedNetwork->text(0);
+		selectedNetworkId = selectedNetwork->text(NLColId);
 		substitudeNetwork = networkList->itemBelow(selectedNetwork);
 		if (!substitudeNetwork)
 			substitudeNetwork = networkList->itemAbove(selectedNetwork);
 		if (substitudeNetwork)
-			substitudeNetworkId = substitudeNetwork->text(0);
+			substitudeNetworkId = substitudeNetwork->text(NLColId);
 	}
 
 	selectedNetwork = nullptr;
 
-	const QSignalBlocker blocker(networkList);
-	networkList->clear();
-
-	if (ctrl_conn == nullptr)
+	if (ctrl_conn == nullptr) {
+		networkList->clear();
 		return;
+	}
 
 	debug("updateNetworks() >>");
 
@@ -1030,7 +1071,9 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 
 	debug("updateNetworks() >>>>>>");
 
-	// Avoid unneeded updates of Scan Results
+	// Avoid annoying fidgeting of a full filled network list
+	// FIXME If there is better/simpler solution
+	QList<QTreeWidgetItem*> newNetworkList;
 	QCryptographicHash cryptoHash(QCryptographicHash::Md5);
 	static QString oldHash;
 
@@ -1040,17 +1083,21 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 		if (!data.at(0).contains(QRegExp("^[0-9]+$")))
 			continue;
 
-		QTreeWidgetItem *item = new QTreeWidgetItem(networkList);
-		item->setText(0, data.at(0) /*id*/);
-		item->setText(1, data.at(1) /*ssid*/);
-		item->setText(2, data.at(2) /*bssid*/);
-		item->setText(3, data.at(3) /*flags*/);
+		QString cmd("GET_NETWORK %1 %2");
+		cmd = cmd.arg(data.at(0));
+
+		QTreeWidgetItem *item = new QTreeWidgetItem();
+		item->setText(NLColId, data.at(0));
+		item->setText(NLColIdVisible, data.at(0).rightJustified(3, ' '));
+		item->setText(NLColSsid, data.at(1));
+		item->setText(NLColBssid, data.at(2));
+		item->setText(NLColPrio, getData(cmd.arg("priority")).rightJustified(3, ' '));
+		item->setText(NLColFlags, getIdFlag(data.at(0)) + data.at(3));
 
 		if (data.at(0) == substitudeNetworkId) {
 			substitudeNetwork = item;
 		}
 		if (data.at(0) == selectedNetworkId) {
-			networkList->setCurrentItem(item);
 			selectedNetwork = item;
 			debug("restore old selection: %d", selectedNetworkId.toInt());
 		}
@@ -1058,14 +1105,33 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 			currentNetwork = item;
 		}
 
+		newNetworkList.append(item);
 		cryptoHash.addData(line.toLocal8Bit());
+		cryptoHash.addData(item->text(NLColPrio).toLocal8Bit());
+		cryptoHash.addData(item->text(NLColFlags).toLocal8Bit());
 	}
 
-	QString newHash = cryptoHash.result().toHex();
-	changed = oldHash != newHash;
-	oldHash = newHash;
+	const QString newHash = cryptoHash.result().toHex();
 
-	if (!selectedNetwork) {
+	if (newHash == oldHash) {
+		debug("updateNetworks() <<<<<< NO CHANGE");
+		foreach(QTreeWidgetItem *item, newNetworkList) {
+			delete item;
+		}
+		return;
+	}
+
+	oldHash = newHash;
+	const QSignalBlocker blocker(networkList);
+	networkList->clear();
+
+	foreach(QTreeWidgetItem *item, newNetworkList) {
+		networkList->addTopLevelItem(item);
+	}
+
+	if (selectedNetwork) {
+		networkList->setCurrentItem(selectedNetwork);
+	} else {
 		if (substitudeNetwork) {
 			networkList->setCurrentItem(substitudeNetwork);
 			selectedNetwork = substitudeNetwork;
@@ -1100,7 +1166,7 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 
 	networkSelectionChanged();
 
-	if (scanWindow && changed)
+	if (scanWindow)
 		scanWindow->updateResults();
 
 	debug("updateNetworks() <<<<<<");
@@ -1203,67 +1269,17 @@ void WpaGui::helpContents() {
 
 void WpaGui::helpAbout() {
 
-	const QString copyright(tr("%1 - A graphical wpa_supplicant front end\n")
-	                       .arg(ProjAppName) + tr(
-	            "Copyright (C) 2018 loh.tar@googlemail.com\n"
-	            "\n"
-	            ProjAppName " is a fork from wpa_gui shipped with \n"
-	            "wpa_supplicant version 2.6\n"
-	            "\n"
-	            "wpa_gui for wpa_supplicant\n"
-	            "Copyright (C) 2005-2015 Jouni Malinen <j@w1.fi> \n"
-	            "and contributors\n"));
-
-	const QString msg(copyright + tr("\n"
-	            "This software may be distributed under\n"
-	            "the terms of the BSD license.\n\n"
-	            "%1 for details.\n"));
-
-	const QString license(copyright + tr("\n"
-	"\n"
-	"License\n"
-	"=========\n"
-	"This software may be distributed, used, and modified under the terms of\n"
-	"BSD license:\n"
-	"\n"
-	"Redistribution and use in source and binary forms, with or without\n"
-	"modification, are permitted provided that the following conditions are\n"
-	"met:\n"
-	"\n"
-	"1. Redistributions of source code must retain the above copyright\n"
-	"   notice, this list of conditions and the following disclaimer.\n"
-	"\n"
-	"2. Redistributions in binary form must reproduce the above copyright\n"
-	"   notice, this list of conditions and the following disclaimer in the\n"
-	"   documentation and/or other materials provided with the distribution.\n"
-	"\n"
-	"3. Neither the name(s) of the above-listed copyright holder(s) nor the\n"
-	"   names of its contributors may be used to endorse or promote products\n"
-	"   derived from this software without specific prior written permission.\n"
-	"\n"
-	"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"
-	"\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"
-	"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR\n"
-	"A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT\n"
-	"OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,\n"
-	"SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT\n"
-	"LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,\n"
-	"DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\n"
-	"THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n"
-	"(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n"
-	"OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"));
-
 	QDialog msgBox(this);
-	Ui::aboutDialog ui;
 
+	Ui::aboutDialog ui;
 	ui.setupUi(&msgBox);
 	ui.appName->setText(ProjAppName);
 	ui.appVersion->setText(tr("Version %1, %2").arg(ProjVersion).arg(ProjRelease));
-	ui.aboutText->setText(msg.arg(tr("See License tab")));
-	ui.licenseText->setText(license);
+	ui.aboutText->setText(About::text(tr("See License tab")));
+	ui.licenseText->setText(About::license());
+
 	msgBox.setWindowTitle(tr("About %1").arg(ProjAppName));
 	msgBox.exec();
-
 }
 
 
@@ -1424,6 +1440,7 @@ void WpaGui::logHint(const QString& hint) {
 
 	QString text(hint);
 	static QString lastHint;
+	static int removed = 0;
 
 	if (hint == lastHint)
 		return;
@@ -1452,6 +1469,11 @@ void WpaGui::logHint(const QString& hint) {
 	item->setText(0, now);
 	item->setText(1, text);
 
+	if (eventList->topLevelItemCount() > 100) {
+		eventList->topLevelItem(1)->setText(0, now);
+		eventList->topLevelItem(1)->setText(1, tr("Entries removed: %1").arg(++removed));
+		eventList->takeTopLevelItem(2);
+	}
 
 	if (scroll)
 		eventList->scrollToBottom();
@@ -1729,7 +1751,7 @@ void WpaGui::networkSelectionChanged() {
 	networkRemoveAction->setEnabled(true);
 	networkDisEnableAction->setEnabled(true);
 
-	switch (getNetworkDisabled(selectedNetwork->text(0))) {
+	switch (getNetworkDisabled(selectedNetwork->text(NLColId))) {
 		case 1:
 			networkDisEnableAction->setText(tr("Enable"));
 			networkDisEnableAction->setStatusTip(tr("Enable selected network"));
@@ -1746,7 +1768,7 @@ void WpaGui::networkSelectionChanged() {
 	// FIXME Qt<5.11.1 Bug? Was needed on system with Qt 5.9.2
 	disEnableNetworkButton->setText(networkDisEnableAction->text());
 
-	if (selectedNetwork->text(3).contains("[CURRENT]"))
+	if (selectedNetwork->text(NLColFlags).contains("[CURRENT]"))
 		networkChooseAction->setEnabled(false);
 	else
 		networkChooseAction->setEnabled(true);
@@ -1805,8 +1827,8 @@ void WpaGui::editListedNetwork() {
 					    " edit it.\n"));
 		return;
 	}
-	QString sel(networkList->currentItem()->text(0));
-	if (networkList->currentItem()->text(3).contains("[CURRENT]"))
+	QString sel(networkList->currentItem()->text(NLColId));
+	if (networkList->currentItem()->text(NLColFlags).contains("[CURRENT]"))
 		editNetwork(sel, textBssid->text());
 	else
 		editNetwork(sel);
@@ -1835,7 +1857,7 @@ void WpaGui::removeListedNetwork() {
 		return;
 	}
 
-	removeNetwork(networkList->currentItem()->text(0));
+	removeNetwork(networkList->currentItem()->text(NLColId));
 }
 
 
@@ -1886,7 +1908,7 @@ int WpaGui::getNetworkDisabled(const QString& sel) {
 void WpaGui::chooseNetwork() {
 
 	QTreeWidgetItem* selectedNetwork = networkList->currentItem();
-	chooseNetwork(selectedNetwork->text(0), selectedNetwork->text(1));
+	chooseNetwork(selectedNetwork->text(NLColId), selectedNetwork->text(NLColSsid));
 }
 
 
@@ -1895,7 +1917,7 @@ void WpaGui::chooseNetwork(const QString& id, const QString& ssid) {
 	logHint(tr("User choose network %1 - %2").arg(id).arg(ssid));
 
 	// 'SELECT_NETWORK <id>' set the '[CURRENT]' flag of network <id> regardless of its success
-// 	ctrlRequest("SELECT_NETWORK " + selectedNetwork->text(0));
+// 	ctrlRequest("SELECT_NETWORK " + selectedNetwork->text(NLColId));
 	// So we must code around that
 	disableNetwork("all");
 	enableNetwork(id);
@@ -1913,12 +1935,12 @@ void WpaGui::chooseNetwork(const QString& id, const QString& ssid) {
 void WpaGui::disEnableNetwork() {
 
 	QTreeWidgetItem* selectedNetwork = networkList->currentItem();
-	switch (getNetworkDisabled(selectedNetwork->text(0))) {
+	switch (getNetworkDisabled(selectedNetwork->text(NLColId))) {
 	case 1:
-		enableNetwork(selectedNetwork->text(0));
+		enableNetwork(selectedNetwork->text(NLColId));
 		break;
 	case 0:
-		disableNetwork(selectedNetwork->text(0));
+		disableNetwork(selectedNetwork->text(NLColId));
 		break;
 	default:
 		// We should never read this

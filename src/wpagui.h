@@ -28,11 +28,6 @@ class WpaGui;
 class WpsDialog;
 
 
-#define ProjAppName "wpaCute"
-#define ProjVersion "0.7.1"
-#define ProjRelease "Jul 2018"
-
-
 class WpaGuiApp : public QApplication
 {
 	Q_OBJECT
@@ -91,6 +86,15 @@ public:
 		WpaCompleted
 	};
 
+	enum NetworkListColumn {
+		NLColId = 0,
+		NLColIdVisible,
+		NLColSsid,
+		NLColBssid,
+		NLColPrio,
+		NLColFlags,
+	};
+
 	enum DogBreed {
 		NoDog          = 0,
 		PomDog         = 1000,
@@ -108,6 +112,10 @@ public:
 
 	         int ctrlRequest(const QString& cmd, char* buf, const size_t buflen);
 	         int ctrlRequest(const QString& cmd);
+	     QString getLastCtrlRequestResult();
+	         int getLastCtrlRequestReturnValue();
+	     QString getData(const QString& cmd);
+	     QString getIdFlag(const QString& id);
 
 	        void editNetwork(const QString& id, const QString& bssid = "");
 	        void removeNetwork(const QString& sel);
@@ -241,6 +249,8 @@ private:
 	struct wpa_ctrl*           monitor_conn;
 	QPointer<QSocketNotifier>  msgNotifier;
 	WpaMsgList                 msgs;
+	QString                    lastCtrlRequestResult;
+	int                        lastCtrlRequestReturnValue;
 
 
 #ifdef CONFIG_NATIVE_WINDOWS

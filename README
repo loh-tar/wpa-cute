@@ -26,11 +26,20 @@ No tests of P2P and never mind some expert needs.
 
 I use only Arch Linux but tried my best not to broke the code for other systems.
 
-Last, and (almost) very first, version is 0.7.1, Jul 2018
+
+Last version is 0.8, Sep 2018
+-------------------------------
+
+  - Fix wrong ordering by ID in Networks list
+  - Add id_str to Flags in Networks list
+  - Add Prio to Networks list
+  - Avoid annoying fidgeting of Networks list when list is fuller as space is
+    available
+  - Add options to print info and help to the console
 
 
 Features
-----------
+==========
 
   - Change, add or remove network profiles
   - Scan for networks and connect to them by WPS

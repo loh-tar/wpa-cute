@@ -81,7 +81,7 @@ void ScanResults::updateResults() {
 
 	QString selectedBSSID;
 	if (selectedNetwork)
-		selectedBSSID = selectedNetwork->text(1);
+		selectedBSSID = selectedNetwork->text(SRColBssid);
 
 	selectedNetwork = nullptr;
 	scanResultsWidget->clear();
@@ -101,15 +101,15 @@ void ScanResults::updateResults() {
 	QString currentId;
 	for (int i = 0; i < wpagui->networkList->topLevelItemCount(); i++) {
 		QTreeWidgetItem* item = wpagui->networkList->topLevelItem(i);
-		const QString id    = item->text(0);
-		const QString ssid  = item->text(1);
-		const QString bssid = item->text(2);
-		if (item->text(3).contains("[CURRENT]")) {
+		const QString id    = item->text(WpaGui::NLColId);
+		const QString ssid  = item->text(WpaGui::NLColSsid);
+		const QString bssid = item->text(WpaGui::NLColBssid);
+		if (item->text(WpaGui::NLColFlags).contains("[CURRENT]")) {
 			currentBSSID = wpagui->textBssid->text();
 			currentId    = id;
 			continue;
 		}
-		if (item->text(3).contains("[TEMP-DISABLED]")) {
+		if (item->text(WpaGui::NLColFlags).contains("[TEMP-DISABLED]")) {
 			wrongKey.insert(id);
 		}
 		if (!bssid.compare("any", Qt::CaseInsensitive) == 0) {
@@ -157,17 +157,19 @@ void ScanResults::updateResults() {
 
 		ScanResultsItem *item = new ScanResultsItem(scanResultsWidget);
 		if (item) {
-			item->setText(0, ssid);
-			item->setText(1, bssid);
-			item->setText(2, signal);
-			item->setText(3, freq);
+			item->setText(SRColSsid, ssid);
+			item->setText(SRColBssid, bssid);
+			item->setText(SRColSignal, signal);
+			item->setText(SRColFreq, freq);
 			QString wrongKeyId = "not-set";
 			if (currentBSSID == bssid) {
 				customFlags = QString("[CURRENT-%1]").arg(currentId);
+				customFlags.append(wpagui->getIdFlag(currentId));
 				currentNetwork = item;
 				wrongKeyId = currentId;
 			} else if (knownNet.contains(bssid) && knownNet.value(bssid) == ssid) {
 				customFlags = QString("[KNOWN-%1]").arg(idByBSSID.value(bssid));
+				customFlags.append(wpagui->getIdFlag(idByBSSID.value(bssid)));
 				bestAltOption = item;
 				wrongKeyId = idByBSSID.value(bssid);
 			} else if (lookalike.contains(ssid)) {
@@ -175,11 +177,12 @@ void ScanResults::updateResults() {
 				bestAltOption = item;
 			} else if (idBySSID.contains(ssid)) {
 				customFlags = QString("[CANDIDATE-%1]").arg(idBySSID.value(ssid));
+				customFlags.append(wpagui->getIdFlag(idBySSID.value(ssid)));
 				if (usedCandidate.contains(customFlags)) {
-					foreach(QTreeWidgetItem* item, scanResultsWidget->findItems(customFlags, Qt::MatchContains, 4)) {
-						QString txt = item->text(4).replace(customFlags, "[CANDIDATE]");
-						txt = item->text(4).remove("[WRONG-KEY]");
-						item->setText(4, txt);
+					foreach(QTreeWidgetItem* item, scanResultsWidget->findItems(customFlags, Qt::MatchContains, SRColFlags)) {
+						QString txt = item->text(SRColFlags).replace(customFlags, "[CANDIDATE]");
+						txt = item->text(SRColFlags).remove("[WRONG-KEY]");
+						item->setText(SRColFlags, txt);
 					}
 					lookalike.insert(ssid);
 					customFlags = "[CANDIDATE]";
@@ -189,14 +192,15 @@ void ScanResults::updateResults() {
 				}
 				bestAltOption = item;
 			}
-			if (wrongKey.contains(wrongKeyId)) {
+
+			if (wrongKey.contains(wrongKeyId))
 				customFlags.append("[WRONG-KEY]");
-			}
+
 			if (!customFlags.isEmpty())
 				customFlags.prepend("* ");
 
 			flags.prepend(customFlags);
-			item->setText(4, flags);
+			item->setText(SRColFlags, flags);
 
 			if (selectedBSSID == bssid)
 				selectedNetwork = item;
@@ -245,7 +249,7 @@ void ScanResults::networkSelected(QTreeWidgetItem* curr) {
 
 	selectedNetwork = curr;
 
-	QString flags = curr->text(4);
+	QString flags = curr->text(SRColFlags);
 
 	chooseButton->setEnabled(false);
 	wpsButton->setEnabled(wpsIsSupported);
@@ -288,7 +292,7 @@ void ScanResults::addNetwork() {
 	if (selectedNetworkId.isEmpty()) {
 		nc.newNetwork(selectedNetwork);
 	} else {
-		nc.editNetwork(selectedNetworkId, selectedNetwork->text(1));
+		nc.editNetwork(selectedNetworkId, selectedNetwork->text(SRColBssid));
 	}
 
 	nc.exec();
@@ -299,12 +303,12 @@ void ScanResults::addNetwork() {
 
 void ScanResults::showWpsDialog() {
 
-	const QString ssid  = selectedNetwork->text(0);
-	const QString bssid = selectedNetwork->text(1);
+	const QString ssid  = selectedNetwork->text(SRColSsid);
+	const QString bssid = selectedNetwork->text(SRColBssid);
 
 	wpagui->showWpsWindow();
 
-	if (selectedNetwork->text(4).contains("[WPS-PBC]"))
+	if (selectedNetwork->text(SRColFlags).contains("[WPS-PBC]"))
 		wpagui->wpsWindow->activePbcAvailable(ssid, bssid);
 	else
 		wpagui->wpsWindow->setNetworkIds(ssid, bssid);
@@ -313,5 +317,5 @@ void ScanResults::showWpsDialog() {
 
 void ScanResults::chooseNetwork() {
 
-	wpagui->chooseNetwork(selectedNetworkId, selectedNetwork->text(0));
+	wpagui->chooseNetwork(selectedNetworkId, selectedNetwork->text(SRColSsid));
 }
