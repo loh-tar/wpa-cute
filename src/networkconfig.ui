@@ -569,7 +569,7 @@
        </sizepolicy>
       </property>
       <attribute name="title">
-       <string>Optionnal Settings</string>
+       <string>Optional Settings</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="1">
