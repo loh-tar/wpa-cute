@@ -7,7 +7,6 @@ TODO
   window visible
 - Avoid the repeating, ever the same messages in the Events tab when running
   WPS or Scanning. Could be done in logHint
-- Save/Restore window position between hide()/show()
 - Save/Restore program state between runs independent to some session manager
 - Add/Enable Help->Index/Contents to view at least the man page
 - Remove the license from about.cpp and read them out of the (installed) file
@@ -22,6 +21,9 @@ TODO
 
 General Jobs
 --------------
+- Save/Restore window position between hide()/show(). It seams to be a kwin
+  issue because pos() is in hide()/show() the same. So I think it is moved
+  afterwards by kwin to the center of the screen
 - Fix the missing highlighting of the signal meter when some selection is made
   on the Scan window
 - Investigate and fix (if needed) handling of SSIDs with includet quotes. The
