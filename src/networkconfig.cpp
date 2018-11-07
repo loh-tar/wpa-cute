@@ -14,6 +14,7 @@
 
 #include "about.h"
 #include "networkconfig.h"
+#include "scanresults.h"
 #include "wpagui.h"
 
 enum {
@@ -70,11 +71,11 @@ void NetworkConfig::languageChange() {
 void NetworkConfig::newNetwork(QTreeWidgetItem* sel) {
 
 	/* SSID BSSID signal frequency flags */
-	setWindowTitle(sel->text(WpaGui::NLColSsid));
-	ssidEdit->setText(sel->text(WpaGui::NLColSsid));
-	bssidEdit->setText(sel->text(WpaGui::NLColBssid));
+	setWindowTitle(sel->text(ScanResults::SRColSsid));
+	ssidEdit->setText(sel->text(ScanResults::SRColSsid));
+	bssidEdit->setText(sel->text(ScanResults::SRColBssid));
 
-	QString flags = sel->text(WpaGui::NLColFlags);
+	QString flags = sel->text(ScanResults::SRColFlags);
 	int auth, encr = 0;
 	if (flags.indexOf("[WPA2-EAP") >= 0)
 		auth = AUTH_WPA2_EAP;
