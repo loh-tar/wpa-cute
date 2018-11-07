@@ -25,6 +25,14 @@ public:
 	 ScanResults(WpaGui* _wpagui);
 	~ScanResults();
 
+	enum ScanResultsColumn {
+		SRColSsid = 0,
+		SRColBssid,
+		SRColSignal,
+		SRColFreq,
+		SRColFlags,
+	};
+
 public slots:
 	        void requestScan();
 	        void updateResults();
@@ -37,13 +45,6 @@ protected slots:
 	        void chooseNetwork();
 
 private:
-	enum ScanResultsColumn {
-		SRColSsid = 0,
-		SRColBssid,
-		SRColSignal,
-		SRColFreq,
-		SRColFlags,
-	};
 
 	           WpaGui* wpagui;
 	              bool wpsIsSupported;
