@@ -17,8 +17,8 @@
 #include <QString>
 
 #define ProjAppName "wpaCute"
-#define ProjVersion "0.8"
-#define ProjRelease "Sep 2018"
+#define ProjVersion "0.8.1"
+#define ProjRelease "Nov 2018"
 
 
 namespace About {
