@@ -89,7 +89,10 @@ break my box.
 
   - Try to follow the existent look of the code, which not mean to be extra
     varied
-  - I have tried to use "indent with tabs align with spaces"
+  - I have tried to use "indent with tabs, align with spaces". There is a
+    .kateconfig file in the source root. Should you use an other editor and that
+    support .editorconfig feel free to add such file and make a PR. These style
+    is not well supported and rarely used but I like to do it here
   - Don't use under_scores, use camelCase
   - Place *& left to the type not right to the variable in declarations
   - Place the open brace { of a function not on an own line but keep a blank
