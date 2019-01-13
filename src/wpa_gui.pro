@@ -2,7 +2,7 @@ TEMPLATE	= app
 TARGET		= wpa-cute
 LANGUAGE	= C++
 TRANSLATIONS	= lang/wpa_gui_de.ts
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += widgets svg
 
 CONFIG	+= qt warn_on debug_and_release
 

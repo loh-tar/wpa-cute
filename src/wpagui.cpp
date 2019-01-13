@@ -2176,18 +2176,11 @@ void WpaGui::updateTrayIcon(const TrayIconType type) {
 
 	static TrayIconType oldIconType(TrayIconNone);
 	QStringList names;
-	QIcon fallback_icon;
-
 
 	if (!trayIcon || type == oldIconType)
 		return;
 
 	oldIconType = type;
-
-	if (QImageReader::supportedImageFormats().contains(QByteArray("svg")))
-		fallback_icon = QIcon(":/icons/wpa_gui.svg");
-	else
-		fallback_icon = QIcon(":/icons/wpa_gui.png");
 
 	switch (type) {
 	case TrayIconNone:
@@ -2239,16 +2232,25 @@ void WpaGui::updateTrayIcon(const TrayIconType type) {
 		break;
 	}
 
-	trayIcon->setIcon(loadThemedIcon(names, fallback_icon));
+	trayIcon->setIcon(loadThemedIcon(names));
 }
 
 
-QIcon WpaGui::loadThemedIcon(const QStringList& names, const QIcon& fallback) {
+QIcon WpaGui::loadThemedIcon(const QStringList& names) {
+
+	static const QIcon fallback = QIcon(":/icons/wpa_gui.png");
+	static QStringList notFoundIcons;
 
 	for (QStringList::ConstIterator it = names.begin(); it != names.end(); it++) {
 		QIcon icon = QIcon::fromTheme(*it);
 		if (!icon.isNull())
 			return icon;
+	}
+
+	if (!notFoundIcons.contains(names.at(0))) {
+		for (QStringList::ConstIterator it = names.begin(); it != names.end(); it++) {
+			logHint(tr("Icon not found: %1").arg(*it));
+		}
 	}
 
 	return fallback;

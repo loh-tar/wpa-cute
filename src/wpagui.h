@@ -173,7 +173,7 @@ public slots:
 	                       , int sec = 5);
 	        void updateTrayIcon(TrayIconType type);
 	        void updateTrayToolTip(const QString& msg);
-	       QIcon loadThemedIcon(const QStringList& names, const QIcon& fallback);
+	       QIcon loadThemedIcon(const QStringList& names);
 
 	        void wpsPbc(const QString& bssid = "");
 	        void wpsApPin(const QString& bssid, const QString& pin);
