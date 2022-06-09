@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
 			// To avoid redundance and list all stuff again here, call our neat man page
 			// But it would be nicer to print some data by an option listed currently
 			// in WpaGui::helpAbout()
-			QProcess::execute("man wpa-cute");
+			QProcess::execute("man", {"wpa-cute"});
 			return 0;
 		}
 		if (arg.startsWith("--l")) {

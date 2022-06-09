@@ -13,7 +13,6 @@
 #define WPAMSG_H
 
 #include <QDateTime>
-#include <QLinkedList>
 
 class WpaMsg {
 public:
@@ -33,6 +32,6 @@ private:
 	QDateTime timestamp;
 };
 
-typedef QLinkedList<WpaMsg> WpaMsgList;
+typedef std::list<WpaMsg> WpaMsgList;
 
 #endif /* WPAMSG_H */

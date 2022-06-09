@@ -153,7 +153,7 @@ void ScanResults::updateResults() {
 				ssid = (*it).mid(pos);
 		}
 
-		ssidTextWidth << scanResultsWidget->fontMetrics().width(ssid);
+		ssidTextWidth << scanResultsWidget->fontMetrics().horizontalAdvance(ssid);
 
 		ScanResultsItem *item = new ScanResultsItem(scanResultsWidget);
 		if (item) {

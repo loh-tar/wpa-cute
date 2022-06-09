@@ -7,6 +7,7 @@ QT += widgets svg
 CONFIG	+= qt warn_on debug_and_release
 
 DEFINES += CONFIG_CTRL_IFACE
+DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x050F00
 QMAKE_CXXFLAGS += -Wformat-truncation=0
 
 win32 {

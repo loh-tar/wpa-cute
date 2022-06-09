@@ -1508,8 +1508,8 @@ void WpaGui::processMsg(char* msg) {
 	if (peersWindow)
 		peersWindow->event_notify(wm);
 
-	msgs.append(wm);
-	while (msgs.count() > 100)
+	msgs.push_back(wm);
+	while (msgs.size() > 100)
 		msgs.pop_front();
 
 	debug("processMsg - %s", msg);
