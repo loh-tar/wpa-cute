@@ -527,8 +527,8 @@ int WpaGui::ctrlRequest(const QString& cmd, char* buf, const size_t buflen) {
 
 	buf[len] = '\0';
 	lastCtrlRequestResult = QString(buf);
-	lastCtrlRequestResult.remove(QRegExp("^\""));
-	lastCtrlRequestResult.remove(QRegExp("\"$"));
+	lastCtrlRequestResult.remove(QRegularExpression("^\""));
+	lastCtrlRequestResult.remove(QRegularExpression("\"$"));
 
 	if (lastCtrlRequestResult.startsWith("FAIL\n")) {
 		lastCtrlRequestResult.clear();
@@ -1080,7 +1080,7 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 	foreach(QString line, QString(buf).split('\n')) {
 
 		QStringList data = line.split('\t');
-		if (!data.at(0).contains(QRegExp("^[0-9]+$")))
+		if (!data.at(0).contains(QRegularExpression("^[0-9]+$")))
 			continue;
 
 		QString cmd("GET_NETWORK %1 %2");
@@ -1794,7 +1794,7 @@ void WpaGui::disableNetwork(const QString& sel) {
 
 void WpaGui::requestNetworkChange(const QString& req, const QString& sel) {
 
-	if (sel != "all" && !QRegExp("^\\d+").exactMatch(sel)) {
+	if (sel != "all" && !QRegularExpression("^\\d+$").match(sel).hasMatch()) {
 		debug("Invalid request target: %s '%s'",
 				req.toLocal8Bit().constData(),
 				sel.toLocal8Bit().constData());
@@ -1891,7 +1891,7 @@ void WpaGui::scan4Networks() {
 
 int WpaGui::getNetworkDisabled(const QString& sel) {
 
-	if (sel != "all" && !QRegExp("^\\d+").exactMatch(sel)) {
+	if (sel != "all" && !QRegularExpression("^\\d+$").match(sel).hasMatch()) {
 		debug("Invalid getNetworkDisabled '%s'", sel.toLocal8Bit().constData());
 		return -1;
 	}

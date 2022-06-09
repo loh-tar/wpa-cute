@@ -216,8 +216,8 @@ void NetworkConfig::applyNetworkChanges() {
 	}
 
 	if (idstrEdit->isEnabled() && !idstrEdit->text().isEmpty()) {
-		QRegExp rx("^(\\w|-)+$");
-		if (rx.indexIn(idstrEdit->text()) < 0) {
+		QRegularExpression rx("^(\\w|-)+$");
+		if (rx.match(idstrEdit->text()).lastCapturedIndex() < 0) {
 			QMessageBox::warning(
 				this, tr("Network ID Error"),
 				tr("Network ID String contains non-word "
@@ -233,7 +233,7 @@ void NetworkConfig::applyNetworkChanges() {
 
 	if (bssidEdit->text().isEmpty()) {
 		bssidEdit->setText("any");
-	} else if (!QRegExp("([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})").exactMatch(bssidEdit->text())) {
+	} else if (!QRegularExpression("([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})").match(bssidEdit->text()).hasMatch()) {
 		// Thanks to https://stackoverflow.com/a/4260512
 		QMessageBox::warning(this, tr("Not a valid BSSID")
 			, tr("The BSSID must consist of 12 hex digits "
@@ -462,7 +462,7 @@ void NetworkConfig::writeWepKey(const QString& id, QLineEdit* edit, int keyId) {
 	if (val.compare(WPA_GUI_KEY_DATA) == 0)
 		return;
 	len = val.size();
-	hex = val.contains(QRegExp("^[0-9A-F]+$"));
+	hex = val.contains(QRegularExpression("^[0-9A-F]+$"));
 
 	if (hex && len != 10 && len != 26 && len != 32)
 		hex = false;

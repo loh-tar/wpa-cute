@@ -134,7 +134,7 @@ void ScanResults::updateResults() {
 
 		QString ssid, bssid, freq, signal, flags, customFlags;
 
-		QStringList lines = bss.split(QRegExp("\\n"));
+		QStringList lines = bss.split(QLatin1Char('\n'));
 		for (QStringList::Iterator it = lines.begin();
 		     it != lines.end(); it++) {
 			int pos = (*it).indexOf('=') + 1;
@@ -221,7 +221,7 @@ void ScanResults::updateResults() {
 	if (!ssidTextWidth.size())
 		ssidTextWidth << h->defaultSectionSize();
 	else
-		idx = std::max(0, (85 * ssidTextWidth.size() / 100) -1 );
+		idx = std::max(0, static_cast<int>(85 * ssidTextWidth.size() / 100) -1 );
 
 	h->resizeSection(0, ssidTextWidth.at(idx));        // SSID
 

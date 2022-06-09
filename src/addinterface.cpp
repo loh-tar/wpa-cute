@@ -79,7 +79,7 @@ void AddInterface::addInterfaces() {
 	wpa_ctrl_close(ctrl);
 
 	QString ifaces(buf);
-	QStringList lines = ifaces.split(QRegExp("\\n"));
+	QStringList lines = ifaces.split(QLatin1Char('\n'));
 	for (QStringList::Iterator it = lines.begin();
 	     it != lines.end(); it++) {
 		QStringList arg = (*it).split(QChar('\t'));

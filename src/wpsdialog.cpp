@@ -81,7 +81,7 @@ void WpsDialog::activePbcAvailable(const QString& _ssid/* = ""*/, const QString&
 
 		QString flags;
 
-		QStringList lines = bss.split(QRegExp("\\n"));
+		QStringList lines = bss.split(QLatin1Char('\n'));
 		for (QStringList::Iterator it = lines.begin();
 		     it != lines.end(); it++) {
 			int pos = (*it).indexOf('=') + 1;
