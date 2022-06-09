@@ -199,8 +199,7 @@ WpaGui::WpaGui(WpaGuiApp *app
 	connect(helpAboutQtAction, &QAction::triggered
 	      , qApp, &QApplication::aboutQt);
 
-	connect(adapterSelect, SIGNAL(activated(const QString&))
-	      , this, SLOT(selectAdapter(const QString&)));
+	connect(adapterSelect, &QComboBox::currentTextChanged, this, &WpaGui::selectAdapter);
 	connect(networkList, SIGNAL(itemSelectionChanged())
 	      , this, SLOT(networkSelectionChanged()));
 	connect(networkList, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int))
@@ -2003,7 +2002,7 @@ void WpaGui::configIsChanged(bool changed/* = true*/) {
 
 void WpaGui::selectAdapter(const QString& sel) {
 
-	if (sel == ctrlInterface)
+	if (sel == ctrlInterface || sel.isEmpty() || sel == tr("Not specified"))
 		return;
 
 	logHint(tr("User requests adapter change to %1").arg(sel));
