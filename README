@@ -120,7 +120,7 @@ wpaCute a is licensed under the BSD license (the one with advertisement clause
 removed). See COPYING for the full license.
 
 wpaCute - A graphical wpa_supplicant front end
-Copyright (C) 2018 loh.tar@googlemail.com
+Copyright (C) 2018, 2022 loh.tar@googlemail.com
 
 Because wpaCute is a fork from wpa_gui there are rights of previous
 developers which are highly honored.

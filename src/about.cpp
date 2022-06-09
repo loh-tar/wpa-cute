@@ -1,6 +1,6 @@
 /*
  * wpaCute - A graphical wpa_supplicant front end
- * Copyright (C) 2018 loh.tar@googlemail.com
+ * Copyright (C) 2018, 2022 loh.tar@googlemail.com
  *
  * wpaCute - About data
  *
@@ -24,7 +24,7 @@ QString About::slogan() {
 QString About::copyright() {
 
 	static const char* str = "%1\n"
-	            "Copyright (C) 2018 loh.tar@googlemail.com"
+	            "Copyright (C) 2018, 2022 loh.tar@googlemail.com"
 	            "\n\n"
 	            ProjAppName QT_TR_NOOP(" is a fork from wpa_gui shipped with \n"
 	            "wpa_supplicant version 2.6")
