@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
 	locale = QLocale::system().name();
 	resourceDir = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
 	if (!translator.load("wpa_gui_" + locale, resourceDir))
-		translator.load("wpa_gui_" + locale, "lang");
+		std::ignore = translator.load("wpa_gui_" + locale, "lang");
 	app.installTranslator(&translator);
 
 	WpaGui w(&app);
