@@ -8,7 +8,7 @@
  * See COPYING for more details.
  */
 
-// The naming of this file "about.h" may a litte confusing,
+// The naming of this file "about.h" may a little confusing,
 // it is NOT related to ui_about.h
 
 #ifndef ABOUT_H
@@ -17,8 +17,8 @@
 #include <QString>
 
 #define ProjAppName "wpaCute"
-#define ProjVersion "0.8.1"
-#define ProjRelease "Nov 2018"
+#define ProjVersion "0.8.2"
+#define ProjRelease "Jun 2022"
 
 
 namespace About {
