@@ -6,7 +6,7 @@ has a couple of issues I have fixed in this new derivative. I did not have tried
 to send my patches upstream because of their terms and my paranoia.
 
 I started using wpa_gui when I was looking for a tray icon for my systemd-only
-network setup on my new laptop and realised as soon that there was not all
+network setup on my new laptop and realized as soon that there was not all
 roses. Beginning from wrong/missing icons to the actual wlan status, over
 baffling buttons, windows and menus up to a smashed, no longer working
 configuration after an save event, with obviously no changes mind you!
@@ -27,10 +27,10 @@ No tests of P2P and never mind some expert needs.
 I use only Arch Linux but tried my best not to broke the code for other systems.
 
 
-Last version is 0.8.1, Nov 2018
+Last version is 0.8.2, Jun 2022
 ---------------------------------
 
-  - Fix: Fill the NetworkConfig dialog with correct data from scan results
+  - Compile with Qt6 too
 
 Older release notes can you find below.
 
@@ -55,8 +55,10 @@ From Source
 -------------
 
   $ cd src
-  $ qmake-qt5
-  $ make        # To enable debug messages run: make -f Makefile.Debug
+  $ qmake       # Or qmake-qt5 or qmake6 to force some Qt version other than
+                # your system default
+  $ make        # To enable debug messages run: make -f Makefile.Debug. When you
+                # switch between Qt5/6 for testing, add -B to force remake all
 
 Because there is no make install target yet, run on Unices
 
@@ -131,6 +133,12 @@ Copyright (C) 2005-2015 Jouni Malinen <j@w1.fi> and contributors
 
 Release History
 =================
+
+0.8.1, Nov 2018
+-----------------
+
+  - Fix: Fill the NetworkConfig dialog with correct data from scan results
+
 
 0.8, Sep 2018
 ---------------
