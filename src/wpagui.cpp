@@ -110,11 +110,12 @@ WpaGui::WpaGui(WpaGuiApp *app
 	disableNotifierAction->setChecked(true);
 #endif
 
-	// Clear these in QtDesigner was not possible, but is needed to avoid the
-	// ugly display of the action name, now is shown the action text.
-	// Disable completely, is not a simple task, what a cheese!
-	disconReconAction->setToolTip("");
-	networkDisEnableAction->setToolTip("");
+	// Disable annoying tool-tips is cumbersome
+	// Thanks to https://stackoverflow.com/a/27244907
+	for (QToolButton* button : this->findChildren<QToolButton*>())
+    {
+        button->installEventFilter(this);
+    }
 
 	networkList->setColumnHidden(NLColId, true);
 
@@ -259,6 +260,15 @@ WpaGui::~WpaGui() {
 	}
 }
 
+bool WpaGui::eventFilter(QObject* o, QEvent* e) {
+	// Disable annoying tool-tips is cumbersome
+	// Thanks to https://stackoverflow.com/a/27244907
+	if (e->type() == QEvent::ToolTip)
+	{
+		return true;
+	}
+	return QMainWindow::eventFilter(o, e);
+}
 
 void WpaGui::languageChange() {
 

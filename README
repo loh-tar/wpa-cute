@@ -32,6 +32,7 @@ Last version is 0.8.2, Jun 2022
 
   - Changed echo mode of password fields. Now the password is shown during
     editing
+  - Annoying tool-tips of buttons on main window are now suppressed
   - Compile with Qt6 too
 
 Older release notes can you find below.

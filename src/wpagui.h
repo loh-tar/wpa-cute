@@ -110,6 +110,8 @@ public:
 
 	~WpaGui();
 
+	        bool eventFilter(QObject* o, QEvent* e);
+
 	         int ctrlRequest(const QString& cmd, char* buf, const size_t buflen);
 	         int ctrlRequest(const QString& cmd);
 	     QString getLastCtrlRequestResult();
