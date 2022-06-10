@@ -311,7 +311,7 @@
              <string/>
             </property>
             <property name="echoMode">
-             <enum>QLineEdit::Password</enum>
+             <enum>QLineEdit::PasswordEchoOnEdit</enum>
             </property>
            </widget>
           </item>
@@ -371,7 +371,7 @@
              <string>Password for EAP methods</string>
             </property>
             <property name="echoMode">
-             <enum>QLineEdit::Password</enum>
+             <enum>QLineEdit::PasswordEchoOnEdit</enum>
             </property>
            </widget>
           </item>

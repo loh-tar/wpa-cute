@@ -30,6 +30,8 @@ I use only Arch Linux but tried my best not to broke the code for other systems.
 Last version is 0.8.2, Jun 2022
 ---------------------------------
 
+  - Changed echo mode of password fields. Now the password is shown during
+    editing
   - Compile with Qt6 too
 
 Older release notes can you find below.
