@@ -34,6 +34,7 @@ Last version is 0.8.2, Jun 2022
     editing
   - Don't crop the network list on start up (ensure the window is wide enough)
   - Annoying tool-tips of buttons on main window are now suppressed
+  - Improve/Fix status tip about unsaved messages
   - Compile with Qt6 too
 
 Older release notes can you find below.

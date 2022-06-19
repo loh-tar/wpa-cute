@@ -25,6 +25,7 @@
 #include <QMessageBox>
 #include <QScrollBar>
 #include <QSettings>
+#include <QStatusBar>
 
 #include "common/wpa_ctrl.h"
 
@@ -2006,12 +2007,15 @@ void WpaGui::configIsChanged(bool changed/* = true*/) {
 
 		updateNetworks();
 		// reloadSaveBox->show();
-		networksTab->setStatusTip(tr("Changes are not yet saved"));
-		wpaguiTab->setTabIcon(wpaguiTab->indexOf(networksTab)
-							, QIcon::fromTheme("emblem-warning"));
-	} else {
+		networkList->setStatusTip(tr("Changes are not yet saved. Save %1, Undo/Reload %2")
+		                            .arg(saveConfigAction->shortcut().toString())
+		                            .arg(reloadConfigAction->shortcut().toString()));
+		wpaguiTab->setTabIcon(wpaguiTab->indexOf(networksTab), QIcon::fromTheme("emblem-warning"));
+	}
+	else {
 		// reloadSaveBox->hide();
-		networksTab->setStatusTip("");
+		networkList->setStatusTip("");
+		statusBar()->clearMessage(); // Ensure some "not yet saved" is gone
 		wpaguiTab->setTabIcon(wpaguiTab->indexOf(networksTab), QIcon());
 	}
 }
