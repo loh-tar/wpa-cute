@@ -238,7 +238,14 @@ WpaGui::WpaGui(WpaGuiApp *app
 
 	letTheDogOut();
 	setState(WpaUnknown);
+	// Initial fetch and fill/setup our network list
 	ping();
+
+	// Now ensure the window don't crop its content
+	// FIXME These magic number 22. The only idea I have is, that the ui file is not properly constructed
+	// so that somehow not the correct size is reported. The Qt docu says layouts do that, or not
+	// A number of 12 do it here as long as the list is short, when there is a vertical scroll bar we need 22
+	resize(QSize(sizeHint().width() + 22, sizeHint().height()));
 }
 
 
