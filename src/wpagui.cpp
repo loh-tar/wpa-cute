@@ -1619,8 +1619,9 @@ void WpaGui::processMsg(char* msg) {
 // 		if (WpaInactive == wpaState || WpaDisconnected == wpaState)
 // 			wpaguiTab->setCurrentWidget(eventTab);
 	} else if (str_match(pos, WPS_EVENT_AP_AVAILABLE_AUTH)) {
-		trayMessage(tr("Wi-Fi Protected Setup (WPS) AP\n"
-		               "indicating this client is authorized"), LogThis);
+		if (WpaWpsRunning == wpaState)
+			trayMessage(tr("Wi-Fi Protected Setup (WPS) AP\n"
+						"indicating this client is authorized"), LogThis);
 // 		if (WpaInactive == wpaState || WpaDisconnected == wpaState)
 // 			wpaguiTab->setCurrentWidget(eventTab);
 	} else if (str_match(pos, WPS_EVENT_AP_AVAILABLE)) {
