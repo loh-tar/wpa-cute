@@ -3,7 +3,7 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "WPA-CUTE" "8" "13 Juli 2018" "" ""
+.TH "WPA-CUTE" "8" "19 July 2022" "" ""
 
 .SH NAME
 wpaCute \- A graphical wpa_supplicant front end
@@ -79,7 +79,7 @@ wpa_supplicant could silently die without some sigh. So, we are doomed to poll!
 The polling is now not done in a fixed interval but depends on
 current status and reach from high frequent polling in 1sec, when
 probably changes are on the way, down to 20sec in some static status where
-primally is checked if someone is still alive.
+primarily is checked if someone is still alive.
 .PP
 With the main window visible is polled in 5sec.
 Only in case of an fatal error is polling halted, which e.g. occurs when the user
@@ -87,7 +87,7 @@ not belongs to the configured 'ctrl_interface_group=foo'.
 .SS "EDIT NETWORK"
 .PP
 The window morphs its look to show always only what is needed, or can be
-used, to some selections you made. If you encounter some misbehaviour please
+used, to some selections you made. If you encounter some misbehavior please
 report.
 .PP
 Entered secrets will not shown again when you edit a network. Only a
@@ -101,15 +101,15 @@ as the wpa_supplicant is not terminated or triggered to reload its
 configuration. You have to save the changes explicit. This is different from
 the original wpa_gui.
 .PP
-Right now is the behaviour, which data are changed (send to
-wpa_supplicant) not coherend. It depends sometimes if they are visible when
-you "Apply" or not. Your removed data are not everytime forced to remove by
-wpa_supplicant. It's a little messi, sorry. Needs love and reports.
+Right now is the behavior, which data are changed (send to
+wpa_supplicant) not coherent. It depends sometimes if they are visible when
+you "Apply" or not. Your removed data are not every time forced to remove by
+wpa_supplicant. It's a little messy, sorry. Needs love and reports.
 .PP
 Right now will no data explicit removed when they are not visible. The
 wpa_supplicant documentation describes that you can have a pretty mix of
 possible settings which are all tested when wpa_supplicant tries to connect
-to some accesspoint. I'm not sure if this is really a smart decison.
+to some access point. I'm not sure if this is really a smart decision.
 .PP
 Long story, short sense: Don't expect to have a "clean" configured
 network block in your config file after you have clicked around to find a
