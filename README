@@ -27,15 +27,12 @@ No tests of P2P and never mind some expert needs.
 I use only Arch Linux but tried my best not to broke the code for other systems.
 
 
-Last version is 0.8.2, Jun 2022
+Last version is 0.8.3, Jul 2022
 ---------------------------------
 
-  - Changed echo mode of password fields. Now the password is shown during
-    editing
-  - Don't crop the network list on start up (ensure the window is wide enough)
-  - Annoying tool-tips of buttons on main window are now suppressed
-  - Improve/Fix status tip about unsaved messages
-  - Compile with Qt6 too
+  - Only show annoying "..indicating..authorized" message when a WPS run was
+    issued by user
+  - Fix typos in man page
 
 Older release notes can you find below.
 
@@ -138,6 +135,17 @@ Copyright (C) 2005-2015 Jouni Malinen <j@w1.fi> and contributors
 
 Release History
 =================
+
+0.8.2, Jun 2022
+-----------------
+
+  - Changed echo mode of password fields. Now the password is shown during
+    editing
+  - Don't crop the network list on start up (ensure the window is wide enough)
+  - Annoying tool-tips of buttons on main window are now suppressed
+  - Improve/Fix status tip about unsaved messages
+  - Compile with Qt6 too
+
 
 0.8.1, Nov 2018
 -----------------
