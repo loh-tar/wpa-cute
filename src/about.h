@@ -24,7 +24,6 @@
 namespace About {
 	QString slogan();
 	QString copyright();
-// 	    QString text(const QString& see);
 	QString text(const QString& see);
 	QString license();
 }
