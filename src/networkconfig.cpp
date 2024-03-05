@@ -26,6 +26,7 @@ enum {
 	AUTH_WPA_EAP,
 	AUTH_WPA2_PSK,
 	AUTH_WPA2_EAP,
+	AUTH_WPA2_SAE,
 	AUTH_DEFAULTS
 };
 
@@ -81,6 +82,13 @@ void NetworkConfig::newNetwork(QTreeWidgetItem* sel) {
 		auth = AUTH_WPA2_EAP;
 	else if (flags.indexOf("[WPA-EAP") >= 0)
 		auth = AUTH_WPA_EAP;
+	else if (flags.indexOf("[WPA2-SAE") >= 0)
+		auth = AUTH_WPA2_SAE;
+	else if (flags.indexOf("[WPA2-PSK+SAE") >= 0)
+		// FIXME ATM I like to keep it simple, not sure what we need all to do to offer
+		// the option to use the insecure possibility the AP advertise
+		// ==> just handle like WPA2-SAE only mode
+		auth = AUTH_WPA2_SAE;
 	else if (flags.indexOf("[WPA2-PSK") >= 0)
 		auth = AUTH_WPA2_PSK;
 	else if (flags.indexOf("[WPA-PSK") >= 0)
@@ -112,6 +120,7 @@ void NetworkConfig::authChanged(int sel) {
 			       sel != AUTH_NONE_WEP_SHARED && sel != AUTH_IEEE8021X);
 	pskBox->setVisible(sel == AUTH_WPA_PSK || sel == AUTH_WPA2_PSK ||
 		sel == AUTH_DEFAULTS);
+	saeBox->setVisible(sel == AUTH_WPA2_SAE);
 	bool eap = sel == AUTH_IEEE8021X || sel == AUTH_WPA_EAP ||
 		sel == AUTH_WPA2_EAP;
 	eapBox->setVisible(eap);
@@ -288,6 +297,11 @@ void NetworkConfig::applyNetworkChanges() {
 		key_mgmt = "WPA-EAP";
 		proto = "WPA2";
 		break;
+	case AUTH_WPA2_SAE:
+		key_mgmt = "SAE";
+		proto = "RSN";
+		break;
+
 	}
 
 	if (auth == AUTH_NONE_WEP_SHARED)
@@ -296,7 +310,8 @@ void NetworkConfig::applyNetworkChanges() {
 		setNetworkParam(id, "auth_alg", "OPEN");
 
 	if (auth == AUTH_WPA_PSK || auth == AUTH_WPA_EAP ||
-	    auth == AUTH_WPA2_PSK || auth == AUTH_WPA2_EAP) {
+	    auth == AUTH_WPA2_PSK || auth == AUTH_WPA2_EAP ||
+		auth == AUTH_WPA2_SAE) {
 		int encr = encrSelect->currentIndex();
 		if (encr == 0)
 			pairwise = "TKIP";
@@ -316,6 +331,12 @@ void NetworkConfig::applyNetworkChanges() {
 	    strcmp(pskEdit->text().toLocal8Bit().constData(),
 		   WPA_GUI_KEY_DATA) != 0)
 		setNetworkParam(id, "psk", pskEdit->text(), psklen != 64);
+	if (saeBox->isVisible() &&
+	    strcmp(saeEdit->text().toLocal8Bit().constData(),
+		   WPA_GUI_KEY_DATA) != 0) {
+		setNetworkParam(id, "sae_password", saeEdit->text(), InQuotes);
+		setNetworkParam(id, "ieee80211w", "2");
+		}
 
 	if (eapSelect->isEnabled()) {
 		QString eap = eapSelect->currentText();
@@ -528,6 +549,10 @@ void NetworkConfig::editNetwork(const QString& id, const QString& bssid/* = ""*/
 			auth = wpa & 2 ? AUTH_WPA2_EAP : AUTH_WPA_EAP;
 		else if (strstr(buf, "WPA-PSK"))
 			auth = wpa & 2 ? AUTH_WPA2_PSK : AUTH_WPA_PSK;
+		else if (strstr(buf, "SAE")) {
+			auth = AUTH_WPA2_SAE;
+			encr = 1;
+		}
 		else if (strstr(buf, "IEEE8021X")) {
 			auth = AUTH_IEEE8021X;
 			encr = 1;
@@ -557,6 +582,16 @@ void NetworkConfig::editNetwork(const QString& id, const QString& bssid/* = ""*/
 		pskEdit->setText(buf + 1);
 	} else if (res >= 0) {
 		pskEdit->setText(WPA_GUI_KEY_DATA);
+	}
+
+	res = wpagui->ctrlRequest(cmd.arg("sae_password"), buf, len);
+	if (res >= 0 && buf[0] == '"') {
+		pos = strchr(buf + 1, '"');
+		if (pos)
+			*pos = '\0';
+		saeEdit->setText(buf + 1);
+	} else if (res >= 0) {
+		saeEdit->setText(WPA_GUI_KEY_DATA);
 	}
 
 	if (wpagui->ctrlRequest(cmd.arg("identity"), buf, len) >= 0
