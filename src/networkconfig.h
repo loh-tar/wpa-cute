@@ -34,7 +34,6 @@ protected slots:
 
 	        void authChanged(int sel);
 	        void applyNetworkChanges();
-	        void encrChanged(const QString& sel);
 	        void writeWepKey(const QString& id, QLineEdit* edit, int keyId);
 	        void removeNetwork();
 	        void eapChanged(int sel);

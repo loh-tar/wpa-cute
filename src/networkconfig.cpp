@@ -49,8 +49,6 @@ NetworkConfig::NetworkConfig(WpaGui* parent)
 	      , this, SLOT(close()));
 	connect(addButton, SIGNAL(clicked())
 	      , this, SLOT(applyNetworkChanges()));
-	connect(encrSelect, SIGNAL(activated(const QString &))
-	      , this, SLOT(encrChanged(const QString &)));
 	connect(removeButton, SIGNAL(clicked())
 	     , this, SLOT(removeNetwork()));
 	connect(eapSelect, SIGNAL(activated(int))
@@ -449,11 +447,6 @@ int NetworkConfig::setNetworkParam(const QString& id, const QString& parm,
 		cmd = "SET_NETWORK %1 %2 %3";
 
 	return wpagui->ctrlRequest(cmd.arg(id).arg(parm).arg(val));
-}
-
-
-void NetworkConfig::encrChanged(const QString &) {
-
 }
 
 
