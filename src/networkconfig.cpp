@@ -55,6 +55,12 @@ NetworkConfig::NetworkConfig(WpaGui* parent)
 	     , this, SLOT(removeNetwork()));
 	connect(eapSelect, SIGNAL(activated(int))
 	      , this, SLOT(eapChanged(int)));
+
+	QTimer::singleShot(100, [this]() {
+		resize(sizeHint());
+		adjustSize();
+	});
+
 }
 
 
