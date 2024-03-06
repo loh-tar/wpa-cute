@@ -10,11 +10,11 @@ TODO
 - Save/Restore program state between runs independent to some session manager
 - Add/Enable Help->Index/Contents to view at least the man page
 - Remove the license from about.cpp and read them out of the (installed) file
-- Add a window/tab to set/change all kind of wpa_supplicant varaiables that can
+- Add a window/tab to set/change all kind of wpa_supplicant variables that can
   be configured in the .config file. A list is fetch able with
     ctrlRequest"DUMP", buf, len) when len is long enough.
 - Fill Optional Settings tab in Edit Network window. Sadly no command to get a
-  list of available varaiables. Help says: Please see wpa_supplicant.conf
+  list of available variables. Help says: Please see wpa_supplicant.conf
   documentation for full list of available variables.
 - Do some checks with tools like valgrind if there are ugly mistakes
 
@@ -49,13 +49,13 @@ General Jobs
 - Regarding -W: Tthe supplicant delivers in the WRONG_KEY message infos about
   the next try and how often was tried, e.g. "auth_failures=8" "duration=90",
   perhapse -W could take an optional parm try-max and the duration could used to
-  hint the user when is next tried to connect. Futhermore could -W only disable
+  hint the user when is next tried to connect. Furthermore could -W only disable
   a network with set bssid, but not with 'any'
 - Enhance the man page with more info, but don't explain each button
 - An own application icon would be nice
 - Icons for missing or not good looking wpa states, on breeze theme:
   - is the question mark too small when scanning
-  - there is no differend icon for inactive and disconnected.
+  - there is no different icon for inactive and disconnected.
   - Not running supplicant is on breeze now some undefined "error" which looks
     not so bad but it could be nicer/meaning fuller
 
@@ -63,17 +63,17 @@ General Jobs
 Uncertainly
 -------------
 - What the big deal of update_config=0? It is surprisingly possible to overwrite
-  the configuraten when you unset this setting. But you can't save
+  the configuration when you unset this setting. But you can't save
   'update_config=0' to the config file. Currently is 'update_config=0' respected
   but make this sense?
 - Offer enable/disable the adapter by rfkill? But rfkill seams to be Linux
-  speciffic, so there has to be a couple of tests/alternatives
+  specific, so there has to be a couple of tests/alternatives
 - The docu notice these wired Ethernet driver. Is it possible to manage a normal
   Ethernet adapter so wpaCute could be transformed into something like
   NetworkManager?
 - How about to make a backup (and restore) of the config file at some place?
 - Think about the difference between Peers and Scan. Are both needed? Yes they
-  offer differend things but that could be changed
+  offer different things but that could be changed
 - Investigate the use of blacklist command, also regarding -W switch. I played
   around but couldn't notice some useful effect
 - See wpa_cli help wps_er_ / wps_nfc, important?
@@ -100,10 +100,10 @@ break my box.
   - Old code forces a line length of 80 char, but I'm not a fan of that, so feel
     free but do not overdo it. 100 is fine, 110 may, at 120 I say ouch!
   - Try to use only Qt stuff in new code and avoid the standard library
-  - Don't spick the code with your copyright hints as long as you not introduce
-    some new class. If so, add my hint at the top like in peers.h. We can change
-    the about window and add there a contributer tab with your name and done
-    work if you like
+  - Don't clutter the code with your copyright hints as long as you not
+    introduce some new class. If so, add my hint at the top like in peers.h. We
+    can change the about window and add there a contributor tab with your name
+    and done work if you like
   - Hint: To build the various doc files out of the wpa-cute.sgml file I needed
     on my Arch the packages perl-sgmls, docbook-sgml and docbook-utils
 
