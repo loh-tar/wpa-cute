@@ -322,9 +322,7 @@ void NetworkConfig::applyNetworkChanges() {
 	else
 		setNetworkParam(id, "auth_alg", "OPEN");
 
-	if (auth == AUTH_WPA_PSK || auth == AUTH_WPA_EAP ||
-	    auth == AUTH_WPA2_PSK || auth == AUTH_WPA2_EAP ||
-		auth == AUTH_WPA2_SAE) {
+	if (encrBox->isVisible()) {
 		int encr = encrSelect->currentIndex();
 		if (encr == 0)
 			pairwise = "TKIP";
