@@ -43,9 +43,16 @@ Features
   - Small memory foot print, download ~300k, install ~800k, running ~10M
 
 
+Requirements
+==============
+  - Qt-Version >= 5.15
+
+
 Installation
 ==============
-Required is now at least Qt 5.3 due to use of QSignalBlocker.
+Packages
+----------
+Arch Linux has an AUR, search for wpa-cute.
 
 
 From Source
@@ -67,11 +74,6 @@ Additional is the man page available as HTML and PDF but not yet referenced
 by wpaCute itself.
 
 Non Unices user has do something similar.
-
-
-Packages
-----------
-Arch Linux has an AUR, search for wpa-cute.
 
 
 Post Install Steps
