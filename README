@@ -1,6 +1,5 @@
-wpaCute
-=========
-
+wpaCute - A graphical wpa_supplicant front end
+================================================
 This is a fork from wpa_gui, shipped with wpa_supplicant version 2.6, which
 has a couple of issues I have fixed in this new derivative. I did not have tried
 to send my patches upstream because of their terms and my paranoia.
@@ -29,7 +28,6 @@ I use only Arch Linux but tried my best not to broke the code for other systems.
 
 Last version is 0.8.3, Jul 2022
 ---------------------------------
-
   - Only show annoying "..indicating..authorized" message when a WPS run was
     issued by user
   - Fix typos in man page
@@ -39,23 +37,19 @@ Older release notes can you find below.
 
 Features
 ==========
-
   - Change, add or remove network profiles
   - Scan for networks and connect to them by WPS
   - Run in background to show WLAN status icon in system tray
   - Small memory foot print, download ~300k, install ~800k, running ~10M
 
 
-
 Installation
 ==============
-
 Required is now at least Qt 5.3 due to use of QSignalBlocker.
 
 
 From Source
 -------------
-
   $ cd src
   $ qmake       # Or qmake-qt5 or qmake6 to force some Qt version other than
                 # your system default
@@ -77,13 +71,11 @@ Non Unices user has do something similar.
 
 Packages
 ----------
-
 Arch Linux has an AUR, search for wpa-cute.
 
 
 Post Install Steps
 ====================
-
 wpaCute itself need no more configuration steps but you should ensure that your
 network interfaces will set up properly and that wpa_supplicant is configured
 and running. Consult the man pages of wpa_supplicant and/or your distribution
@@ -112,7 +104,6 @@ Just as example, here a setup that was enough on my Arch:
 
 Contributing
 ==============
-
 If you intend to submit improvements to the project, please see CONTRIBUTIONS
 file for more information. There is also some TODO list.
 
@@ -120,25 +111,23 @@ file for more information. There is also some TODO list.
 License
 =========
 
-wpaCute a is licensed under the BSD license (the one with advertisement clause
-removed). See COPYING for the full license.
+  wpaCute a is licensed under the BSD license (the one with advertisement clause
+  removed). See COPYING for the full license.
 
-wpaCute - A graphical wpa_supplicant front end
-Copyright (C) 2018, 2022, 2024 loh.tar@googlemail.com
+  wpaCute - A graphical wpa_supplicant front end
+  Copyright (C) 2018, 2022, 2024 loh.tar@googlemail.com
 
-Because wpaCute is a fork from wpa_gui there are rights of previous
-developers which are highly honored.
+  Because wpaCute is a fork from wpa_gui there are rights of previous
+  developers which are highly honored.
 
-wpa_gui for wpa_supplicant
-Copyright (C) 2005-2015 Jouni Malinen <j@w1.fi> and contributors
+  wpa_gui for wpa_supplicant
+  Copyright (C) 2005-2015 Jouni Malinen <j@w1.fi> and contributors
 
 
 Release History
 =================
-
 0.8.2, Jun 2022
 -----------------
-
   - Changed echo mode of password fields. Now the password is shown during
     editing
   - Don't crop the network list on start up (ensure the window is wide enough)
@@ -149,13 +138,11 @@ Release History
 
 0.8.1, Nov 2018
 -----------------
-
   - Fix: Fill the NetworkConfig dialog with correct data from scan results
 
 
 0.8, Sep 2018
 ---------------
-
   - Fix wrong ordering by ID in Networks list
   - Add id_str to Flags in Networks list
   - Add Prio to Networks list
