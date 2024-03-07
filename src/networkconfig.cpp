@@ -336,7 +336,6 @@ void NetworkConfig::applyNetworkChanges() {
 		setNetworkParam(id, "key_mgmt", key_mgmt);
 	if (pairwise) {
 		setNetworkParam(id, "pairwise", pairwise);
-		setNetworkParam(id, "group", "TKIP CCMP WEP104 WEP40");
 	}
 	if (pskBox->isVisible() &&
 	    strcmp(pskEdit->text().toLocal8Bit().constData(),
