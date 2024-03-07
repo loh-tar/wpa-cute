@@ -26,6 +26,7 @@ enum {
 	AUTH_WPA_EAP,
 	AUTH_WPA2_PSK,
 	AUTH_WPA2_EAP,
+	AUTH_WPA2_OWE,
 	AUTH_WPA2_SAE,
 	AUTH_DEFAULTS
 };
@@ -86,6 +87,8 @@ void NetworkConfig::newNetwork(QTreeWidgetItem* sel) {
 		auth = AUTH_WPA2_EAP;
 	else if (flags.indexOf("[WPA-EAP") >= 0)
 		auth = AUTH_WPA_EAP;
+	else if (flags.indexOf("[WPA2-OWE") >= 0)
+		auth = AUTH_WPA2_OWE;
 	else if (flags.indexOf("[WPA2-SAE") >= 0)
 		auth = AUTH_WPA2_SAE;
 	else if (flags.indexOf("[WPA2-PSK+SAE") >= 0)
@@ -121,7 +124,7 @@ void NetworkConfig::newNetwork(QTreeWidgetItem* sel) {
 void NetworkConfig::authChanged(int sel) {
 
 	encrBox->setVisible(sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP &&
-			       sel != AUTH_NONE_WEP_SHARED && sel != AUTH_IEEE8021X);
+			       sel != AUTH_NONE_WEP_SHARED && sel != AUTH_IEEE8021X && sel != AUTH_WPA2_OWE);
 	pskBox->setVisible(sel == AUTH_WPA_PSK || sel == AUTH_WPA2_PSK ||
 		sel == AUTH_DEFAULTS);
 	saeBox->setVisible(sel == AUTH_WPA2_SAE);
@@ -300,6 +303,12 @@ void NetworkConfig::applyNetworkChanges() {
 	case AUTH_WPA2_EAP:
 		key_mgmt = "WPA-EAP";
 		proto = "WPA2";
+		break;
+	case AUTH_WPA2_OWE:
+		key_mgmt = "OWE";
+		proto = "RSN";
+		pairwise = "CCMP";
+		setNetworkParam(id, "ieee80211w", "2");
 		break;
 	case AUTH_WPA2_SAE:
 		key_mgmt = "SAE";
@@ -548,6 +557,8 @@ void NetworkConfig::editNetwork(const QString& id, const QString& bssid/* = ""*/
 			auth = wpa & 2 ? AUTH_WPA2_EAP : AUTH_WPA_EAP;
 		else if (strstr(buf, "WPA-PSK"))
 			auth = wpa & 2 ? AUTH_WPA2_PSK : AUTH_WPA_PSK;
+		else if (strstr(buf, "OWE"))
+			auth = AUTH_WPA2_OWE;
 		else if (strstr(buf, "SAE")) {
 			auth = AUTH_WPA2_SAE;
 			encr = 1;

@@ -210,6 +210,11 @@
          </item>
          <item>
           <property name="text">
+           <string>WPA3-Opportunistic Wireless Encryption (OWE)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
            <string>WPA3-Personal (SAE)</string>
           </property>
          </item>
