@@ -26,20 +26,21 @@ No tests of P2P and never mind some expert needs.
 I use only Arch Linux but tried my best not to broke the code for other systems.
 
 
-Last version is 0.8.3, Jul 2022
+Last version is 0.8.4, Mar 2024
 ---------------------------------
-  - Only show annoying "..indicating..authorized" message when a WPS run was
-    issued by user
-  - Fix typos in man page
+  - Add support for WPA3 Personal and Opportunistic Wireless Encryption
+  - Fix bad window size when add new network from scan results
+  - Some minor changes
 
-Older release notes can you find below.
+Older release notes can you find below. For details see the commit log.
 
 
 Features
 ==========
+  - Runs in the background to display the Wi-Fi status icon in the system tray
+  - Scan for networks and connect to them via WPS or enter the data manually
   - Change, add or remove network profiles
-  - Scan for networks and connect to them by WPS
-  - Run in background to show WLAN status icon in system tray
+  - Support for many station modes, from outdated insecure up to WPA3
   - Small memory foot print, download ~300k, install ~800k, running ~10M
 
 
@@ -128,6 +129,12 @@ License
 
 Release History
 =================
+0.8.3, Jul 2022
+-----------------
+  - Only show annoying "..indicating..authorized" message when a WPS run was
+    issued by user
+  - Fix typos in man page
+
 0.8.2, Jun 2022
 -----------------
   - Changed echo mode of password fields. Now the password is shown during
