@@ -153,6 +153,11 @@
   network block in your config file after you have clicked around to find a
   working setup.
   </para>
+  <para>If the edit window does not offer some required settings option you need,
+   you can also edit the configuration file by hand or using wpa_cli. You can
+   then use wpaCute to select the network on or off as usual. Do not hesitate to
+   fill out a bug report on the project page or directly by mail to the author.
+  </para>
   </refsect2>
 
   <refsect2><title>Peers</title>
