@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>579</width>
-    <height>1107</height>
+    <width>570</width>
+    <height>1157</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,26 +26,6 @@
    <string>NetworkConfig</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="ssidLabel">
-     <property name="toolTip">
-      <string>Network name  (mandatory) [ssid=]</string>
-     </property>
-     <property name="text">
-      <string>SSID</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="ssidEdit">
-     <property name="toolTip">
-      <string>Network name (Service Set IDentifier)</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <property name="spacing">
@@ -57,7 +37,10 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="toolTip">
-        <string>Connect only to an AP with matching SSID/BSSID [bssid=]</string>
+        <string>Basic Service Set Identification (BSSID) 
+The MAC Address of the AP
+Connect only to an AP with matching SSID/BSSID
+[bssid=]</string>
        </property>
        <property name="text">
         <string>BSSID</string>
@@ -105,7 +88,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>Basic Service Set Identification (BSSID) MAC Address of the AP</string>
+      <string/>
      </property>
      <property name="placeholderText">
       <string>any</string>
@@ -115,26 +98,13 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="priorityLabel">
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="ssidEdit">
      <property name="toolTip">
-      <string>A larger priority value result in sooner use [priority=]</string>
+      <string/>
      </property>
      <property name="text">
-      <string>Priority</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QSpinBox" name="prioritySpinBox">
-     <property name="toolTip">
-      <string>Network Priority</string>
-     </property>
-     <property name="maximum">
-      <number>999</number>
-     </property>
-     <property name="singleStep">
-      <number>1</number>
+      <string/>
      </property>
     </widget>
    </item>
@@ -252,7 +222,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="encrLabel">
             <property name="toolTip">
-             <string>List of accepted pairwise ciphers for WPA [pairwise=]</string>
+             <string>[pairwise=]</string>
             </property>
             <property name="text">
              <string>Pairwise</string>
@@ -299,7 +269,9 @@
           <item row="0" column="0">
            <widget class="QLabel" name="pskLabel">
             <property name="toolTip">
-             <string>Pre Shared Key [psk=]</string>
+             <string>WPA/WPA2 Pre-Shared Key 
+or passphrase (8..63 characters)
+[psk=]</string>
             </property>
             <property name="text">
              <string>Password</string>
@@ -312,7 +284,7 @@
              <bool>true</bool>
             </property>
             <property name="toolTip">
-             <string>WPA/WPA2 pre-shared key or passphrase (8..63 characters)</string>
+             <string/>
             </property>
             <property name="whatsThis">
              <string/>
@@ -355,7 +327,8 @@
           <item row="0" column="0">
            <widget class="QLabel" name="saeLabel">
             <property name="toolTip">
-             <string>SAE password [sae_password=]</string>
+             <string>WPA3-Personal Passphrase
+[sae_password=]</string>
             </property>
             <property name="text">
              <string>Password</string>
@@ -368,7 +341,7 @@
              <bool>true</bool>
             </property>
             <property name="toolTip">
-             <string>WPA3-Personal passphrase</string>
+             <string/>
             </property>
             <property name="whatsThis">
              <string/>
@@ -389,7 +362,7 @@
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
-           <verstretch>4</verstretch>
+           <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
@@ -421,7 +394,7 @@
           <item row="2" column="0">
            <widget class="QLabel" name="passwordLabel">
             <property name="toolTip">
-             <string>Password string for EAP [password=]</string>
+             <string>[password=]</string>
             </property>
             <property name="text">
              <string>Password</string>
@@ -451,7 +424,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="eapLabel">
             <property name="toolTip">
-             <string>List of accepted EAP methods [eap=]</string>
+             <string>[eap=]</string>
             </property>
             <property name="text">
              <string>EAP method</string>
@@ -468,7 +441,7 @@
           <item row="1" column="0">
            <widget class="QLabel" name="identityLabel">
             <property name="toolTip">
-             <string>Identity string for EAP [identity=]</string>
+             <string>[identity=]</string>
             </property>
             <property name="text">
              <string>Identity</string>
@@ -478,7 +451,8 @@
           <item row="3" column="0">
            <widget class="QLabel" name="cacertLabel">
             <property name="toolTip">
-             <string>Path to CA certificate (PEM/DER) [ca_cert=]</string>
+             <string>Path to CA certificate (PEM/DER)
+[ca_cert=]</string>
             </property>
             <property name="text">
              <string>CA certificate</string>
@@ -495,7 +469,8 @@
           <item row="5" column="0">
            <widget class="QLabel" name="phase2Label">
             <property name="toolTip">
-             <string>Pre-configure Phase 2  parameters [phase2=]</string>
+             <string>Pre-configure Phase 2 parameters
+[phase2=]</string>
             </property>
             <property name="text">
              <string>Inner auth</string>
@@ -535,7 +510,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Static WEP keys [wep_key0..3=]</string>
+          <string/>
          </property>
          <property name="title">
           <string>WEP Keys</string>
@@ -545,6 +520,10 @@
            <widget class="QRadioButton" name="wep1Radio">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Static WEP key
+[wep_key1=]</string>
             </property>
             <property name="text">
              <string>key &amp;1</string>
@@ -570,6 +549,10 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="toolTip">
+             <string>Static WEP key
+[wep_key3=]</string>
+            </property>
             <property name="text">
              <string>key &amp;3</string>
             </property>
@@ -579,6 +562,10 @@
            <widget class="QRadioButton" name="wep2Radio">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Static WEP key
+[wep_key2=]</string>
             </property>
             <property name="text">
              <string>key &amp;2</string>
@@ -596,6 +583,10 @@
            <widget class="QRadioButton" name="wep0Radio">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Static WEP key
+[wep_key0=]</string>
             </property>
             <property name="text">
              <string>&amp;key 0</string>
@@ -641,14 +632,16 @@
        <item row="0" column="1">
         <widget class="QLineEdit" name="idstrEdit">
          <property name="toolTip">
-          <string>Network Identification String</string>
+          <string/>
          </property>
         </widget>
        </item>
        <item row="0" column="0">
         <widget class="QLabel" name="idstrLabel">
          <property name="toolTip">
-          <string>Network identifier string for external scripts [id_str=]</string>
+          <string>Network Identification String
+for external script (no spaces allowed)
+[id_str=]</string>
          </property>
          <property name="text">
           <string>IDString</string>
@@ -673,19 +666,6 @@
     </widget>
    </item>
    <item row="4" column="0" colspan="2">
-    <spacer name="verticalSpacer_3">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>0</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="5" column="0" colspan="2">
     <widget class="QFrame" name="frame">
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -740,9 +720,44 @@
      </layout>
     </widget>
    </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="priorityLabel">
+     <property name="toolTip">
+      <string>Network Priority
+A larger priority value result in sooner use
+[priority=]</string>
+     </property>
+     <property name="text">
+      <string>Priority</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="ssidLabel">
+     <property name="toolTip">
+      <string>Network name (mandatory) 
+[ssid=]</string>
+     </property>
+     <property name="text">
+      <string>SSID</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QSpinBox" name="prioritySpinBox">
+     <property name="toolTip">
+      <string/>
+     </property>
+     <property name="maximum">
+      <number>999</number>
+     </property>
+     <property name="singleStep">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
- <layoutdefault spacing="6" margin="11"/>
  <tabstops>
   <tabstop>ssidEdit</tabstop>
   <tabstop>bssidEdit</tabstop>
