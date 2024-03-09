@@ -510,8 +510,6 @@ void NetworkConfig::editNetwork(const QString& id, const QString& bssid/* = ""*/
 	networkId = id;
 	getEapCapa();
 
-	QString curSetting(tr("Currently Used") + ": ");
-
 	size_t len(1024); char buf[len];
 	char *pos;
 	QString cmd("GET_NETWORK %1 %2");
@@ -545,7 +543,6 @@ void NetworkConfig::editNetwork(const QString& id, const QString& bssid/* = ""*/
 
 	int auth = AUTH_NONE_OPEN, encr = 0;
 	if (wpagui->ctrlRequest(cmd.arg("key_mgmt"), buf, len) >= 0) {
-		authSelect->setToolTip(curSetting + buf);
 		if (strstr(buf, "WPA-PSK WPA-EAP")) {
 			auth = AUTH_DEFAULTS;
 			encr = 1;
@@ -567,7 +564,6 @@ void NetworkConfig::editNetwork(const QString& id, const QString& bssid/* = ""*/
 	}
 
 	if (wpagui->ctrlRequest(cmd.arg("pairwise"), buf, len) >= 0) {
-		encrSelect->setToolTip(curSetting + buf);
 		if (strstr(buf, "CCMP TKIP"))
 			encr = 2;
 		else if (strstr(buf, "CCMP") && auth != AUTH_NONE_OPEN &&
