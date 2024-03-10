@@ -74,12 +74,12 @@ Because there is no make install target yet, run on Unices
 Additional is the man page available as HTML and PDF but not yet referenced
 by wpaCute itself.
 
-Non Unices user has do something similar.
+Non Unices user has to do something similar.
 
 
 Post Install Steps
-====================
-wpaCute itself need no more configuration steps but you should ensure that your
+--------------------
+wpaCute itself need no more configuration but you should ensure that your
 network interfaces will set up properly and that wpa_supplicant is configured
 and running. Consult the man pages of wpa_supplicant and/or your distribution
 documentation how to do that.
