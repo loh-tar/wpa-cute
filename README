@@ -1,36 +1,36 @@
 wpaCute - A graphical wpa_supplicant front end
 ================================================
 This is a fork from wpa_gui, shipped with wpa_supplicant version 2.6, which
-has a couple of issues I have fixed in this new derivative. I did not have tried
-to send my patches upstream because of their terms and my paranoia.
+has a couple of issues. I did not have tried to send my patches upstream because
+of their terms and my paranoia. I'm pretty sure I read a notice back then
+(around 2018) that further development and maintenance is officially
+discontinued. Unfortunately, I can no longer find that hint today (2024). But
+there are only a handful of commits since 2015 and only two of them are halfway
+code related.
 
-I started using wpa_gui when I was looking for a tray icon for my systemd-only
-network setup on my new laptop and realized as soon that there was not all
-roses. Beginning from wrong/missing icons to the actual wlan status, over
-baffling buttons, windows and menus up to a smashed, no longer working
-configuration after an save event, with obviously no changes mind you!
-
-First I concentrated on fixing the most annoying issues, but at some point I
-started to "fix unbroken things" just because I didn't like how the code looks.
-So, sorry experts, if I may have trash some of your super effective tricks and
-replaced that with some "bloated" Qt class. However, I think the code not only
-looks better now, but works much better too.
-
-Furthermore I add some new stuff where I think it's an improvement but probably
-I have introduced some new bugs too which you will find faster than it is dear
-to me. For details please read the commit log or just check it out!
-
-I'm an average user and haven't tested much more than to connect to my own WLAN.
-No tests of P2P and never mind some expert needs.
+The most annoying issues are fixed for me in this derivative and some things
+changed where I thought it's an improvement. But I'm an average user and haven't
+tested much more than to connect to a few WLAN in WPA2/3 Personal mode. It is
+quite possible that some other things are not working so well. This is mainly
+due to the desolate documentation run around WLAN modes and wpa_supplicant,
+which is at best only halfway comprehensible for full professionals. Any advice
+is welcome.
 
 I use only Arch Linux but tried my best not to broke the code for other systems.
 
 
 Last version is 0.8.4, Mar 2024
 ---------------------------------
-  - Add support for WPA3 Personal and Opportunistic Wireless Encryption
+  - Add support for WPA3-Personal and Opportunistic Wireless Encryption (OWE)
+  - WPA3-Enterprise should also work but I can't try it
   - Fix bad window size when add new network from scan results
   - Some minor changes
+
+I tend to remove some functions in future versions. So if you use something
+other than WPA2/3 Personal, or Linux please let me know! What I have in mind is
+  - WEP stuff, both offers and these key box
+  - Old WPA (not 2/3) both offers
+  - Peers window
 
 Older release notes can you find below. For details see the commit log.
 
@@ -71,10 +71,16 @@ Because there is no make install target yet, run on Unices
   # install -Dm644 wpa-cute.desktop /usr/share/applications/wpa-cute.desktop
   # install -Dm644 ../doc/wpa-cute.8 /usr/share/man/man8/wpa-cute.8
 
-Additional is the man page available as HTML and PDF but not yet referenced
-by wpaCute itself.
-
 Non Unices user has to do something similar.
+
+Additional can the man page generated as HTML and PDF out of the sgml file. To
+do so run
+
+  $ cd ../doc
+  $ make pdf # or html or man or all
+
+The "native" man page should already be up to date, as assumed above. To create
+the PDF are too much dependencies required for my taste.
 
 
 Post Install Steps
