@@ -21,6 +21,7 @@ enum {
 	AUTH_NONE_OPEN,
 	AUTH_NONE_WEP,
 	AUTH_NONE_WEP_SHARED,
+	AUTH_IEEE8021X_WIRED,
 	AUTH_IEEE8021X,
 	AUTH_WPA_PSK,
 	AUTH_WPA_EAP,
@@ -28,6 +29,7 @@ enum {
 	AUTH_WPA2_EAP,
 	AUTH_WPA2_OWE,
 	AUTH_WPA2_SAE,
+	AUTH_WPA3_EAP,
 	AUTH_DEFAULTS
 };
 
@@ -123,24 +125,15 @@ void NetworkConfig::newNetwork(QTreeWidgetItem* sel) {
 
 void NetworkConfig::authChanged(int sel) {
 
+	keyMgtBox->setVisible(sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP && sel != AUTH_NONE_WEP_SHARED && sel != AUTH_WPA2_OWE);
 	encrBox->setVisible(sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP &&
 			       sel != AUTH_NONE_WEP_SHARED && sel != AUTH_IEEE8021X && sel != AUTH_WPA2_OWE);
 	pskBox->setVisible(sel == AUTH_WPA_PSK || sel == AUTH_WPA2_PSK ||
 		sel == AUTH_DEFAULTS);
-	saeBox->setVisible(sel == AUTH_WPA2_SAE);
-	bool eap = sel == AUTH_IEEE8021X || sel == AUTH_WPA_EAP ||
-		sel == AUTH_WPA2_EAP;
-	eapBox->setVisible(eap);
-	eapSelect->setEnabled(eap);
-	identityEdit->setEnabled(eap);
-	passwordEdit->setEnabled(eap);
-	cacertEdit->setEnabled(eap);
-	phase2Select->setEnabled(eap);
-	if (eap)
-		eapChanged(eapSelect->currentIndex());
+	saeBox->setVisible(sel == AUTH_WPA2_SAE || sel == AUTH_WPA3_EAP);
+	eapBox->setVisible(sel == AUTH_IEEE8021X || sel == AUTH_WPA_EAP || sel == AUTH_WPA2_EAP || sel == AUTH_WPA3_EAP);
 
 	encrSelect->clear();
-
 	if (sel == AUTH_NONE_OPEN || sel == AUTH_NONE_WEP ||
 	    sel == AUTH_NONE_WEP_SHARED || sel == AUTH_IEEE8021X) {
 		encrSelect->addItem("None");
@@ -543,6 +536,7 @@ void NetworkConfig::editNetwork(const QString& id, const QString& bssid/* = ""*/
 
 	int auth = AUTH_NONE_OPEN, encr = 0;
 	if (wpagui->ctrlRequest(cmd.arg("key_mgmt"), buf, len) >= 0) {
+		keyMgtSelect->setCurrentText(buf);
 		if (strstr(buf, "WPA-PSK WPA-EAP")) {
 			auth = AUTH_DEFAULTS;
 			encr = 1;

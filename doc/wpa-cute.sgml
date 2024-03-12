@@ -153,7 +153,7 @@
   network block in your config file after you have clicked around to find a
   working setup.
   </para>
-  <para>The data in the IDString field on the Optional Settings tab will be shown
+  <para>The data in the IDString field will be shown
   in the Flags column of the Networks list. This is a kind of ploy to make it
   easier to distinguish between identically or very similar named but different networks.
   </para>

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>570</width>
-    <height>1157</height>
+    <height>1150</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,93 +22,17 @@
     <height>400</height>
    </size>
   </property>
+  <property name="baseSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>NetworkConfig</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="toolTip">
-        <string>Basic Service Set Identification (BSSID) 
-The MAC Address of the AP
-Connect only to an AP with matching SSID/BSSID
-[bssid=]</string>
-       </property>
-       <property name="text">
-        <string>BSSID</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="applyBssidButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>Can set the BSSID (sorry, later)</string>
-       </property>
-       <property name="layoutDirection">
-        <enum>Qt::RightToLeft</enum>
-       </property>
-       <property name="icon">
-        <iconset theme="emblem-system-symbolic">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="bssidEdit">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>1</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="toolTip">
-      <string/>
-     </property>
-     <property name="placeholderText">
-      <string>any</string>
-     </property>
-     <property name="clearButtonEnabled">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="ssidEdit">
-     <property name="toolTip">
-      <string/>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="2">
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
@@ -117,9 +41,9 @@ Connect only to an AP with matching SSID/BSSID
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
-     <widget class="QWidget" name="authTab">
+     <widget class="QWidget" name="networkTab">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
         <horstretch>0</horstretch>
@@ -127,120 +51,445 @@ Connect only to an AP with matching SSID/BSSID
        </sizepolicy>
       </property>
       <attribute name="title">
-       <string>Authentication</string>
+       <string>Network</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QComboBox" name="authSelect">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>42</height>
-          </size>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="ssidLabel">
+         <property name="toolTip">
+          <string>Network name (mandatory) 
+[ssid=]</string>
          </property>
-         <item>
-          <property name="text">
-           <string>Plaintext (open / no authentication)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Static WEP (no authentication)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Static WEP (Shared Key authentication)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>IEEE 802.1X</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>WPA-Personal (PSK)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>WPA-Enterprise (EAP)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>WPA2-Personal (PSK)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>WPA2-Enterprise (EAP)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>WPA3-Opportunistic Wireless Encryption (OWE)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>WPA3-Personal (SAE)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Not Set (Defaults to WPA RSN)</string>
-          </property>
-         </item>
+         <property name="text">
+          <string>SSID</string>
+         </property>
         </widget>
        </item>
-       <item>
-        <widget class="QGroupBox" name="encrBox">
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="ssidEdit">
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="placeholderText">
+          <string>is mandatory!</string>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="toolTip">
+            <string>Basic Service Set Identification (BSSID) 
+The MAC Address of the AP
+Connect only to an AP with matching SSID/BSSID
+[bssid=]</string>
+           </property>
+           <property name="text">
+            <string>BSSID</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="applyBssidButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Can set the BSSID (sorry, later)</string>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::RightToLeft</enum>
+           </property>
+           <property name="icon">
+            <iconset theme="emblem-system-symbolic">
+             <normaloff>.</normaloff>.</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="bssidEdit">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>1</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="minimumSize">
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="placeholderText">
+          <string>not set, fit any</string>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="priorityLabel">
+         <property name="toolTip">
+          <string>Network Priority
+A larger priority value result in sooner use
+[priority=]</string>
+         </property>
+         <property name="text">
+          <string>Priority</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QSpinBox" name="prioritySpinBox">
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="maximum">
+          <number>999</number>
+         </property>
+         <property name="singleStep">
+          <number>1</number>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="idstrLabel">
+         <property name="toolTip">
+          <string>Network Identification String
+for external script (no spaces allowed)
+[id_str=]</string>
+         </property>
+         <property name="text">
+          <string>IDString</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="idstrEdit">
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="placeholderText">
+          <string>optional setting</string>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
           <size>
-           <width>0</width>
-           <height>94</height>
+           <width>20</width>
+           <height>40</height>
           </size>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>94</height>
-          </size>
-         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="authTab">
+      <attribute name="title">
+       <string>Properties</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QGroupBox" name="groupBox">
          <property name="title">
-          <string>WPA Cipher</string>
+          <string>Authentication Method</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_4">
-          <item row="0" column="0">
-           <widget class="QLabel" name="encrLabel">
-            <property name="toolTip">
-             <string>[pairwise=]</string>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QComboBox" name="authSelect">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>42</height>
+             </size>
             </property>
-            <property name="text">
-             <string>Pairwise</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="encrSelect">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>1</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
+            <item>
+             <property name="text">
+              <string>Plaintext (open / no authentication)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Static WEP (no authentication)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Static WEP (Shared Key authentication)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>IEEE 802.1X (EAPOL wireless)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>IEEE 802.1X (EAPOL wired)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>WPA-Personal (PSK)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>WPA-Enterprise (EAP)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>WPA2-Personal (PSK)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>WPA2-Enterprise (EAP)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>WPA3-Opportunistic Wireless Encryption (OWE)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>WPA3-Personal (SAE)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>WPA3-Enterprise (EAP)</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>
         </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QGroupBox" name="keyMgtBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>94</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>94</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>[key_mgmt=]</string>
+           </property>
+           <property name="title">
+            <string>Key Management Protocol</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_6">
+            <item row="0" column="0">
+             <widget class="QComboBox" name="keyMgtSelect">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <item>
+               <property name="text">
+                <string notr="true">WPA-PSK WPA-EAP</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">WPA-PSK</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">WPA-EAP</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">IEEE8021X</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">NONE</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>FT-PSK</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">FT-EAP</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">FT-EAP-SHA384</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">WPA-PSK-SHA256</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">WPA-EAP-SHA256</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">SAE</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">FT-SAE</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">WPA-EAP-SUITE-B</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">WPA-EAP-SUITE-B-192</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">OSEN</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">FILS-SHA256</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">FILS-SHA384</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">FT-FILS-SHA256</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">FT-FILS-SHA384</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">OWE</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string notr="true">DPP</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="encrBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>94</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>94</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>[pairwise=]</string>
+           </property>
+           <property name="title">
+            <string>Pairwise Cipher for WPA</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_4">
+            <item row="0" column="0">
+             <widget class="QComboBox" name="encrSelect">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QGroupBox" name="pskBox">
@@ -263,15 +512,13 @@ Connect only to an AP with matching SSID/BSSID
           </size>
          </property>
          <property name="title">
-          <string>Pre-Shared Key</string>
+          <string>WPA2 Pre-Shared Key or Passphrase</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_1">
           <item row="0" column="0">
            <widget class="QLabel" name="pskLabel">
             <property name="toolTip">
-             <string>WPA/WPA2 Pre-Shared Key 
-or passphrase (8..63 characters)
-[psk=]</string>
+             <string>[psk=]</string>
             </property>
             <property name="text">
              <string>Password</string>
@@ -294,6 +541,12 @@ or passphrase (8..63 characters)
             </property>
             <property name="echoMode">
              <enum>QLineEdit::PasswordEchoOnEdit</enum>
+            </property>
+            <property name="placeholderText">
+             <string>8..63 characters</string>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -324,17 +577,6 @@ or passphrase (8..63 characters)
           <string>Simultaneous Authentication of Equals</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
-          <item row="0" column="0">
-           <widget class="QLabel" name="saeLabel">
-            <property name="toolTip">
-             <string>WPA3-Personal Passphrase
-[sae_password=]</string>
-            </property>
-            <property name="text">
-             <string>Password</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="1">
            <widget class="QLineEdit" name="saeEdit">
             <property name="enabled">
@@ -352,6 +594,20 @@ or passphrase (8..63 characters)
             <property name="echoMode">
              <enum>QLineEdit::PasswordEchoOnEdit</enum>
             </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="saeLabel">
+            <property name="toolTip">
+             <string>WPA3-Personal Passphrase
+[sae_password=]</string>
+            </property>
+            <property name="text">
+             <string>Password</string>
+            </property>
            </widget>
           </item>
          </layout>
@@ -359,8 +615,11 @@ or passphrase (8..63 characters)
        </item>
        <item>
         <widget class="QGroupBox" name="eapBox">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -368,26 +627,56 @@ or passphrase (8..63 characters)
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>286</height>
+           <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>16777215</width>
-           <height>286</height>
+           <height>16777215</height>
           </size>
          </property>
          <property name="title">
           <string>Extensible Authentication Protocol</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0">
+           <widget class="QLabel" name="eapLabel">
+            <property name="toolTip">
+             <string>[eap=]</string>
+            </property>
+            <property name="text">
+             <string>EAP method</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="eapSelect">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="identityLabel">
+            <property name="toolTip">
+             <string>[identity=]</string>
+            </property>
+            <property name="text">
+             <string>Identity</string>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="1">
            <widget class="QLineEdit" name="identityEdit">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="toolTip">
              <string>Username/Identity for EAP methods</string>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -404,7 +693,7 @@ or passphrase (8..63 characters)
           <item row="2" column="1">
            <widget class="QLineEdit" name="passwordEdit">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="toolTip">
              <string>Password for EAP methods</string>
@@ -412,39 +701,8 @@ or passphrase (8..63 characters)
             <property name="echoMode">
              <enum>QLineEdit::PasswordEchoOnEdit</enum>
             </property>
-           </widget>
-          </item>
-          <item row="5" column="1">
-           <widget class="QComboBox" name="phase2Select">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="eapLabel">
-            <property name="toolTip">
-             <string>[eap=]</string>
-            </property>
-            <property name="text">
-             <string>EAP method</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="eapSelect">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="identityLabel">
-            <property name="toolTip">
-             <string>[identity=]</string>
-            </property>
-            <property name="text">
-             <string>Identity</string>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -462,7 +720,31 @@ or passphrase (8..63 characters)
           <item row="3" column="1">
            <widget class="QLineEdit" name="cacertEdit">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="phase1Label">
+            <property name="toolTip">
+             <string>Pre-configure Phase 1 parameters
+[phase1=]</string>
+            </property>
+            <property name="text">
+             <string>Outer auth</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QComboBox" name="phase1Select">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -474,6 +756,16 @@ or passphrase (8..63 characters)
             </property>
             <property name="text">
              <string>Inner auth</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QComboBox" name="phase2Select">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -535,12 +827,18 @@ or passphrase (8..63 characters)
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item row="1" column="1">
            <widget class="QLineEdit" name="wep1Edit">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -577,6 +875,9 @@ or passphrase (8..63 characters)
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item row="0" column="0">
@@ -598,6 +899,9 @@ or passphrase (8..63 characters)
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
          </layout>
@@ -611,52 +915,7 @@ or passphrase (8..63 characters)
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="optTab">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <attribute name="title">
-       <string>Optional Settings</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="idstrEdit">
-         <property name="toolTip">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="idstrLabel">
-         <property name="toolTip">
-          <string>Network Identification String
-for external script (no spaces allowed)
-[id_str=]</string>
-         </property>
-         <property name="text">
-          <string>IDString</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
+           <height>92</height>
           </size>
          </property>
         </spacer>
@@ -665,7 +924,7 @@ for external script (no spaces allowed)
      </widget>
     </widget>
    </item>
-   <item row="4" column="0" colspan="2">
+   <item>
     <widget class="QFrame" name="frame">
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -720,70 +979,14 @@ for external script (no spaces allowed)
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="priorityLabel">
-     <property name="toolTip">
-      <string>Network Priority
-A larger priority value result in sooner use
-[priority=]</string>
-     </property>
-     <property name="text">
-      <string>Priority</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="ssidLabel">
-     <property name="toolTip">
-      <string>Network name (mandatory) 
-[ssid=]</string>
-     </property>
-     <property name="text">
-      <string>SSID</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QSpinBox" name="prioritySpinBox">
-     <property name="toolTip">
-      <string/>
-     </property>
-     <property name="maximum">
-      <number>999</number>
-     </property>
-     <property name="singleStep">
-      <number>1</number>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <tabstops>
-  <tabstop>ssidEdit</tabstop>
-  <tabstop>bssidEdit</tabstop>
-  <tabstop>prioritySpinBox</tabstop>
-  <tabstop>authSelect</tabstop>
-  <tabstop>encrSelect</tabstop>
-  <tabstop>pskEdit</tabstop>
-  <tabstop>eapSelect</tabstop>
-  <tabstop>identityEdit</tabstop>
-  <tabstop>passwordEdit</tabstop>
-  <tabstop>cacertEdit</tabstop>
-  <tabstop>phase2Select</tabstop>
-  <tabstop>wep0Edit</tabstop>
-  <tabstop>wep1Edit</tabstop>
-  <tabstop>wep2Edit</tabstop>
-  <tabstop>wep3Edit</tabstop>
   <tabstop>addButton</tabstop>
   <tabstop>cancelButton</tabstop>
   <tabstop>removeButton</tabstop>
-  <tabstop>wep3Radio</tabstop>
-  <tabstop>wep2Radio</tabstop>
-  <tabstop>wep1Radio</tabstop>
   <tabstop>tabWidget</tabstop>
-  <tabstop>wep0Radio</tabstop>
   <tabstop>idstrEdit</tabstop>
-  <tabstop>applyBssidButton</tabstop>
  </tabstops>
  <includes>
   <include location="global">qtreewidget.h</include>
