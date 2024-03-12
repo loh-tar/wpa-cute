@@ -42,11 +42,13 @@ protected slots:
 private:
 	         int setNetworkParam(const QString& id, const QString& parm
 	                           , const QString& val, bool quote = false);
+	         int copyNetworkParam(const QString& parm);
 	        void wepEnabled(bool enabled);
 	        void getEapCapa();
 
 	     WpaGui* wpagui;
 	     QString networkId;
+	     QString newNetworkId;
 	     QString aceInTheHoleId;
 
 };

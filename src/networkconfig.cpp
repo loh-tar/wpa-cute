@@ -256,20 +256,27 @@ void NetworkConfig::applyNetworkChanges() {
 
 	memset(buf, 0, sizeof(buf));
 
-	if (networkId.isEmpty()) {
-		if (wpagui->ctrlRequest("ADD_NETWORK", buf, len) < 0) {
-			QMessageBox::warning(this, ProjAppName,
-			                     tr("Failed to add network to \n"
-			                        "wpa_supplicant configuration."));
-			return;
-		}
-		id = buf;
-		id.remove('\n');
-	} else
-		id = networkId;
+	// To ensure we save no old configured stuff in our modified network block we
+	// perform a "remove-old and add-new" operation. It pointed out, that wpa_supplicant
+	// behaves not logical (in my opinion) when we try to remove a not wanted setting
+	// from the network. I would expect that calling "SET_NETWORK foo NULL" would do it, but nope!
+	// Sometimes he reject this with an error and "foo=bar" is still there
+
+	if (wpagui->ctrlRequest("ADD_NETWORK", buf, len) < 0) {
+		QMessageBox::warning(this, ProjAppName,
+								tr("Failed to add new network to \n"
+								"wpa_supplicant configuration."));
+		return;
+	}
+	id = buf;
+	id.remove('\n');
+
+	newNetworkId = id;
 
 	setNetworkParam(id, "ssid", ssidEdit->text(), InQuotes);
 	setNetworkParam(id, "bssid", bssidEdit->text());
+	setNetworkParam(id, "priority", prioritySpinBox->cleanText());
+	setNetworkParam(id, "id_str", idstrEdit->text(), InQuotes);
 
 	const char *key_mgmt = NULL, *proto = NULL, *pairwise = NULL;
 	switch (auth) {
@@ -323,38 +330,34 @@ void NetworkConfig::applyNetworkChanges() {
 			pairwise = "CCMP";
 	}
 
-	if (proto)
-		setNetworkParam(id, "proto", proto);
-	if (key_mgmt)
-		setNetworkParam(id, "key_mgmt", key_mgmt);
-	if (pairwise) {
-		setNetworkParam(id, "pairwise", pairwise);
-	}
-	if (pskBox->isVisible() &&
-	    strcmp(pskEdit->text().toLocal8Bit().constData(),
-		   WPA_GUI_KEY_DATA) != 0)
-		setNetworkParam(id, "psk", pskEdit->text(), psklen != 64);
-	if (saeBox->isVisible() &&
-	    strcmp(saeEdit->text().toLocal8Bit().constData(),
-		   WPA_GUI_KEY_DATA) != 0) {
-		setNetworkParam(id, "sae_password", saeEdit->text(), InQuotes);
-		setNetworkParam(id, "ieee80211w", "2");
-		}
+	setNetworkParam(id, "proto", proto);
+	setNetworkParam(id, "key_mgmt", key_mgmt);
+	setNetworkParam(id, "pairwise", pairwise);
 
-	if (eapSelect->isEnabled()) {
+	if (pskBox->isVisible()) {
+		if (pskEdit->text() != WPA_GUI_KEY_DATA) {
+			setNetworkParam(id, "psk", pskEdit->text(), psklen != 64);
+		} else {
+			copyNetworkParam("psk");
+		}
+	}
+
+	if (saeBox->isVisible()) {
+		if (saeEdit->text() != WPA_GUI_KEY_DATA) {
+			setNetworkParam(id, "sae_password", saeEdit->text(), InQuotes);
+		} else {
+			copyNetworkParam("sae_password");
+		}
+		setNetworkParam(id, "ieee80211w", "2");
+	}
+
+	if (eapBox->isVisible()) {
 		QString eap = eapSelect->currentText();
 		setNetworkParam(id, "eap", eap);
 		// FIXME These two actions are looking questionable
 		if ("SIM" == eap || "AKA" == eap)
 			setNetworkParam(id, "pcsc", "", InQuotes);
-		else
-			setNetworkParam(id, "pcsc", "NULL");
-	}
-		else
-			setNetworkParam(id, "eap", "NULL");
 
-	if (phase2Select->isEnabled()) {
-		QString eap = eapSelect->currentText();
 		QString inner = phase2Select->currentText();
 		QString phase2;
 		if (eap.compare("PEAP") == 0) {
@@ -386,27 +389,20 @@ void NetworkConfig::applyNetworkChanges() {
 				              , InQuotes);
 			}
 		}
-		if (!phase2.isEmpty())
-			setNetworkParam(id, "phase2", phase2, InQuotes);
-		else
-			setNetworkParam(id, "phase2", "NULL");
-	} else
-		setNetworkParam(id, "phase2", "NULL");
-	if (identityEdit->isEnabled() && identityEdit->text().length() > 0)
-		setNetworkParam(id, "identity", identityEdit->text(), InQuotes);
-	else
-		setNetworkParam(id, "identity", "NULL");
-	if (passwordEdit->isEnabled() && passwordEdit->text().length() > 0 &&
-	    strcmp(passwordEdit->text().toLocal8Bit().constData(),
-		   WPA_GUI_KEY_DATA) != 0)
-		setNetworkParam(id, "password", passwordEdit->text(), InQuotes);
-	else if (passwordEdit->text().length() == 0)
-		setNetworkParam(id, "password", "NULL");
-	if (cacertEdit->isEnabled() && cacertEdit->text().length() > 0)
-		setNetworkParam(id, "ca_cert", cacertEdit->text(), InQuotes);
-	else
-		setNetworkParam(id, "ca_cert", "NULL");
 
+		if (passwordEdit->text() != WPA_GUI_KEY_DATA) {
+			setNetworkParam(id, "password", passwordEdit->text(), InQuotes);
+		}else {
+			copyNetworkParam("password");
+		}
+
+		setNetworkParam(id, "phase2", phase2, InQuotes);
+		setNetworkParam(id, "identity", identityEdit->text(), InQuotes);
+		setNetworkParam(id, "ca_cert", cacertEdit->text(), InQuotes);
+	}
+
+
+	// WEP stuff, to be removed!
 	writeWepKey(id, wep0Edit, 0);
 	writeWepKey(id, wep1Edit, 1);
 	writeWepKey(id, wep2Edit, 2);
@@ -421,18 +417,8 @@ void NetworkConfig::applyNetworkChanges() {
 	else if (wep3Radio->isEnabled() && wep3Radio->isChecked())
 		setNetworkParam(id, "wep_tx_keyidx", "3");
 
-	if (idstrEdit->isEnabled() && idstrEdit->text().length() > 0)
-		setNetworkParam(id, "id_str", idstrEdit->text(), InQuotes);
-	else
-		setNetworkParam(id, "id_str", "NULL");
-
-	if (prioritySpinBox->isEnabled()) {
-		setNetworkParam(id, "priority", prioritySpinBox->cleanText());
-	}
-
-	wpagui->configIsChanged();
-
-	close();
+	// Don't forget to delete the old/original network
+	removeNetwork();
 }
 
 
@@ -440,12 +426,22 @@ int NetworkConfig::setNetworkParam(const QString& id, const QString& parm,
                                    const QString& val, bool quote/* = false*/) {
 
 	QString cmd;
+
+	if (val.isEmpty()) return 0;
+
 	if (quote)
 		cmd = "SET_NETWORK %1 %2 \"%3\"";
 	else
 		cmd = "SET_NETWORK %1 %2 %3";
 
 	return wpagui->ctrlRequest(cmd.arg(id).arg(parm).arg(val));
+}
+
+
+int NetworkConfig::copyNetworkParam(const QString& parm) {
+
+	const QString cmd("DUP_NETWORK %1 %2 %3");
+	return wpagui->ctrlRequest(cmd.arg(networkId).arg(newNetworkId).arg(parm));
 }
 
 

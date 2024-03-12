@@ -540,7 +540,7 @@ for external script (no spaces allowed)
              <string/>
             </property>
             <property name="echoMode">
-             <enum>QLineEdit::PasswordEchoOnEdit</enum>
+             <enum>QLineEdit::Normal</enum>
             </property>
             <property name="placeholderText">
              <string>8..63 characters</string>
@@ -592,7 +592,7 @@ for external script (no spaces allowed)
              <string/>
             </property>
             <property name="echoMode">
-             <enum>QLineEdit::PasswordEchoOnEdit</enum>
+             <enum>QLineEdit::Normal</enum>
             </property>
             <property name="clearButtonEnabled">
              <bool>true</bool>
@@ -646,7 +646,7 @@ for external script (no spaces allowed)
              <string>[eap=]</string>
             </property>
             <property name="text">
-             <string>EAP method</string>
+             <string>Method</string>
             </property>
            </widget>
           </item>
@@ -699,7 +699,7 @@ for external script (no spaces allowed)
              <string>Password for EAP methods</string>
             </property>
             <property name="echoMode">
-             <enum>QLineEdit::PasswordEchoOnEdit</enum>
+             <enum>QLineEdit::Normal</enum>
             </property>
             <property name="clearButtonEnabled">
              <bool>true</bool>
