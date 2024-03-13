@@ -40,6 +40,7 @@ protected slots:
 	        void pullTheAce();
 
 private:
+	        void makeAvailable(QWidget* w, const bool yes);
 	         int setNetworkParam(const QString& id, const QString& parm
 	                           , const QString& val, bool quote = false);
 	         int copyNetworkParam(const QString& parm);

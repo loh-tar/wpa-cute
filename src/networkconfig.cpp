@@ -43,7 +43,7 @@ NetworkConfig::NetworkConfig(WpaGui* parent)
 
 	setupUi(this);
 
-	encrBox->setVisible(false);
+	makeAvailable(encrBox, false);
 	connect(applyBssidButton, SIGNAL(clicked())
 	      , this, SLOT(pullTheAce()));
 	connect(authSelect, SIGNAL(currentIndexChanged(int))
@@ -123,15 +123,20 @@ void NetworkConfig::newNetwork(QTreeWidgetItem* sel) {
 }
 
 
+void NetworkConfig::makeAvailable(QWidget* w, const bool yes) {
+
+	w->setVisible(yes);
+	w->setEnabled(yes);
+}
+
+
 void NetworkConfig::authChanged(int sel) {
 
-	keyMgtBox->setVisible(sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP && sel != AUTH_NONE_WEP_SHARED && sel != AUTH_WPA2_OWE);
-	encrBox->setVisible(sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP &&
-			       sel != AUTH_NONE_WEP_SHARED && sel != AUTH_IEEE8021X && sel != AUTH_WPA2_OWE);
-	pskBox->setVisible(sel == AUTH_WPA_PSK || sel == AUTH_WPA2_PSK ||
-		sel == AUTH_DEFAULTS);
-	saeBox->setVisible(sel == AUTH_WPA2_SAE || sel == AUTH_WPA3_EAP);
-	eapBox->setVisible(sel == AUTH_IEEE8021X || sel == AUTH_WPA_EAP || sel == AUTH_WPA2_EAP || sel == AUTH_WPA3_EAP);
+	makeAvailable(keyMgtBox, sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP && sel != AUTH_NONE_WEP_SHARED && sel != AUTH_WPA2_OWE);
+	makeAvailable(encrBox, sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP && sel != AUTH_NONE_WEP_SHARED && sel != AUTH_IEEE8021X && sel != AUTH_WPA2_OWE);
+	makeAvailable(pskBox, sel == AUTH_WPA_PSK || sel == AUTH_WPA2_PSK || sel == AUTH_DEFAULTS);
+	makeAvailable(saeBox, sel == AUTH_WPA2_SAE || sel == AUTH_WPA3_EAP);
+	makeAvailable(eapBox, sel == AUTH_IEEE8021X || sel == AUTH_WPA_EAP || sel == AUTH_WPA2_EAP || sel == AUTH_WPA3_EAP);
 
 	encrSelect->clear();
 	if (sel == AUTH_NONE_OPEN || sel == AUTH_NONE_WEP ||
@@ -322,7 +327,7 @@ void NetworkConfig::applyNetworkChanges() {
 	else
 		setNetworkParam(id, "auth_alg", "OPEN");
 
-	if (encrBox->isVisible()) {
+	if (encrBox->isEnabled()) {
 		int encr = encrSelect->currentIndex();
 		if (encr == 0)
 			pairwise = "TKIP";
@@ -334,7 +339,7 @@ void NetworkConfig::applyNetworkChanges() {
 	setNetworkParam(id, "key_mgmt", key_mgmt);
 	setNetworkParam(id, "pairwise", pairwise);
 
-	if (pskBox->isVisible()) {
+	if (pskBox->isEnabled()) {
 		if (pskEdit->text() != WPA_GUI_KEY_DATA) {
 			setNetworkParam(id, "psk", pskEdit->text(), psklen != 64);
 		} else {
@@ -342,7 +347,7 @@ void NetworkConfig::applyNetworkChanges() {
 		}
 	}
 
-	if (saeBox->isVisible()) {
+	if (saeBox->isEnabled()) {
 		if (saeEdit->text() != WPA_GUI_KEY_DATA) {
 			setNetworkParam(id, "sae_password", saeEdit->text(), InQuotes);
 		} else {
@@ -351,7 +356,7 @@ void NetworkConfig::applyNetworkChanges() {
 		setNetworkParam(id, "ieee80211w", "2");
 	}
 
-	if (eapBox->isVisible()) {
+	if (eapBox->isEnabled()) {
 		QString eap = eapSelect->currentText();
 		setNetworkParam(id, "eap", eap);
 		// FIXME These two actions are looking questionable
@@ -447,7 +452,7 @@ int NetworkConfig::copyNetworkParam(const QString& parm) {
 
 void NetworkConfig::wepEnabled(bool enabled) {
 
-	wepBox->setVisible(enabled);
+	makeAvailable(wepBox, enabled);
 
 	wep0Edit->setEnabled(enabled);
 	wep1Edit->setEnabled(enabled);

@@ -558,6 +558,7 @@ int WpaGui::ctrlRequest(const QString& cmd, char* buf, const size_t buflen) {
 
 int WpaGui::ctrlRequest(const QString& cmd) {
 
+	debug("%s", cmd.toLocal8Bit().constData());
 	size_t len(100); char buf[len];
 	return ctrlRequest(cmd, buf, len);
 }
