@@ -24,6 +24,7 @@ Last version is 0.8.4, Mar 2024
   - Add support for WPA3-Personal and Opportunistic Wireless Encryption (OWE)
   - WPA3-Enterprise should also work but I can't try it
   - Fix bad window size when add new network from scan results
+  - Always use RSN instead of WPA2 as proto
   - Some minor changes
 
 I tend to remove some functions in future versions. So if you use something

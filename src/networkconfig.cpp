@@ -305,11 +305,11 @@ void NetworkConfig::applyNetworkChanges() {
 		break;
 	case AUTH_WPA2_PSK:
 		key_mgmt = "WPA-PSK";
-		proto = "WPA2";
+		proto = "RSN";
 		break;
 	case AUTH_WPA2_EAP:
 		key_mgmt = "WPA-EAP";
-		proto = "WPA2";
+		proto = "RSN";
 		break;
 	case AUTH_WPA2_OWE:
 		key_mgmt = "OWE";
@@ -531,7 +531,7 @@ void NetworkConfig::editNetwork(const QString& id, const QString& bssid/* = ""*/
 
 	int wpa = 0;
 	if (wpagui->ctrlRequest(cmd.arg("proto"), buf, len) >= 0) {
-		if (strstr(buf, "RSN") || strstr(buf, "WPA2"))
+		if (strstr(buf, "RSN"))
 			wpa = 2;
 		else if (strstr(buf, "WPA"))
 			wpa = 1;
