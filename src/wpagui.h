@@ -120,6 +120,7 @@ public:
 	     QString getIdFlag(const QString& id);
 
 	        void editNetwork(const QString& id, const QString& bssid = "");
+	        void selectNetwork(const QString& id);
 	        void removeNetwork(const QString& sel);
 	        void enableNetwork(const QString& sel);
 	        void disableNetwork(const QString& sel);

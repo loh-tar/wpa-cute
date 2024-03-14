@@ -296,6 +296,7 @@ void ScanResults::addNetwork() {
 	}
 
 	nc.exec();
+	wpagui->selectNetwork(nc.newId());
 
 	raise();
 }

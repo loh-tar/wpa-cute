@@ -1835,6 +1835,23 @@ void WpaGui::editNetwork(const QString& id, const QString& bssid/* = ""*/) {
 		nc.editNetwork(id, bssid);
 
 	nc.exec();
+	selectNetwork(nc.newId());
+}
+
+
+void WpaGui::selectNetwork(const QString& id) {
+
+	if (id.isEmpty()) return;
+
+	// The new/modified network has a new ID, fetch,find and select it in our list
+	QTreeWidgetItemIterator it(networkList);
+	while (*it) {
+		if ((*it)->text(NLColId) == id) {
+			networkList->setCurrentItem((*it));
+			break;
+		}
+		++it;
+	}
 }
 
 

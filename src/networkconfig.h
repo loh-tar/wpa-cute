@@ -28,6 +28,7 @@ public:
 	        void editNetwork(const QString& id, const QString& bssid = "");
 	        void newNetwork(QTreeWidgetItem* sel);
 	        void newNetwork();
+	     QString newId() { return newNetworkId; };
 
 protected slots:
 	        void languageChange();
