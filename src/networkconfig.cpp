@@ -147,13 +147,11 @@ void NetworkConfig::authChanged(int sel) {
 	} else {
 		encrSelect->addItem("TKIP");
 		encrSelect->addItem("CCMP");
+		encrSelect->addItem("CCMP TKIP");
 		if (sel == AUTH_DEFAULTS) {
-			encrSelect->addItem("CCMP TKIP");
 			encrSelect->setCurrentIndex(2);
-		}
-		else {
-		encrSelect->setCurrentIndex((sel == AUTH_WPA2_PSK ||
-		                             sel == AUTH_WPA2_EAP ) ? 1 : 0);
+		} else {
+			encrSelect->setCurrentIndex((sel == AUTH_WPA_PSK) ? 0 : 1);
 		}
 	}
 
