@@ -502,7 +502,7 @@ void NetworkConfig::editNetwork(const QString& id, const QString& bssid/* = ""*/
 	int i, res;
 
 	networkId = id;
-	getEapCapa();
+	getEapCapabilities();
 
 	size_t len(1024); char buf[len];
 	char *pos;
@@ -776,13 +776,13 @@ void NetworkConfig::removeNetwork() {
 
 void NetworkConfig::newNetwork() {
 
-	getEapCapa();
+	getEapCapabilities();
 	// Trigger UI to collapse to only fitting options
 	authChanged(0);
 }
 
 
-void NetworkConfig::getEapCapa() {
+void NetworkConfig::getEapCapabilities() {
 
 	size_t len(256); char buf[len];
 

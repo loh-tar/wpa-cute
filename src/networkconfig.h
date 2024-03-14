@@ -46,7 +46,7 @@ private:
 	                           , const QString& val, bool quote = false);
 	         int copyNetworkParam(const QString& parm);
 	        void wepEnabled(bool enabled);
-	        void getEapCapa();
+	        void getEapCapabilities();
 
 	     WpaGui* wpagui;
 	     QString networkId;
