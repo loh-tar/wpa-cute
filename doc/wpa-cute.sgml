@@ -141,19 +141,8 @@
   configuration. You have to save the changes explicit. This is different from
   the original wpa_gui.
   </para>
-  <para>Right now is the behavior, which data are changed (send to
-  wpa_supplicant) not coherent. It depends sometimes if they are visible when
-  you "Apply" or not. Your removed data are not every time forced to remove by
-  wpa_supplicant. It's a little messy, sorry. Needs love and reports.
-  </para>
-  <para>Right now will no data explicit removed when they are not visible. The
-  wpa_supplicant documentation describes that you can have a pretty mix of
-  possible settings which are all tested when wpa_supplicant tries to connect
-  to some access point. I'm not sure if this is really a smart decision.
-  </para>
-  <para>Long story, short sense: Don't expect to have a "clean" configured
-  network block in your config file after you have clicked around to find a
-  working setup.
+  <para>After each change, the old network block is always removed and a new one
+  created. This prevents unwanted old configuration remnants from remaining.
   </para>
   <para>The data in the IDString field will be shown
   in the Flags column of the Networks list. This is a kind of ploy to make it
