@@ -129,9 +129,11 @@
   report.
   </para>
   <para>Entered secrets will not shown again when you edit a network. Only a
-  hint that there is a password or key saved. I'm not a friend of that because
-  while messing around to get a connect you can't check if you miss typed the
-  password or something different is the problem.
+  hint that there is a password or key saved. This can be annoying if you try to
+  establish a new connection and it does not work immediately. Unfortunately, it
+  is then not possible to check the password. However, this is not something that
+  wpaCute can change, wpa_supplicant does not reveal the password but only that
+  one exists.
   </para>
   <para>When you add, delete or modify a network are these changes only made in
   a temporary manner inside the running wpa_supplicant. They take effect as long
