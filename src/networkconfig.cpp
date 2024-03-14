@@ -133,7 +133,7 @@ void NetworkConfig::makeAvailable(QWidget* w, const bool yes) {
 void NetworkConfig::authChanged(int sel) {
 
 	makeAvailable(keyMgtBox, sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP && sel != AUTH_NONE_WEP_SHARED && sel != AUTH_WPA2_OWE);
-	makeAvailable(encrBox, sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP && sel != AUTH_NONE_WEP_SHARED && sel != AUTH_IEEE8021X && sel != AUTH_WPA2_OWE);
+	makeAvailable(encrBox, sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP && sel != AUTH_NONE_WEP_SHARED);
 	makeAvailable(pskBox, sel == AUTH_WPA_PSK || sel == AUTH_WPA2_PSK || sel == AUTH_DEFAULTS);
 	makeAvailable(saeBox, sel == AUTH_WPA2_SAE || sel == AUTH_WPA3_EAP);
 	makeAvailable(eapBox, sel == AUTH_IEEE8021X || sel == AUTH_WPA_EAP || sel == AUTH_WPA2_EAP || sel == AUTH_WPA3_EAP);
