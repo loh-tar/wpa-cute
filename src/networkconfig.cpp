@@ -17,6 +17,13 @@
 #include "scanresults.h"
 #include "wpagui.h"
 
+/* * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * * * * * * * * * *
+ * Here a small collection of useful information, Thanks to these authors!
+ *
+ * 802.1X: What EXACTLY is it regarding WPA and EAP?
+ * https://superuser.com/a/373492
+ * * * * * * * * * * * * * * * ** * * * * * * * * * * * * * * * *  * * * * * */
+
 enum {
 	AUTH_NONE_OPEN,
 	AUTH_NONE_WEP,
