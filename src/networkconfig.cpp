@@ -173,8 +173,7 @@ void NetworkConfig::eapChanged(int sel) {
 	while (phase2Select->count())
 		phase2Select->removeItem(0);
 
-	QStringList inner;
-	inner << "PEAP" << "TTLS" << "FAST";
+	static const QStringList inner = { "PEAP", "TTLS", "FAST" };
 	if (!inner.contains(eapSelect->itemText(sel)))
 		return;
 
@@ -191,9 +190,7 @@ void NetworkConfig::eapChanged(int sel) {
 
 	/* Add all enabled EAP methods that can be used in the tunnel */
 	int i;
-	QStringList allowed;
-	allowed << "MSCHAPV2" << "MD5" << "GTC" << "TLS" << "OTP" << "SIM"
-		<< "AKA";
+	static const QStringList allowed = { "MSCHAPV2", "MD5", "GTC", "TLS", "OTP", "SIM","AKA" };
 	for (i = 0; i < eapSelect->count(); i++) {
 		if (allowed.contains(eapSelect->itemText(i))) {
 			phase2Select->addItem("EAP-" + eapSelect->itemText(i));
