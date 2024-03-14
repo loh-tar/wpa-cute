@@ -139,7 +139,10 @@ void NetworkConfig::makeAvailable(QWidget* w, const bool yes) {
 
 void NetworkConfig::authChanged(int sel) {
 
-	makeAvailable(keyMgtBox, sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP && sel != AUTH_NONE_WEP_SHARED && sel != AUTH_WPA2_OWE);
+	// FIXME Not sure if this new added box make sense, so disabled for now
+	makeAvailable(keyMgtBox, 1 != 1);
+	// makeAvailable(keyMgtBox, sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP && sel != AUTH_NONE_WEP_SHARED && sel != AUTH_WPA2_OWE);
+	//
 	makeAvailable(encrBox, sel != AUTH_NONE_OPEN && sel != AUTH_NONE_WEP && sel != AUTH_NONE_WEP_SHARED);
 	makeAvailable(pskBox, sel == AUTH_WPA_PSK || sel == AUTH_WPA2_PSK || sel == AUTH_DEFAULTS);
 	makeAvailable(saeBox, sel == AUTH_WPA2_SAE || sel == AUTH_WPA3_EAP);
