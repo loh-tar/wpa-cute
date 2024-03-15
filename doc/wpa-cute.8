@@ -3,7 +3,7 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "WPA-CUTE" "8" "19 July 2022" "" ""
+.TH "WPA-CUTE" "8" "15 März 2024" "" ""
 
 .SH NAME
 wpaCute \- A graphical wpa_supplicant front end
@@ -14,13 +14,19 @@ wpaCute \- A graphical wpa_supplicant front end
 .SH "OVERVIEW"
 .PP
 wpaCute is a graphical Qt front end program for interacting
-with wpa_supplicant. It's used to query current status, change
-configuration and request interactive user input.
-.PP
-It supports (almost) all of the interactive status and
-configuration features of the command line client, wpa_cli. Refer
+with wpa_supplicant. It's used to query the current status and change the
+configuration. It supports a subset of the command line client, wpa_cli. Refer
 to the wpa_cli man page for a comprehensive list of the interactive
 mode features.
+.PP
+Perhaps the most practical reason to use wpaCute is that it displays a
+status icon in the system tray. With just one click on this, you can quickly
+switch networks on or off, add new ones, edit or delete them.
+.PP
+The aim of wpaCute is to support you when creating or editing a network
+connection, in such a way that only useful information is available for
+selection and some settings are made "secretly and undetected" automatically.
+However, this still needs a little more love until it is implemented satisfactorily.
 .PP
 wpaCute is a fork from wpa_gui, shipped with wpa_supplicant
 version 2.6
@@ -91,9 +97,11 @@ used, to some selections you made. If you encounter some misbehavior please
 report.
 .PP
 Entered secrets will not shown again when you edit a network. Only a
-hint that there is a password or key saved. I'm not a friend of that because
-while messing around to get a connect you can't check if you miss typed the
-password or something different is the problem.
+hint that there is a password or key saved. This can be annoying if you try to
+establish a new connection and it does not work immediately. Unfortunately, it
+is then not possible to check the password. However, this is not something that
+wpaCute can change, wpa_supplicant does not reveal the password but only that
+one exists.
 .PP
 When you add, delete or modify a network are these changes only made in
 a temporary manner inside the running wpa_supplicant. They take effect as long
@@ -101,19 +109,17 @@ as the wpa_supplicant is not terminated or triggered to reload its
 configuration. You have to save the changes explicit. This is different from
 the original wpa_gui.
 .PP
-Right now is the behavior, which data are changed (send to
-wpa_supplicant) not coherent. It depends sometimes if they are visible when
-you "Apply" or not. Your removed data are not every time forced to remove by
-wpa_supplicant. It's a little messy, sorry. Needs love and reports.
+After each change, the old network block is always removed and a new one
+created. This prevents unwanted old configuration remnants from remaining.
 .PP
-Right now will no data explicit removed when they are not visible. The
-wpa_supplicant documentation describes that you can have a pretty mix of
-possible settings which are all tested when wpa_supplicant tries to connect
-to some access point. I'm not sure if this is really a smart decision.
+The data in the IDString field will be shown
+in the ID column of the Networks list. This is a kind of ploy to make it
+easier to distinguish between identically or very similar named but different networks.
 .PP
-Long story, short sense: Don't expect to have a "clean" configured
-network block in your config file after you have clicked around to find a
-working setup.
+If the edit window does not offer some required settings option you need,
+you can also edit the configuration file by hand or using wpa_cli. You can
+then use wpaCute to select the network on or off as usual. Do not hesitate to
+fill out a bug report on the project page or directly by mail to the author.
 .SS "PEERS"
 .PP
 While transforming some code from old-school C/C++ to a more Qt like
