@@ -372,6 +372,9 @@
           </item>
           <item>
            <widget class="QTreeWidget" name="networkList">
+            <property name="mouseTracking">
+             <bool>true</bool>
+            </property>
             <property name="rootIsDecorated">
              <bool>false</bool>
             </property>
@@ -391,11 +394,6 @@
             </column>
             <column>
              <property name="text">
-              <string notr="true">ID</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
               <string notr="true">SSID</string>
              </property>
             </column>
@@ -406,12 +404,25 @@
             </column>
             <column>
              <property name="text">
+              <string notr="true">Id-String</string>
+             </property>
+             <property name="statusTip">
+              <string/>
+             </property>
+            </column>
+            <column>
+             <property name="text">
               <string notr="true">Prio</string>
              </property>
             </column>
             <column>
              <property name="text">
-              <string notr="true">Flags</string>
+              <string notr="true">Status</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Flags</string>
              </property>
             </column>
            </widget>
@@ -559,7 +570,7 @@
      <x>0</x>
      <y>0</y>
      <width>522</width>
-     <height>40</height>
+     <height>34</height>
     </rect>
    </property>
    <widget class="QMenu" name="fileMenu">

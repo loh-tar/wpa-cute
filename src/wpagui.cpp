@@ -119,6 +119,7 @@ WpaGui::WpaGui(WpaGuiApp *app
     }
 
 	networkList->setColumnHidden(NLColId, true);
+	networkList->setColumnHidden(NLColFlags, true);
 
 	disconReconButton->setDefaultAction(disconReconAction);
 	scanButton->setDefaultAction(scanAction);
@@ -579,6 +580,15 @@ int  WpaGui::getLastCtrlRequestReturnValue() {
 QString WpaGui::getData(const QString& cmd) {
 
 	ctrlRequest(cmd);
+	return getLastCtrlRequestResult();
+}
+
+
+QString WpaGui::getData(const QString& id, const QString& val) {
+
+	static const QString cmd("GET_NETWORK %1 %2");
+	ctrlRequest(cmd.arg(id).arg(val));
+
 	return getLastCtrlRequestResult();
 }
 
@@ -1101,16 +1111,26 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 		if (!data.at(0).contains(QRegularExpression("^[0-9]+$")))
 			continue;
 
-		QString cmd("GET_NETWORK %1 %2");
-		cmd = cmd.arg(data.at(0));
-
 		QTreeWidgetItem *item = new QTreeWidgetItem();
-		item->setText(NLColId, data.at(0));
-		item->setText(NLColIdVisible, data.at(0).rightJustified(3, ' '));
+		// list_networks results in such a list
+		// network id / ssid / bssid / flags
+		const QString id = data.at(0);
+		item->setText(NLColId, id);
 		item->setText(NLColSsid, data.at(1));
 		item->setText(NLColBssid, data.at(2));
-		item->setText(NLColPrio, getData(cmd.arg("priority")).rightJustified(3, ' '));
-		item->setText(NLColFlags, getIdFlag(data.at(0)) + data.at(3));
+		item->setText(NLColFlags, data.at(3));
+		item->setText(NLColIdStr, getData(id, "id_str"));
+		item->setText(NLColPrio, getData(id, "priority").rightJustified(3, ' '));
+		if (data.at(3).contains("[CURRENT]")) {
+			item->setText(NLColStatus, "C");
+			item->setStatusTip(NLColStatus, tr("Currently used network"));
+		} else if (data.at(3).contains("[DISABLED]")) {
+			item->setText(NLColStatus, "D");
+			item->setStatusTip(NLColStatus, tr("Network is disabled"));
+		} else if (data.at(3).contains("[TEMP-DISABLED]")) {
+			item->setText(NLColStatus, "E");
+			item->setStatusTip(NLColStatus, tr("Error: Network has wrong key"));
+		}
 
 		if (data.at(0) == substitudeNetworkId) {
 			substitudeNetwork = item;
