@@ -13,14 +13,12 @@ TODO
 - Add a window/tab to set/change all kind of wpa_supplicant variables that can
   be configured in the .config file. A list is fetch able with
     ctrlRequest"DUMP", buf, len) when len is long enough.
-- Fill Optional Settings tab in Edit Network window. Sadly no command to get a
-  list of available variables. Help says: Please see wpa_supplicant.conf
-  documentation for full list of available variables.
 - Do some checks with tools like valgrind if there are ugly mistakes
 
 
 General Jobs
 --------------
+- An own application icon would be nice !!!
 - Save/Restore window position between hide()/show(). It seams to be a kwin
   issue because pos() is in hide()/show() the same. So I think it is moved
   afterwards by kwin to the center of the screen
@@ -46,13 +44,12 @@ General Jobs
   the source and documentation at build time
 - Add a Changelog tab to the about dialog, but ensure to fill it out of some
   shipped CHANGELOG file
-- Regarding -W: Tthe supplicant delivers in the WRONG_KEY message infos about
+- Regarding -W: The supplicant delivers in the WRONG_KEY message infos about
   the next try and how often was tried, e.g. "auth_failures=8" "duration=90",
-  perhapse -W could take an optional parm try-max and the duration could used to
+  perhaps -W could take an optional parm try-max and the duration could used to
   hint the user when is next tried to connect. Furthermore could -W only disable
   a network with set bssid, but not with 'any'
 - Enhance the man page with more info, but don't explain each button
-- An own application icon would be nice
 - Icons for missing or not good looking wpa states, on breeze theme:
   - is the question mark too small when scanning
   - there is no different icon for inactive and disconnected.
@@ -68,12 +65,6 @@ Uncertainly
   but make this sense?
 - Offer enable/disable the adapter by rfkill? But rfkill seams to be Linux
   specific, so there has to be a couple of tests/alternatives
-- The docu notice these wired Ethernet driver. Is it possible to manage a normal
-  Ethernet adapter so wpaCute could be transformed into something like
-  NetworkManager?
-- How about to make a backup (and restore) of the config file at some place?
-- Think about the difference between Peers and Scan. Are both needed? Yes they
-  offer different things but that could be changed
 - Investigate the use of blacklist command, also regarding -W switch. I played
   around but couldn't notice some useful effect
 - See wpa_cli help wps_er_ / wps_nfc, important?
