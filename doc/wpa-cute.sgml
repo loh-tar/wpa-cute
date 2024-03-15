@@ -28,13 +28,20 @@
     <title>Overview</title>
 
     <para>wpaCute is a graphical Qt front end program for interacting
-    with wpa_supplicant. It's used to query current status, change
-    configuration and request interactive user input.</para>
-
-    <para>It supports (almost) all of the interactive status and
-    configuration features of the command line client, wpa_cli. Refer
+    with wpa_supplicant. It's used to query the current status and change the
+    configuration. It supports a subset of the command line client, wpa_cli. Refer
     to the wpa_cli man page for a comprehensive list of the interactive
     mode features.</para>
+
+    <para>Perhaps the most practical reason to use wpaCute is that it displays a
+    status icon in the system tray. With just one click on this, you can quickly
+    switch networks on or off, add new ones, edit or delete them.
+    </para>
+    <para>The aim of wpaCute is to support you when creating or editing a network
+    connection, in such a way that only useful information is available for
+    selection and some settings are made "secretly and undetected" automatically.
+    However, this still needs a little more love until it is implemented satisfactorily.
+    </para>
 
     <para>wpaCute is a fork from wpa_gui, shipped with wpa_supplicant
     version 2.6</para>
@@ -145,7 +152,7 @@
   created. This prevents unwanted old configuration remnants from remaining.
   </para>
   <para>The data in the IDString field will be shown
-  in the Flags column of the Networks list. This is a kind of ploy to make it
+  in the ID column of the Networks list. This is a kind of ploy to make it
   easier to distinguish between identically or very similar named but different networks.
   </para>
   <para>If the edit window does not offer some required settings option you need,
