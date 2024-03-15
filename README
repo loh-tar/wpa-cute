@@ -23,7 +23,10 @@ Last version is 0.8.4, Mar 2024
 ---------------------------------
   - Add support for WPA3-Personal and Opportunistic Wireless Encryption (OWE)
   - WPA3-Enterprise should also work but I can't try it
+  - Change displayed data in networklist
+  - Split Edit window in two tabs Network/Properties
   - Fix bad window size when add new network from scan results
+  - Keep the network block clean / No remaining old data after edit
   - Always use RSN instead of WPA2 as proto
   - Some minor changes
 
@@ -31,6 +34,7 @@ I tend to remove some functions in future versions. So if you use something
 other than WPA2/3 Personal, or Linux please let me know! What I have in mind is
   - WEP stuff, both offers and these key box
   - Old WPA (not 2/3) both offers
+  - Some fields like for pairwise
   - Peers window
 
 Older release notes can you find below. For details see the commit log.
@@ -141,6 +145,7 @@ Release History
   - Only show annoying "..indicating..authorized" message when a WPS run was
     issued by user
   - Fix typos in man page
+
 
 0.8.2, Jun 2022
 -----------------
