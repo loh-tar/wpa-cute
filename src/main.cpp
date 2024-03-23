@@ -83,6 +83,8 @@ int main(int argc, char* argv[]) {
 #endif
 
 	locale = QLocale::system().name();
+	// Here a note how to change the line when switch Qt5.15 => Qt6.6 (or later)
+	// resourceDir = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
 	resourceDir = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
 	if (!translator.load("wpa_gui_" + locale, resourceDir))
 		std::ignore = translator.load("wpa_gui_" + locale, "lang");

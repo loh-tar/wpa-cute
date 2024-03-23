@@ -7,7 +7,11 @@ QT += widgets svg
 CONFIG	+= qt warn_on debug_and_release
 
 DEFINES += CONFIG_CTRL_IFACE
+
+# Let us keep Qt5.15 until ~Apr 2026 (or later)
+# DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060602
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x050F00
+
 QMAKE_CXXFLAGS += -Wformat-truncation=0
 
 win32 {
