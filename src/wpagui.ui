@@ -145,156 +145,121 @@
             <property name="frameShadow">
              <enum>QFrame::Plain</enum>
             </property>
-            <layout class="QGridLayout" name="gridLayout_3">
-             <item row="0" column="1" rowspan="7">
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_5">
+               <item>
+                <widget class="QLabel" name="statusLabel">
+                 <property name="text">
+                  <string>Status:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="ssidLabel">
+                 <property name="text">
+                  <string>SSID:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="rssiLabel">
+                 <property name="text">
+                  <string>Signal:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="bssidLabel">
+                 <property name="text">
+                  <string>BSSID:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="authenticationLabel">
+                 <property name="text">
+                  <string>Authentication:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="encryptionLabel">
+                 <property name="text">
+                  <string>Encryption:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="ipAddressLabel">
+                 <property name="text">
+                  <string>IP address:</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_6">
+               <item>
+                <widget class="QLabel" name="textStatus">
+                 <property name="text">
+                  <string>&lt;status&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="textSsid">
+                 <property name="text">
+                  <string>&lt;ssid&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="textRssi">
+                 <property name="text">
+                  <string>&lt;rssi&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="textBssid">
+                 <property name="text">
+                  <string>&lt;bssid&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="textAuthentication">
+                 <property name="text">
+                  <string>&lt;auth&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="textEncryption">
+                 <property name="text">
+                  <string>&lt;encryp&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="textIpAddress">
+                 <property name="text">
+                  <string>&lt;ip-addr&gt;</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
               <spacer name="horizontalSpacer_5">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
-               <property name="sizeType">
-                <enum>QSizePolicy::Fixed</enum>
-               </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>9</width>
-                 <height>218</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="statusLabel">
-               <property name="text">
-                <string>Status:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="2">
-              <widget class="QProgressBar" name="rssiBar">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                 <horstretch>1</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
-               </property>
-               <property name="minimum">
-                <number>-95</number>
-               </property>
-               <property name="maximum">
-                <number>-35</number>
-               </property>
-               <property name="value">
-                <number>-68</number>
-               </property>
-               <property name="invertedAppearance">
-                <bool>true</bool>
-               </property>
-               <property name="textDirection">
-                <enum>QProgressBar::TopToBottom</enum>
-               </property>
-               <property name="format">
-                <string>%vdBm</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="bssidLabel">
-               <property name="text">
-                <string>BSSID:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="2">
-              <widget class="QLabel" name="textBssid">
-               <property name="text">
-                <string>&lt;bssid&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="ssidLabel">
-               <property name="text">
-                <string>SSID:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="rssiLabel">
-               <property name="text">
-                <string>Signal:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QLabel" name="authenticationLabel">
-               <property name="text">
-                <string>Authentication:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="2">
-              <widget class="QLabel" name="textAuthentication">
-               <property name="text">
-                <string>&lt;auth&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
-              <widget class="QLabel" name="encryptionLabel">
-               <property name="text">
-                <string>Encryption:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="QLabel" name="textStatus">
-               <property name="text">
-                <string>&lt;status&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="2">
-              <widget class="QLabel" name="textEncryption">
-               <property name="text">
-                <string>&lt;encryp&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="0">
-              <widget class="QLabel" name="ipAddressLabel">
-               <property name="text">
-                <string>IP address:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="2">
-              <widget class="QLabel" name="textIpAddress">
-               <property name="text">
-                <string>&lt;ip-addr&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2">
-              <widget class="QLabel" name="textSsid">
-               <property name="text">
-                <string>&lt;ssid&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="3">
-              <spacer name="horizontalSpacer_6">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeType">
-                <enum>QSizePolicy::Expanding</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>2</width>
+                 <width>282</width>
                  <height>20</height>
                 </size>
                </property>

@@ -31,6 +31,7 @@
 
 #include "about.h"
 #include "eventhistory.h"
+#include "helper.h"
 #include "networkconfig.h"
 #include "peers.h"
 #include "scanresults.h"
@@ -760,7 +761,7 @@ void WpaGui::setState(const WpaStateType state) {
 			networkMenu->setEnabled(false);
 			wpaguiTab->setTabEnabled(wpaguiTab->indexOf(networksTab), false);
 			wpaguiTab->setCurrentWidget(eventTab);
-			rssiBar->hide();
+			textRssi->hide();
 			letTheDogOut();
 			break;
 		case WpaUnknown: // TC
@@ -768,7 +769,7 @@ void WpaGui::setState(const WpaStateType state) {
 // 			icon = ;
 			stateText = tr("Unknown");
 			tally.insert(NetworkNeedsUpdate);
-			rssiBar->hide();
+			textRssi->hide();
 			break;
 		case WpaObscure: // TC
 			wpaState = WpaObscure;
@@ -803,7 +804,7 @@ void WpaGui::setState(const WpaStateType state) {
 			closeDialog(peersWindow);
 			tally.insert(NetworkNeedsUpdate);
 			if (ctrl_conn) { wpa_ctrl_close(ctrl_conn); ctrl_conn = NULL; }
-			rssiBar->hide();
+			textRssi->hide();
 			// Now, polling is mandatory
 			letTheDogOut();
 			break;
@@ -832,7 +833,7 @@ void WpaGui::setState(const WpaStateType state) {
 			scanAction->setEnabled(false);
 			peersAction->setEnabled(false);
 			tally.insert(NetworkNeedsUpdate);
-			rssiBar->hide();
+			textRssi->hide();
 			// Now, polling is mandatory
 			letTheDogOut();
 			break;
@@ -873,7 +874,7 @@ void WpaGui::setState(const WpaStateType state) {
 			disconReconAction->setStatusTip(StpWpsActTTTxt);
 			disconReconAction->setEnabled(true);
 			tally.insert(WpsRunning);
-			rssiBar->hide();
+			textRssi->hide();
 			break;
 		case WpaInactive: // FR
 			wpaState = WpaInactive;
@@ -883,7 +884,7 @@ void WpaGui::setState(const WpaStateType state) {
 			disconReconAction->setStatusTip(DiscActTTTxt);
 			disconReconAction->setEnabled(true);
 			tally.insert(NetworkNeedsUpdate);
-			rssiBar->hide();
+			textRssi->hide();
 			// The wpa_supplicant doesn't report the change
 			// inactive -> disconnected, so we need a work around,
 			letTheDogOut();
@@ -898,7 +899,7 @@ void WpaGui::setState(const WpaStateType state) {
 			wpsAction->setEnabled(tally.contains(WpsIsSupported));
 			scanAction->setEnabled(true);
 			peersAction->setEnabled(true);
-			rssiBar->hide();
+			textRssi->hide();
 			// The wpa_supplicant doesn't report the change
 			// scanning -> disconnected, so we need a work around
 			letTheDogOut(BorderCollie); // No PomDog, the scan need some time
@@ -911,7 +912,7 @@ void WpaGui::setState(const WpaStateType state) {
 			disconReconAction->setStatusTip(RecActTTTxt);
 			disconReconAction->setEnabled(true);
 			tally.insert(NetworkNeedsUpdate);
-			rssiBar->hide();
+			textRssi->hide();
 			// The wpa_supplicant doesn't report the change
 			// disconnected -> inactive, so we need a work around because that
 			// happens when you disable your connected network with no alternatives left
@@ -925,7 +926,7 @@ void WpaGui::setState(const WpaStateType state) {
 			wpaState = WpaLostSignal;
 			icon = TrayIconSignalNone;
 			stateText = tr("Lost signal");
-			rssiBar->hide();
+			textRssi->hide();
 			trayMessage(stateText
 			           + tr(" from %1 - %2").arg(textSsid->text()).arg(textBssid->text())
 			           , LogThis, QSystemTrayIcon::Warning);
@@ -938,7 +939,7 @@ void WpaGui::setState(const WpaStateType state) {
 			disconReconAction->setStatusTip(DiscActTTTxt);
 			disconReconAction->setEnabled(true);
 			tally.insert(NetworkNeedsUpdate);
-			rssiBar->show();
+			textRssi->show();
 			trayMessage(stateText
 			           + tr(" to %1 - %2").arg(textSsid->text()).arg(textBssid->text())
 			           , LogThis);
@@ -1439,7 +1440,7 @@ void WpaGui::updateSignalMeter() {
 	}
 
 	debug("RSSI value: %d", rssi_value);
-	rssiBar->setValue(rssi_value);
+	textRssi->setText(Helper::signalToHumanText(rssi_value));
 
 	/*
 	 * NOTE: The code below assumes, that the unit of the value returned
@@ -2199,7 +2200,7 @@ void WpaGui::showTrayStatus() {
 		msg.append(mask.arg(ssidLabel->text(), lw)
 		               .arg(textSsid->text(), tw));
 		msg.append(mask.arg(rssiLabel->text(), lw)
-		               .arg(rssiBar->text(), tw));
+		               .arg(textRssi->text(), tw));
 		msg.append(mask.arg(bssidLabel->text(), lw)
 		               .arg(textBssid->text(), tw));
 		msg.append(mask.arg(authenticationLabel->text(), lw)

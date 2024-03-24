@@ -9,24 +9,16 @@
  * See COPYING for more details.
  */
 
+#ifndef HELPER_H
+#define HELPER_H
+
 #include <QString>
 
 namespace Helper {
 
-	QString signalToHumanText(const QString& signal) {
-		const int s = signal.toInt();
-		if (s < -87) {
-			return signal + "dBm ☆☆☆☆☆";
-		} else if (s < -80) {
-			return signal + "dBm ★☆☆☆☆";
-		} else if (s < -73) {
-			return signal + "dBm ★★☆☆☆";
-		} else if (s < -65) {
-			return signal + "dBm ★★★☆☆";
-		} else if (s < -58) {
-			return signal + "dBm ★★★★☆";
-		} else {
-			return signal + "dBm ★★★★★";
-		}
-	};
+	QString signalToHumanText(const QString& signal);
+	QString signalToHumanText(int signal);
+
 }
+
+#endif /* HELPER_H */

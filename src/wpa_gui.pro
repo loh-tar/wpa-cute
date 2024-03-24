@@ -61,6 +61,7 @@ SOURCES	+= main.cpp \
 	addinterface.cpp \
 	peers.cpp \
 	stringquery.cpp \
+	helper.cpp \
 	about.cpp \
 	../wpa_supplicant/src/common/wpa_ctrl.c
 
