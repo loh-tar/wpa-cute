@@ -30,6 +30,7 @@ ScanResults::ScanResults(WpaGui* _wpagui)
 	connect(chooseButton, SIGNAL(clicked()), this, SLOT(chooseNetwork()));
 	connect(addButton, SIGNAL(clicked()), this, SLOT(addNetwork()));
 	connect(wpsButton, SIGNAL(clicked()), this, SLOT(showWpsDialog()));
+	connect(filterField, &QLineEdit::textChanged, this, &ScanResults::filterResults);
 
 	connect(scanResultsWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*))
 	      , this, SLOT(networkSelected(QTreeWidgetItem*)));
@@ -161,6 +162,7 @@ void ScanResults::updateResults() {
 			item->setText(SRColBssid, bssid);
 			item->setText(SRColSignal, signal);
 			item->setText(SRColFreq, freq);
+			item->setHidden(!ssid.contains(filterField->text(), Qt::CaseInsensitive));
 			QString wrongKeyId = "not-set";
 			if (currentBSSID == bssid) {
 				customFlags = QString("[CURRENT-%1]").arg(currentId);
@@ -239,6 +241,15 @@ void ScanResults::updateResults() {
 		scanResultsWidget->setCurrentItem(wrongKeyOption);
 	else if (bestAltOption)
 		scanResultsWidget->setCurrentItem(bestAltOption);
+}
+
+
+void ScanResults::filterResults(const QString &pattern) {
+
+	for (int i = 0; i < scanResultsWidget->topLevelItemCount(); i++) {
+		QTreeWidgetItem* item = scanResultsWidget->topLevelItem(i);
+		item->setHidden(!item->text(SRColSsid).contains(pattern, Qt::CaseInsensitive));
+	}
 }
 
 

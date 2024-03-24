@@ -38,6 +38,7 @@ public slots:
 	        void updateResults();
 
 protected slots:
+	        void filterResults(const QString &pattern);
 	        void languageChange();
 	        void networkSelected(QTreeWidgetItem* curr);
 	        void addNetwork();
