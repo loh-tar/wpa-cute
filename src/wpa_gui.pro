@@ -43,7 +43,6 @@ HEADERS	+= wpamsg.h \
 	eventhistory.h \
 	scanresults.h \
 	scanresultsitem.h \
-	signalbar.h \
 	wpsdialog.h \
 	networkconfig.h \
 	addinterface.h \
@@ -57,7 +56,6 @@ SOURCES	+= main.cpp \
 	scanresults.cpp \
 	scanresultsitem.cpp \
 	wpsdialog.cpp \
-	signalbar.cpp \
 	networkconfig.cpp \
 	addinterface.cpp \
 	peers.cpp \

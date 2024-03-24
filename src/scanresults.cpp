@@ -13,7 +13,6 @@
 
 #include "networkconfig.h"
 #include "scanresultsitem.h"
-#include "signalbar.h"
 #include "wpagui.h"
 #include "wpsdialog.h"
 
@@ -39,7 +38,6 @@ ScanResults::ScanResults(WpaGui* _wpagui)
 
 	scanResultsWidget->setItemsExpandable(false);
 	scanResultsWidget->setRootIsDecorated(false);
-	scanResultsWidget->setItemDelegate(new SignalBar(scanResultsWidget));
 
 	// FIXME When wpagui has some func to check tally, use tally instead
 	size_t len(100); char buf[len];
@@ -163,7 +161,7 @@ void ScanResults::updateResults() {
 		if (item) {
 			item->setText(SRColSsid, ssid);
 			item->setText(SRColBssid, bssid);
-			item->setText(SRColSignal, signal);
+			item->setText(SRColSignal, signal + " dBm");
 			item->setText(SRColFreq, freq);
 			item->setHidden(!ssid.contains(filterField->text(), Qt::CaseInsensitive));
 			QString wrongKeyId = "not-set";
@@ -226,9 +224,7 @@ void ScanResults::updateResults() {
 	else
 		idx = std::max(0, static_cast<int>(85 * ssidTextWidth.size() / 100) -1 );
 
-	h->resizeSection(0, ssidTextWidth.at(idx));        // SSID
-
-	h->setSectionResizeMode(2 , QHeaderView::Stretch); // Signal Bar
+	h->resizeSection(SRColSsid, ssidTextWidth.at(idx));
 
 	scanButton->setEnabled(true);
 	addButton->setEnabled(false);
