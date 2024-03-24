@@ -48,6 +48,7 @@ HEADERS	+= wpamsg.h \
 	addinterface.h \
 	peers.h \
 	stringquery.h \
+	helper.h \
 	about.h
 
 SOURCES	+= main.cpp \

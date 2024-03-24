@@ -11,6 +11,7 @@
 
 #include "scanresults.h"
 
+#include "helper.h"
 #include "networkconfig.h"
 #include "scanresultsitem.h"
 #include "wpagui.h"
@@ -161,20 +162,7 @@ void ScanResults::updateResults() {
 		if (item) {
 			item->setText(SRColSsid, ssid);
 			item->setText(SRColBssid, bssid);
-			const int s = signal.toInt();
-			if (s < -87) {
-				item->setText(SRColSignal, signal + "dBm ☆☆☆☆☆");
-			} else if (s < -80) {
-				item->setText(SRColSignal, signal + "dBm ★☆☆☆☆");
-			} else if (s < -73) {
-				item->setText(SRColSignal, signal + "dBm ★★☆☆☆");
-			} else if (s < -65) {
-				item->setText(SRColSignal, signal + "dBm ★★★☆☆");
-			} else if (s < -58) {
-				item->setText(SRColSignal, signal + "dBm ★★★★☆");
-			} else {
-				item->setText(SRColSignal, signal + "dBm ★★★★★");
-			}
+			item->setText(SRColSignal, Helper::signalToHumanText(signal));
 			item->setText(SRColFreq, freq);
 			item->setHidden(!ssid.contains(filterField->text(), Qt::CaseInsensitive));
 			QString wrongKeyId = "not-set";
