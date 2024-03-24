@@ -22,8 +22,6 @@ General Jobs
 - Save/Restore window position between hide()/show(). It seams to be a kwin
   issue because pos() is in hide()/show() the same. So I think it is moved
   afterwards by kwin to the center of the screen
-- Fix the missing highlighting of the signal meter when some selection is made
-  on the Scan window
 - Investigate and fix (if needed) handling of SSIDs with includet quotes. The
   supplicant seems to support it but not our networkconfig
 - Add a status bar to Edit Network window. Surprisingly tricky to add one to a
@@ -35,8 +33,6 @@ General Jobs
   http://www.qtcentre.org/threads/10593-QDialog-StatusBar
 - Add an info/error/warning icon to to the statusHint when showing not
   the status. Add the tray icon when showing the status
-- Add a fancy ASCII signal strength meter to the tray icon message, somehow like
-	-66dBm [>>>>>>>>    ]   -66dBm [********    ]   -66dBm [########----]
 - Add some icons to the Envents log entries at least when error/warning
 - Change debug to some more smart solution. These #define doesn't accept
   QFooBarClass and it can't combinet with qDebug() << QFooBarClass
