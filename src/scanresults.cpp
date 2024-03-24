@@ -207,8 +207,6 @@ void ScanResults::updateResults() {
 			if (selectedBSSID == bssid)
 				selectedNetwork = item;
 		}
-		if (bssid.isEmpty())
-			break;
 	}
 
 	// Because the result of this resizing...
