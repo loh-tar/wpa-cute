@@ -125,6 +125,9 @@ void ScanResults::updateResults() {
 		}
 	}
 
+	// No idea why we not fetch the results all at once with
+	//    wpagui->ctrlRequest("SCAN_RESULTS", buf, len);
+	// But I'm not in the mood to touch this now
 	while (wpagui && index < 1000) {
 		if (wpagui->ctrlRequest(cmd.arg(index++), buf, len) < 0)
 			break;
