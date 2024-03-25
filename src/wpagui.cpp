@@ -827,7 +827,7 @@ void WpaGui::setState(const WpaStateType state) {
 			wpaState = WpaDisabled;
 			stateText = tr("Adapter is disabled");
 			logHint(tr("You have to enable the adapter by some 'rfkill switch'"));
-			icon = TrayIconOffline;
+			icon = TrayIconDisabled;
 			disconReconAction->setEnabled(false);
 			wpsAction->setEnabled(false);
 			scanAction->setEnabled(false);
@@ -2242,13 +2242,24 @@ void WpaGui::updateTrayIcon(const TrayIconType type) {
 
 	oldIconType = type;
 
+	// Look at /usr/share/icons/breeze/status/24
+	//     and /usr/share/icons/Adwaita/symbolic/status
+	// List always the Breeze icon first, then Adwaita see commit e9b57b1ce4729959d9b587f1ce6c524db7a6530d
+	// Note: Adwaita has only five different signal qualities, beside off etc
+	//       Breeze named nine qualities but has in fact also only five different icons for qualities
+	// Sadly use we in our fancy star-meter "-69dBm ★★★☆☆" five stars but six states. Four stars looks strange and
+	// showing one black when there is a very bad connection is already too much for my taste. Hm, we will see...
 	switch (type) {
 	case TrayIconNone:
 		return;
 		break;
 	case TrayIconError:
-		names << "error"
+		names << "state-error"
 		      << "network-wireless-offline-symbolic";
+		break;
+	case TrayIconDisabled:
+		names << "network-wireless-off"
+		      << "network-wireless-disabled-symbolic";
 		break;
 	case TrayIconOffline:
 		names << "network-wireless-disconnected"
@@ -2265,10 +2276,6 @@ void WpaGui::updateTrayIcon(const TrayIconType type) {
 	case TrayIconAcquiring:
 		names << "network-wireless-acquiring"
 		      << "network-wireless-acquiring-symbolic";
-		break;
-	case TrayIconConnected:
-		names << "network-wireless-connected-00"
-		      << "network-wireless-connected-symbolic";
 		break;
 	case TrayIconSignalNone:
 		names << "network-wireless-signal-none"

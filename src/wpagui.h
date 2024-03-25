@@ -53,11 +53,11 @@ public:
 	enum TrayIconType {
 		TrayIconNone = 0,
 		TrayIconError,
+		TrayIconDisabled,
 		TrayIconOffline,
 		TrayIconInactive,
 		TrayIconScanning,
 		TrayIconAcquiring,
-		TrayIconConnected,
 		TrayIconSignalNone,
 		TrayIconSignalWeak,
 		TrayIconSignalOk,
