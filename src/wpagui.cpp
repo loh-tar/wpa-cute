@@ -738,11 +738,11 @@ void WpaGui::setState(const WpaStateType state) {
 
 	tally.insert(StatusNeedsUpdate);
 
-	// There are differend types of states...
+	// There are different types of states...
 	//   F) Fixed states, can be (virtually) for ever
 	//   T) Temporary states, only a view seconds or less
 	//   R) States reported by status command
-	//   C) Custom/Control states used to control the prgram
+	//   C) Custom/Control states used to control the program
 	// ...whereas a state can belong to more than type.
 	// In most F states must be polling enabled due to the lack of a
 	// "STATE-HAS-CHANGED" message by wpa_supplicant, very ugly!
