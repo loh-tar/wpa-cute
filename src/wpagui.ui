@@ -538,6 +538,9 @@
      <height>34</height>
     </rect>
    </property>
+   <property name="nativeMenuBar">
+    <bool>false</bool>
+   </property>
    <widget class="QMenu" name="fileMenu">
     <property name="title">
      <string>&amp;wpa</string>
