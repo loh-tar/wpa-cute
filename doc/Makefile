@@ -1,20 +1,10 @@
-all: man html pdf
-
-FILES += wpa-cute
+all: man html
 
 man:
-	for i in $(FILES); do docbook2man $$i.sgml; done
+	ronn --roff < wpa-cute.ronn > wpa-cute.8
 
 html:
-	for i in $(FILES); do docbook2html $$i.sgml && \
-		mv index.html $$i.html; done
-
-pdf:
-	for i in $(FILES); do docbook2pdf $$i.sgml; done
-
+	ronn --html < wpa-cute.ronn > wpa-cute.html
 
 clean:
-	rm -f wpa-cute.8
-	rm -f manpage.links manpage.refs
-	rm -f $(FILES:%=%.pdf)
-	rm -f $(FILES:%=%.html)
+	rm -f wpa-cute.8 wpa-cute.html

@@ -78,14 +78,15 @@ Because there is no make install target yet, run on Unices
 
 Non Unices user has to do something similar.
 
-Additional can the man page generated as HTML and PDF out of the sgml file. To
-do so run
+Additional can the man page generated as HTML out of the .ronn file. To
+do so run:
 
   $ cd ../doc
-  $ make pdf # or html or man or all
+  $ make html # or man or all
 
 The "native" man page should already be up to date, as assumed above. To create
-the PDF are too much dependencies required for my taste.
+the files is ronn needed. On my Arch was ruby-ronn-ng available which pull a
+bunch of dependencies but cost only 30,65 MiB in total.
 
 
 Post Install Steps

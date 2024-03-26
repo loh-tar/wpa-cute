@@ -1,0 +1,171 @@
+wpa-cute(8) -- A graphical wpa_supplicant front end
+===================================================
+
+## SYNOPSIS
+
+`wpa-cute` [ -i ifname ] [ -m seconds ] [ -N ] [ -p path-to-ctrl-sockets ] [ -q ] [ -t ] [ -W ]
+
+
+## DESCRIPTION
+
+wpaCute is a graphical Qt front end program for interacting with wpa_supplicant.
+It's used to query the current status and change the con‐ figuration. It
+supports a subset of the command line client, wpa_cli. Refer to the `wpa_cli(8)` man
+page for a comprehensive list of the interactive mode features.
+
+Perhaps the most practical reason to use wpaCute is that it displays a status
+icon in the system tray. With just one click on this, you can quickly switch
+networks on or off, add new ones, edit or delete them.
+
+The aim of wpaCute is to support you when creating or editing a network
+connection, in such a way that only useful information is available for
+selection and some settings are made "secretly and undetected" automatically.
+However, this still needs a little more love until it is implemented
+satisfactorily.
+
+wpaCute is a fork from wpa_gui, shipped with wpa_supplicant version 2.6
+
+
+## COMMAND ARGUMENTS
+
+  * `-i` <ifname>:
+    Specify the interface that is be configured.  Without -i choose the
+    first interface found in the socket path which start not with 'p2p-dev-'
+    otherwise the last found interface is chosen.
+
+  * `-m` <seconds>:
+    Set an independent update interval in seconds for the signal strength meter.
+
+    This value must be a positive integer. Without `-m` the signal meter is only
+    updated at each status update.  See also the notes about polling and pinging.
+
+  * `-N`:
+    Force not to use QSocketNotifier, use only polling.  It's more for testing purposes.
+
+  * `-p` <path-to-ctrl-sockets>:
+    Change the path where control sockets should be found.
+
+  * `-q`:
+    Run program in the quiet mode - do not display tray icon pop-up messages.
+
+  * `-t`:
+    Start program in the system tray only (if the window manager supports it).
+    By default the main status window is shown.
+
+  * `-W`:
+    Unset setting - Disable network after "WRONG_KEY"
+
+    This is a workaround to a wpa_supplicant quirk where he endless tries to
+    connect to a wrong configured network. There are cases where it is a good
+    idea, but I believe it is mostly annoying due to it's implementation. If I'm
+    wrong, use -W to have the original behavior. By default will now a network
+    disabled after a "WRONG_KEY" message.
+
+
+## NOTES ABOUT SOME GUI ELEMENTS
+
+### Status Icon
+
+The icon changes its appearance depending on the current connection status or quality.
+A single `left-click` on the icon show or hide the main window. While `right-clicking`
+will make a number of other actions available.
+
+### wpaCute Main Window
+
+When wpaCute is called up the first time, is always the **Networks** tab active.
+All your configured networks are listed there. To connect to a new, unknown network,
+press the `Scan` button to search for available networks or use the `Add` button
+to enter all needed data manually.
+
+The **Status** page displays some information about the current connection while
+on the **Events** page some messages are be collected from wpa_supplicant. These
+are a small subset of the information shown on the [Event History Window].
+
+### Edit Network Window
+
+The window morphs its look to show always only what is needed, or can be
+used, to some selections you made. If you encounter some misbehavior please
+report.
+
+Entered secrets will not shown again when you edit a network. Only a hint
+that there is a password or key saved. This can be annoying if you try to
+establish a new connection and it does not work immediately. Unfortunately, it
+is then not possible to check the password. However, this is not something that
+wpaCute can change, wpa_supplicant does not reveal the password but only that
+one exists.
+
+When you add, delete or modify a network are these changes only made in a
+temporary manner inside the running wpa_supplicant. They take effect as
+long as the wpa_supplicant is not terminated or triggered to reload its
+configuration, e.g. by `F5`. You have to save the changes explicit by `Ctrl+S`.
+This is different from the original wpa_gui.
+
+After each change, the old network block is always removed and a new one
+created. This prevents unwanted old configuration remnants from remaining.
+
+The data in the **IDString** field will be shown in the ID column of the **Networks**
+list. This is a kind of ploy to make it easier to distinguish between
+identically or very similar named but different networks.
+
+If the edit window does not offer some required settings option you need, you
+can also edit the configuration file by hand or using `wpa_cli`. You can then use
+wpaCute to select the network on or off as usual. Do not hesitate to fill out a
+bug report on the project page or directly by mail to the author.
+
+
+### Event History Window
+
+All wpa_supplicant messages are collected there, but only if the window has been
+opened once. This is why it is always empty the first time it is called up, regardless
+of how long wpaCute has been running.
+
+
+### Peers Window
+
+The Peers window is not maintained and almost unchanged from the original wpa_gui.
+While transforming some code from old-school C/C++ to a more Qt like style,
+I noticed some wpa control request that are not, or in a different way,
+supported by wpa_cli. So you may encounter some disappointments. When no one explain
+me in the near future what the benefit of this window is, could it be removed soon.
+
+
+## THINGS OF INTEREST
+
+### Polling and Pinging
+
+On systems where QSocketNotifier is not supported is wpa_supplicant only polled
+to fetch status changes.
+
+One ambitious development goal was to drop the need for Polling & Pinging on
+systems where QSocketNotifier is supported. But it turned out that this was
+a road to ruin due to the lack of some 'Status Has Changed Message' from
+wpa_supplicant. And finally would than still the problem be left that
+wpa_supplicant could silently die without some sigh. So, we are doomed to poll!
+
+The polling is now not done in a fixed interval but depends on current
+status and reach from high frequent polling in 1sec,  when probably changes
+are on the way, down to 20sec in some static status where primarily is checked
+if someone is still alive.
+
+With the main window visible is polled in 5sec.  Only in case of an fatal
+error is polling halted, which e.g. occurs when the user not belongs to the
+configured 'ctrl_interface_group=foo'.
+
+
+<!-- ## SECURITY CONSIDERATIONS -->
+<!-- ## BUGS -->
+<!-- ## HISTORY -->
+
+## COPYRIGHT
+
+    This program is licensed under the BSD license (the one with advertisement clause removed).
+
+    wpaCute - A graphical wpa_supplicant front end
+    Copyright (C) 2018, 2022, 2024 loh.tar@googlemail.com
+
+    wpa_gui for wpa_supplicant
+    Copyright (C) 2003-2015 Jouni Malinen <j@w1.fi> and contributors.
+
+## SEE ALSO
+wpa_cli(8) wpa_supplicant(8)
+
