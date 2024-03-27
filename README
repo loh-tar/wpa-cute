@@ -46,7 +46,7 @@ Features
   - Scan for networks and connect to them via WPS or enter the data manually
   - Change, add or remove network profiles
   - Support for many station modes, from outdated insecure up to WPA3
-  - Small memory foot print, download ~300k, install ~800k, running ~10M
+  - Small memory foot print, download ~350k, install ~1M, running ~30M
 
 
 Requirements
