@@ -1018,6 +1018,8 @@ void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 	}
 
 	textSsid->setText(status.value("ssid"));
+	textFreq->setText(status.value("freq") + "MHz");
+	textWifiGen->setText(status.value("wifi_generation"));
 	textBssid->setText(status.value("bssid"));
 
 	if (  status.contains("pairwise_cipher") && status.contains("group_cipher") &&
