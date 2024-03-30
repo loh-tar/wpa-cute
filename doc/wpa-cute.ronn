@@ -81,9 +81,9 @@ All your configured networks are listed there. To connect to a new, unknown netw
 press the `Scan` button to search for available networks or use the `Add` button
 to enter all needed data manually.
 
-The **Status** page displays some information about the current connection while
-on the **Events** page some messages are be collected from wpa_supplicant. These
-are a small subset of the information shown on the [Event History Window].
+The **Status** page displays some information about the current connection. While
+on the **Events** page not only some messages are been collected from wpa_supplicant
+in a human friendly way but also some other information like errors.
 
 ### Edit Network Window
 
