@@ -2223,8 +2223,35 @@ void WpaGui::updateTrayToolTip(const QString& msg) {
 	if (!trayIcon || msg.isEmpty())
 		return;
 
-	if (WpaCompleted == wpaState)
-		trayIcon->setToolTip(QString("%1 - %2").arg(ctrlInterface).arg(textSsid->text()));
+	if (WpaCompleted == wpaState) {
+		QString txt, mask("%1  %2 \n");
+		// int lw = 20, tw = -40; // Nice form layout cause only bad look on KDE
+		int lw = 0, tw = 0;
+		txt = QString("%1 - %2\n").arg(ctrlInterface).arg(textStatus->text());
+		// txt.append(mask.arg(adapterLabel->text() + ":", lw)
+		               // .arg(ctrlInterface, tw));
+		// txt.append(mask.arg(statusLabel->text(), lw)
+		               // .arg(textStatus->text(), tw));
+		txt.append(mask.arg(ssidLabel->text(), lw)
+		               .arg(textSsid->text(), tw));
+		txt.append(mask.arg(rssiLabel->text(), lw)
+		               .arg(textRssi->text(), tw));
+		txt.append(mask.arg(bssidLabel->text(), lw)
+		               .arg(textBssid->text(), tw));
+		txt.append(mask.arg(authenticationLabel->text(), lw)
+		               .arg(textAuthentication->text(), tw));
+		txt.append(mask.arg(encryptionLabel->text(), lw)
+		               .arg(textEncryption->text(), tw));
+		txt.append(mask.arg(ipAddressLabel->text(), lw)
+		               .arg(textIpAddress->text(), tw));
+
+		// FIXME Rich-Text is ignored by KDE, we would need to code some custom ToolTip-Widget
+		// and subclass QSystemTrayIcon. Trying to fetch ToolTip-Events by eventFilter here
+		// don't work, there comes no events(!?) Guess because QSystemTrayIcon is running in some sub-task,
+		// Qt docu talk about dbus in context of tray icon use
+		// trayIcon->setToolTip("<html><head/><body><p>" + txt + "</p><p><br/></p></body></html>");
+		trayIcon->setToolTip(txt.chopped(1)); // txt without the last \n
+	}
 	else if (!ctrlInterface.isEmpty())
 		trayIcon->setToolTip(QString("%1 - %2").arg(ctrlInterface).arg(msg));
 	else
