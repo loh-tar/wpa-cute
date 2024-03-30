@@ -167,8 +167,11 @@ WpaGui::WpaGui(WpaGuiApp *app
 	      , this, SLOT(saveConfig()));
 	connect(reloadConfigAction, SIGNAL(triggered())
 	      , this, SLOT(reloadConfig()));
-	connect(quitAction, SIGNAL(triggered())
-	      , qApp, SLOT(quit()));
+	connect(quitAction, &QAction::triggered, this, [=](){
+		// Ensure not to show some "keep running..." message
+		tally.insert(AckTrayIcon);
+		qApp->quit();
+	});
 
 	connect(scanAction, SIGNAL(triggered())
 	      , this, SLOT(showScanWindow()));
