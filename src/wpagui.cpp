@@ -2238,6 +2238,8 @@ void WpaGui::updateTrayToolTip(const QString& msg) {
 		               .arg(textSsid->text(), tw));
 		txt.append(mask.arg(rssiLabel->text(), lw)
 		               .arg(textRssi->text(), tw));
+		txt.append(mask.arg(freqLabel->text(), lw)
+		               .arg(textFreq->text(), tw));
 		txt.append(mask.arg(bssidLabel->text(), lw)
 		               .arg(textBssid->text(), tw));
 		txt.append(mask.arg(authenticationLabel->text(), lw)
