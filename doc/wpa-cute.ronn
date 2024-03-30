@@ -68,7 +68,11 @@ wpaCute is a fork from wpa_gui, shipped with wpa_supplicant version 2.6
 
 The icon changes its appearance depending on the current connection status or quality.
 A single `left-click` on the icon show or hide the main window. While `right-clicking`
-will make a number of other actions available.
+will make a number of other actions available, like to show a Status information popup
+window. That can by the way also be displayed with a `middle-click` on the icon.
+
+Hint: This Status window is now somehow obsolete. Currently will the same, and more,
+information shown by just hovering the icon.
 
 ### wpaCute Main Window
 
