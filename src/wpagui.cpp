@@ -41,9 +41,9 @@
 #include "wpagui.h"
 
 #ifndef QT_NO_DEBUG
-#define debug(M, ...) qDebug("DEBUG %d: " M, __LINE__, ##__VA_ARGS__)
+#define de_bug(M, ...) qDebug("DEBUG %d: " M, __LINE__, ##__VA_ARGS__)
 #else
-#define debug(M, ...) do {} while (0)
+#define de_bug(M, ...) do {} while (0)
 #endif
 
 
@@ -491,7 +491,7 @@ int WpaGui::openCtrlConnection(const QString& ifname) {
 			logHint(errTxt);
 		}
 
-		debug(" case %d : %s",e, dbgTxt.toLocal8Bit().constData());
+		de_bug(" case %d : %s",e, dbgTxt.toLocal8Bit().constData());
 		return -1;
 	}
 
@@ -540,9 +540,9 @@ int WpaGui::ctrlRequest(const QString& cmd, char* buf, const size_t buflen) {
 	                                            , buf, &len, NULL);
 
 	if (lastCtrlRequestReturnValue == -2)
-		debug("'%s' command timed out.", cmd.toLocal8Bit().constData());
+		de_bug("'%s' command timed out.", cmd.toLocal8Bit().constData());
 	else if (lastCtrlRequestReturnValue < 0)
-		debug("'%s' command failed.", cmd.toLocal8Bit().constData());
+		de_bug("'%s' command failed.", cmd.toLocal8Bit().constData());
 
 	buf[len] = '\0';
 	lastCtrlRequestResult = QString(buf);
@@ -560,7 +560,7 @@ int WpaGui::ctrlRequest(const QString& cmd, char* buf, const size_t buflen) {
 
 int WpaGui::ctrlRequest(const QString& cmd) {
 
-	debug("%s", cmd.toLocal8Bit().constData());
+	de_bug("%s", cmd.toLocal8Bit().constData());
 	size_t len(100); char buf[len];
 	return ctrlRequest(cmd, buf, len);
 }
@@ -686,7 +686,7 @@ void WpaGui::blockConfigUpdates(bool blocking/* = true*/) {
 		if (tally.contains(ConfigUpdatesBlocked))
 			return;
 		if (checkUpdateConfigSetting(0)) {
-			debug(" BLOCK updates");
+			de_bug(" BLOCK updates");
 			tally.insert(ConfigUpdatesBlocked);
 			saveST = saveConfigAction->statusTip();
 			// FIXME WTF? Disabled action shows no statusTip!(?) https://forum.qt.io/post/447331
@@ -695,7 +695,7 @@ void WpaGui::blockConfigUpdates(bool blocking/* = true*/) {
 		}
 	} else {
 		if (tally.remove(ConfigUpdatesBlocked)) {
-			debug(" UNBLOCK updates");
+			de_bug(" UNBLOCK updates");
 			checkUpdateConfigSetting(1);
 			saveConfigAction->setStatusTip(saveST);
 		}
@@ -727,7 +727,7 @@ void WpaGui::setState(const WpaStateType state) {
 	}
 
 	if (tally.contains(WpsRunning)) {
-		debug(" New state blocked: %d", state);
+		de_bug(" New state blocked: %d", state);
 		return;
 	}
 
@@ -950,7 +950,7 @@ void WpaGui::setState(const WpaStateType state) {
 			break;
 	}
 
-	debug(" #### New state: %s", stateText.toLocal8Bit().constData());
+	de_bug(" #### New state: %s", stateText.toLocal8Bit().constData());
 
 	oldState = state;
 
@@ -965,12 +965,12 @@ void WpaGui::setState(const WpaStateType state) {
 
 void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 
-	debug(" updateStatus ??");
+	de_bug(" updateStatus ??");
 
 	if (!needsUpdate || (ctrl_conn == nullptr))
 		return;
 
-	debug(" updateStatus >>");
+	de_bug(" updateStatus >>");
 	tally.remove(StatusNeedsUpdate);
 
 	if (WpaNotRunning == wpaState) {
@@ -982,7 +982,7 @@ void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 		return;
 	}
 
-	debug(" updateStatus >>>>");
+	de_bug(" updateStatus >>>>");
 
 	size_t len(2048); char buf[len];
 	if (ctrlRequest("STATUS", buf, len) < 0) {
@@ -1008,7 +1008,7 @@ void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 #endif /* CONFIG_NATIVE_WINDOWS */
 		return;
 	}
-	debug(" updateStatus >>>>>>");
+	de_bug(" updateStatus >>>>>>");
 
 	QHash<QString, QString> status;
 	foreach(QString line, QString(buf).split('\n')) {
@@ -1057,13 +1057,13 @@ void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 	updateSignalMeter();
 	updateNetworks(tally.contains(NetworkNeedsUpdate));
 	tally.remove(StatusNeedsUpdate);
-	debug(" updateStatus <<<<<<");
+	de_bug(" updateStatus <<<<<<");
 }
 
 
 void WpaGui::updateNetworks(bool changed/* = true*/) {
 
-	debug(" updateNetworks() ??");
+	de_bug(" updateNetworks() ??");
 
 	if (!changed)
 		return;
@@ -1092,13 +1092,13 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 		return;
 	}
 
-	debug("updateNetworks() >>");
+	de_bug("updateNetworks() >>");
 
 	size_t len(4096); char buf[len];
 	if (ctrlRequest("LIST_NETWORKS", buf, len) < 0)
 		return;
 
-	debug("updateNetworks() >>>>>>");
+	de_bug("updateNetworks() >>>>>>");
 
 	// Avoid annoying fidgeting of a full filled network list
 	// FIXME If there is better/simpler solution
@@ -1138,7 +1138,7 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 		}
 		if (data.at(0) == selectedNetworkId) {
 			selectedNetwork = item;
-			debug("restore old selection: %d", selectedNetworkId.toInt());
+			de_bug("restore old selection: %d", selectedNetworkId.toInt());
 		}
 		if (data.at(3).contains("[CURRENT]")) {
 			currentNetwork = item;
@@ -1153,7 +1153,7 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 	const QString newHash = cryptoHash.result().toHex();
 
 	if (newHash == oldHash) {
-		debug("updateNetworks() <<<<<< NO CHANGE");
+		de_bug("updateNetworks() <<<<<< NO CHANGE");
 		foreach(QTreeWidgetItem *item, newNetworkList) {
 			delete item;
 		}
@@ -1174,14 +1174,14 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 		if (substitudeNetwork) {
 			networkList->setCurrentItem(substitudeNetwork);
 			selectedNetwork = substitudeNetwork;
-			debug("select substitude network");
+			de_bug("select substitude network");
 		} else if (currentNetwork) {
 			networkList->setCurrentItem(currentNetwork);
 			selectedNetwork = currentNetwork;
-			debug("select current network");
+			de_bug("select current network");
 		} else {
 			networkList->setCurrentItem(NULL);
-			debug("don't select a network");
+			de_bug("don't select a network");
 		}
 	}
 
@@ -1208,7 +1208,7 @@ void WpaGui::updateNetworks(bool changed/* = true*/) {
 	if (scanWindow)
 		scanWindow->updateResults();
 
-	debug("updateNetworks() <<<<<<");
+	de_bug("updateNetworks() <<<<<<");
 }
 
 
@@ -1230,13 +1230,13 @@ void WpaGui::letTheDogOut(int dog, bool yes) {
 
 	if (yes) {
 		if (watchdogTimer.interval() != dog || !watchdogTimer.isActive())
-			debug("New dog on patrol %d", dog);
+			de_bug("New dog on patrol %d", dog);
 
 		watchdogTimer.start(dog);
 	}
 	else if (watchdogTimer.isActive()) {
 		watchdogTimer.stop();
-		debug("No dog on patrol");
+		de_bug("No dog on patrol");
 	}
 }
 
@@ -1256,9 +1256,9 @@ void WpaGui::letTheDogOut(bool yes/* = true*/) {
 void WpaGui::assistanceDogOffice() {
 
 	tally.insert(AssistanceDogAtWork);
-	debug("WUFF>");
+	de_bug("WUFF>");
 	updateStatus();
-	debug("WUFF<");
+	de_bug("WUFF<");
 	tally.remove(AssistanceDogAtWork);
 }
 
@@ -1271,13 +1271,13 @@ void WpaGui::assistanceDogNeeded(bool needed/* = true*/) {
 		if (tally.contains(AssistanceDogAtWork))
 			return;
 		if (!assistanceDog.isActive())
-			debug("Assistance dog called");
+			de_bug("Assistance dog called");
 
 		assistanceDog.start(BorderCollie);
 	} else if (!assistanceDog.isActive()) {
 		return;
 	} else {
-		debug("Relax, assistance dog");
+		de_bug("Relax, assistance dog");
 		assistanceDog.stop();
 	}
 }
@@ -1296,13 +1296,13 @@ void WpaGui::enablePolling(bool yes) {
 
 void WpaGui::helpIndex() {
 
-	debug("helpIndex");
+	de_bug("helpIndex");
 }
 
 
 void WpaGui::helpContents() {
 
-	debug("helpContents");
+	de_bug("helpContents");
 }
 
 
@@ -1348,10 +1348,10 @@ void WpaGui::ping() {
 	int dog(watchdogTimer.interval());
 	int maxDog(SnoozingDog);
 
-	debug("PING! >>>>> state: %d / %d  dog:%d", oldState, wpaState, dog);
+	de_bug("PING! >>>>> state: %d / %d  dog:%d", oldState, wpaState, dog);
 	if (wpaState > WpaNotRunning)
 		receiveMsgs();
-	debug("PING! ----- state: %d / %d",oldState, wpaState);
+	de_bug("PING! ----- state: %d / %d",oldState, wpaState);
 
 	if (wpaState != oldState) {
 		oldState = wpaState;
@@ -1369,7 +1369,7 @@ void WpaGui::ping() {
 		case WpaFatal:
 			letTheDogOut(false);
 			logHint(tr("Polling halted"));
-			debug("PING! <-<<<");
+			de_bug("PING! <-<<<");
 			return;
 			break;
 		case WpaUnknown:
@@ -1378,7 +1378,7 @@ void WpaGui::ping() {
 				maxDog = BassetHound;
 				if (dog > maxDog) dog = maxDog;
 				letTheDogOut(dog);
-				debug("PING! <<-<<");
+				de_bug("PING! <<-<<");
 				return;
 			}
 			break;
@@ -1394,23 +1394,23 @@ void WpaGui::ping() {
 		if (ctrlRequest("PING") < 0) {
 			logHint(tr("PING failed - trying to reconnect"));
 			setState(WpaNotRunning);
-			debug("PING! <<<-<");
+			de_bug("PING! <<<-<");
 			return;
 		}
-		debug("Play ping-pong");
+		de_bug("Play ping-pong");
 		if (isVisible())
 			// Catch changes done by some other front end
 			tally.insert(NetworkNeedsUpdate);
 	}
 
-	debug("PING! >->->");
+	de_bug("PING! >->->");
 	updateStatus();
 	if (wpaState != oldState) {
 		oldState = wpaState;
 		dog = PomDog;
 	}
 	letTheDogOut(dog);
-	debug("PING! <<<<<");
+	de_bug("PING! <<<<<");
 }
 
 
@@ -1439,7 +1439,7 @@ void WpaGui::updateSignalMeter() {
 		return;
 	}
 
-	debug("RSSI value: %d", rssi_value);
+	de_bug("RSSI value: %d", rssi_value);
 	textRssi->setText(Helper::signalToHumanText(rssi_value));
 
 	/*
@@ -1489,7 +1489,7 @@ void WpaGui::logHint(const QString& hint) {
 	while (text.endsWith('\n'))
 		text.chop(1);
 
-	debug("UserHint: %s", hint.toLocal8Bit().constData());
+	de_bug("UserHint: %s", hint.toLocal8Bit().constData());
 
 	if (text.count('\n') == 0) {
 		statusHint->setText(text);
@@ -1551,7 +1551,7 @@ void WpaGui::processMsg(char* msg) {
 	while (msgs.size() > 100)
 		msgs.pop_front();
 
-	debug("processMsg - %s", msg);
+	de_bug("processMsg - %s", msg);
 
 	if (str_match(pos, WPA_CTRL_REQ)) {
 		processCtrlReq(pos + strlen(WPA_CTRL_REQ));
@@ -1590,7 +1590,7 @@ void WpaGui::processMsg(char* msg) {
 		} else if (strstr(pos, "reason=4")) {
 			setState(WpaLostSignal);
 		} else {
-			debug("Disconnect reason not handled/ignored");
+			de_bug("Disconnect reason not handled/ignored");
 		}
 	} else if (str_match(pos, "SME: Trying to authenticate")) {
 		char* bssid = strstr(pos, "authenticate with ") + 18;
@@ -1623,7 +1623,7 @@ void WpaGui::processMsg(char* msg) {
 			// that this can be 'Blocked client'/'Max client reached'/'Unknown',
 			// Any idea? (Besides to send a bug report)
 			tally.insert(NetworkNeedsUpdate);
-			debug("NetworkNeedsUpdate");
+			de_bug("NetworkNeedsUpdate");
 		}
 	} else if (str_match(pos, WPA_EVENT_CONNECTED)) {
 		setState(WpaCompleted);
@@ -1683,13 +1683,13 @@ void WpaGui::processMsg(char* msg) {
 		wpsStop(WPS_EVENT_SUCCESS);
 	} else if (str_match(pos, WPA_EVENT_BSS_REMOVED)) {
 		// Needed to catch these or the next has not the desired effect to...
-		debug("Message noticed but so far ignored");
+		de_bug("Message noticed but so far ignored");
 	} else if (WpaObscure == wpaState) {
 		// ...catch the buggy wpa_supplicant behavior when shut down
 		// Here should it be: setState(WpaPlain) or similar, but I'm too lazy
 		tally.insert(StatusNeedsUpdate);
 	} else {
-		debug("Message ignored");
+		de_bug("Message ignored");
 	}
 }
 
@@ -1759,7 +1759,7 @@ void WpaGui::receiveMsgs() {
 	char buf[256];
 	size_t len;
 
-	debug("receiveMsgs() >>>");
+	de_bug("receiveMsgs() >>>");
 
 	while (monitor_conn && wpa_ctrl_pending(monitor_conn) > 0) {
 		len = sizeof(buf) - 1;
@@ -1768,9 +1768,9 @@ void WpaGui::receiveMsgs() {
 			processMsg(buf);
 		}
 	}
-	debug("receiveMsgs() >>>>>>");
+	de_bug("receiveMsgs() >>>>>>");
 	updateStatus(tally.contains(StatusNeedsUpdate) || tally.contains(NetworkNeedsUpdate));
-	debug("receiveMsgs() <<<<<<");
+	de_bug("receiveMsgs() <<<<<<");
 }
 
 
@@ -1778,7 +1778,7 @@ void WpaGui::networkSelectionChanged() {
 
 	QTreeWidgetItem* selectedNetwork = networkList->currentItem();
 	if (!selectedNetwork) {
-		debug("networkSelectionChanged - NULL");
+		de_bug("networkSelectionChanged - NULL");
 		networkEditAction->setEnabled(false);
 		networkRemoveAction->setEnabled(false);
 		networkDisEnableAction->setEnabled(false);
@@ -1835,7 +1835,7 @@ void WpaGui::disableNetwork(const QString& sel) {
 void WpaGui::requestNetworkChange(const QString& req, const QString& sel) {
 
 	if (sel != "all" && !QRegularExpression("^\\d+$").match(sel).hasMatch()) {
-		debug("Invalid request target: %s '%s'",
+		de_bug("Invalid request target: %s '%s'",
 				req.toLocal8Bit().constData(),
 				sel.toLocal8Bit().constData());
 		return;
@@ -1949,7 +1949,7 @@ void WpaGui::scan4Networks() {
 int WpaGui::getNetworkDisabled(const QString& sel) {
 
 	if (sel != "all" && !QRegularExpression("^\\d+$").match(sel).hasMatch()) {
-		debug("Invalid getNetworkDisabled '%s'", sel.toLocal8Bit().constData());
+		de_bug("Invalid getNetworkDisabled '%s'", sel.toLocal8Bit().constData());
 		return -1;
 	}
 
@@ -2210,7 +2210,7 @@ void WpaGui::showTrayStatus() {
 		msg.append(mask.arg(ipAddressLabel->text(), lw)
 		               .arg(textIpAddress->text(), tw));
 		// FIXME Add PAE/EAP and tests which fields are not empty
-		debug("%s", msg.toLocal8Bit().constData());
+		de_bug("%s", msg.toLocal8Bit().constData());
 	}
 
 	trayIcon->showMessage(title, msg
@@ -2645,13 +2645,13 @@ bool WpaGui::serviceRunning() {
 
 	scm = OpenSCManager(0, 0, SC_MANAGER_CONNECT);
 	if (!scm) {
-		debug("OpenSCManager failed: %d", (int) GetLastError());
+		de_bug("OpenSCManager failed: %d", (int) GetLastError());
 		return false;
 	}
 
 	svc = OpenService(scm, WPASVC_NAME, SERVICE_QUERY_STATUS);
 	if (!svc) {
-		debug("OpenService failed: %d", (int) GetLastError());
+		de_bug("OpenService failed: %d", (int) GetLastError());
 		CloseServiceHandle(scm);
 		return false;
 	}
