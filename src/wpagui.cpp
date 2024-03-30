@@ -1021,7 +1021,11 @@ void WpaGui::updateStatus(bool needsUpdate/* = true*/) {
 	}
 
 	textSsid->setText(status.value("ssid"));
-	textFreq->setText(status.value("freq") + "MHz");
+	if (status.contains("freq")) {
+		textFreq->setText(status.value("freq") + "MHz");
+	} else {
+		textFreq->setText("");
+	}
 	textWifiGen->setText(status.value("wifi_generation"));
 	textBssid->setText(status.value("bssid"));
 
