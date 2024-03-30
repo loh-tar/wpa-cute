@@ -2198,11 +2198,17 @@ void WpaGui::showTrayStatus() {
 	msg.append(mask.arg(statusLabel->text(), lw)
 	               .arg(textStatus->text(), tw));
 
+	// Um? Looks like the number of lines are limited in KDE, so some
+	// info is commented
 	if (WpaCompleted == wpaState) {
 		msg.append(mask.arg(ssidLabel->text(), lw)
 		               .arg(textSsid->text(), tw));
 		msg.append(mask.arg(rssiLabel->text(), lw)
 		               .arg(textRssi->text(), tw));
+		// msg.append(mask.arg(freqLabel->text(), lw)
+		               // .arg(textFreq->text(), tw));
+		// msg.append(mask.arg(wifiGenLabel->text(), lw)
+		               // .arg(textWifiGen->text(), tw));
 		msg.append(mask.arg(bssidLabel->text(), lw)
 		               .arg(textBssid->text(), tw));
 		msg.append(mask.arg(authenticationLabel->text(), lw)
