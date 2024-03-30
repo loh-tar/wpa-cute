@@ -119,9 +119,10 @@ bug report on the project page or directly by mail to the author.
 
 ### Event History Window
 
-All wpa_supplicant messages are collected there, but only if the window has been
+All raw wpa_supplicant messages are collected there, but only if the window has been
 opened once. This is why it is always empty the first time it is called up, regardless
-of how long wpaCute has been running.
+of how long wpaCute has been running. Whether this is really useful remains to be seen.
+Maybe if you have serious problems to set-up a connection.
 
 
 ### Peers Window
