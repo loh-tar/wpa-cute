@@ -3,7 +3,9 @@ wpa-cute(8) -- A graphical wpa_supplicant front end
 
 ## SYNOPSIS
 
-`wpa-cute` [ -i ifname ] [ -m seconds ] [ -N ] [ -p path-to-ctrl-sockets ] [ -q ] [ -t ] [-R] [ -W ]
+<!-- Pay attention to the trailing two blanks in the next line !!! -->
+`wpa-cute` [ -i ifname ] [ -m seconds ] [ -N ] [ -p path-to-ctrl-sockets ] [ -q ] [ -t ] [-R] [ -W ]  
+`wpa-cute` [ -h ] [-?] [ --h ] [--l]
 
 
 ## DESCRIPTION
@@ -63,6 +65,15 @@ wpaCute is a fork from wpa_gui, shipped with wpa_supplicant version 2.6
     idea, but I believe it is mostly annoying due to it's implementation. If I'm
     wrong, use -W to have the original behavior. By default will now a network
     disabled after a "WRONG_KEY" message.
+
+  * `-h, -?`:
+    Show a short help text and program information
+
+  * `--h`:
+    Call `man` to display this man page you are currently reading
+
+  * `--l`:
+    Print the license
 
 
 ## NOTES ABOUT SOME GUI ELEMENTS
