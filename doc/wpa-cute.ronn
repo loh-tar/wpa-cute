@@ -3,7 +3,7 @@ wpa-cute(8) -- A graphical wpa_supplicant front end
 
 ## SYNOPSIS
 
-`wpa-cute` [ -i ifname ] [ -m seconds ] [ -N ] [ -p path-to-ctrl-sockets ] [ -q ] [ -t ] [ -W ]
+`wpa-cute` [ -i ifname ] [ -m seconds ] [ -N ] [ -p path-to-ctrl-sockets ] [ -q ] [ -t ] [-R] [ -W ]
 
 
 ## DESCRIPTION
@@ -51,6 +51,9 @@ wpaCute is a fork from wpa_gui, shipped with wpa_supplicant version 2.6
   * `-t`:
     Start program in the system tray only (if the window manager supports it).
     By default the main status window is shown.
+
+  * `-R`:
+    Tell the session manager not to restart wpaCute after reboot.
 
   * `-W`:
     Unset setting - Disable network after "WRONG_KEY"
@@ -141,12 +144,18 @@ me in the near future what the benefit of this window is, could it be removed so
 Until v0.8.4 wpaCute had no proper session support. That means you had to add wpaCute
 to some auto start feature of you desktop environment with the needed options. That
 could cause some trouble, in the sense that more than one was running after a reboot.
-I had, for example on my KDE, to add wpaCute to the list of ignored applications on the
+I had, for example, to add wpaCute to the list of ignored applications on the
 KDE session config page.
 
 As long as your desktop environment support session restore in a way that Qt support,
 is that no longer needed. Just start wpaCute with the [COMMAND ARGUMENTS] you need,
 and you are done.
+
+However, there is now also the option `-R` which should have the same effect as to
+add wpaCute to some ignore list of the session manager. The session manager ask
+the new started application what to do in case of a system restart and the
+application normally says _restart me of cause_, whereas with `-R` the application
+answers _don't autostart me_.
 
 
 ### Config File

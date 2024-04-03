@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
 		if (arg.startsWith("-h") || arg.startsWith("-?") ) {
 			qStdOut() << About::slogan() << "\n";
 			qStdOut() << "version : " ProjVersion ", " ProjRelease "\n";
-			qStdOut() << "usage   : wpa-cute [-i <ifname>][-m <seconds>][-p <dir>][-t][-p][-q][-N][-W]\n";
+			qStdOut() << "usage   : wpa-cute [-i <ifname>][-m <seconds>][-N][-p <dir>][-q][-t][-R][-W]\n";
 			qStdOut() << "help    : wpa-cute --h\n";
 			qStdOut() << "license : wpa-cute --l\n";
 			return 0;

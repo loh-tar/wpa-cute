@@ -55,6 +55,7 @@ enum TallyType {
 	UserRequestDisconnect,
 	UserRequestScan,
 	InTray,
+	NoRestart,
 	NetworkNeedsUpdate,
 	QuietMode,
 	StartInTray,
@@ -286,6 +287,10 @@ void WpaGui::quitApplication() {
 
 void WpaGui::saveProgState(QSessionManager& manager) {
 
+	if (tally.contains(NoRestart)) {
+		manager.setRestartHint(QSessionManager::RestartNever);
+		return;
+	}
 	QSettings settings;
 
 	settings.beginGroup("Session-" + manager.sessionId());
@@ -361,7 +366,7 @@ void WpaGui::restoreWindowGeometry() {
 void WpaGui::parseArgCV(WpaGuiApp *app) {
 
 	int c;
-	while( (c = getopt(app->argc, app->argv, "i:m:p:tqNPW"))  > 0) {
+	while( (c = getopt(app->argc, app->argv, "i:m:p:tqNPWR"))  > 0) {
 		switch (c) {
 		case 'i':
 			ctrlInterface = optarg;
@@ -390,6 +395,9 @@ void WpaGui::parseArgCV(WpaGuiApp *app) {
 			break;
 		case 'W':
 			disableWrongKeyNetworks->setChecked(false);
+			break;
+		case 'R':
+			tally.insert(NoRestart);
 			break;
 		}
 	}
