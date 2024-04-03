@@ -2149,7 +2149,6 @@ void WpaGui::trayActivated(QSystemTrayIcon::ActivationReason how) {
 	case QSystemTrayIcon::Trigger:
 		if (isVisible()) {
 			close();
-			tally.insert(InTray);
 		} else {
 			show();
 			activateWindow();
@@ -2393,6 +2392,7 @@ void WpaGui::closeEvent(QCloseEvent* event) {
 		tally.insert(AckTrayIcon);
 	}
 
+	tally.insert(InTray);
 	event->accept();
 }
 
