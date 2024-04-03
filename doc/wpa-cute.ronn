@@ -78,6 +78,23 @@ wpaCute is a fork from wpa_gui, shipped with wpa_supplicant version 2.6
 
 ## NOTES ABOUT SOME GUI ELEMENTS
 
+### Menu
+
+Most of the main menu items should not pose any puzzles. Therefore just a few comments on
+the Settings menu. A subset of the main menu items are also available on the [Status Icon].
+
+  * `Disable notifier`:
+    Corresponds to the option `-N`
+
+  * `No tray status balloon`:
+    This means, when you `middle-click` on the icon, the main window appears and the
+    status page is shown. That may in future versions change or merged
+    with option `-q`
+
+  * `Disable network after wrong key`:
+    Corresponds to the option `-W`
+
+
 ### Status Icon
 
 The icon changes its appearance depending on the current connection status or quality.
