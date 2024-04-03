@@ -304,6 +304,7 @@ void WpaGui::saveProgState(QSessionManager& manager) {
 	settings.setValue("opt-W", disableWrongKeyNetworks->isChecked());
 	settings.setValue("InTray", tally.contains(InTray));
 	settings.setValue("AckTrayIcon", tally.contains(AckTrayIcon));
+	settings.setValue("NoTrayBallon", noTrayBalloonAction->isChecked());
 
 	settings.endGroup();
 }
@@ -333,6 +334,7 @@ void WpaGui::restoreProgState() {
 	disableWrongKeyNetworks->setChecked(settings.value("opt-W").toBool());
 	if (settings.value("InTray").toBool()) tally.insert(InTray);
 	if (settings.value("AckTrayIcon").toBool()) tally.insert(AckTrayIcon);
+	noTrayBalloonAction->setChecked(settings.value("NoTrayBallon").toBool());
 
 	settings.endGroup();
 }
