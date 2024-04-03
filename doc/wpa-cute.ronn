@@ -136,6 +136,28 @@ me in the near future what the benefit of this window is, could it be removed so
 
 ## THINGS OF INTEREST
 
+### Session Management
+
+Until v0.8.4 wpaCute had no proper session support. That means you had to add wpaCute
+to some auto start feature of you desktop environment with the needed options. That
+could cause some trouble, in the sense that more than one was running after a reboot.
+I had, for example on my KDE, to add wpaCute to the list of ignored applications on the
+KDE session config page.
+
+As long as your desktop environment support session restore in a way that Qt support,
+is that no longer needed. Just start wpaCute with the [COMMAND ARGUMENTS] you need,
+and you are done.
+
+
+### Config File
+
+The configuration file can usually found at **~/.config/wpaCute/wpaCute.conf**.
+There is actually nothing there that you have to or should set yourself. wpaCute
+saves the window position and size there as `geometry` below the group `[Adapter-<iface>]`.
+In the group `[Session-<id>]` are relevant data listed to restore the state of wpaCute
+after a reboot. Many keys has the name `opt-<X>` and correspond to the [COMMAND ARGUMENTS].
+
+
 ### Polling and Pinging
 
 On systems where QSocketNotifier is not supported is wpa_supplicant only polled

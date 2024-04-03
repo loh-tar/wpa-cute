@@ -34,10 +34,6 @@ class WpaGuiApp : public QApplication
 public:
 	WpaGuiApp(int& argc, char** argv);
 
-#if !defined(QT_NO_SESSIONMANAGER) && QT_VERSION < 0x050000
-	        void saveState(QSessionManager& manager);
-#endif
-
 	int     argc;
 	char**  argv;
 	WpaGui* mainWindow;
@@ -127,9 +123,6 @@ public:
 	        void enableNetwork(const QString& sel);
 	        void disableNetwork(const QString& sel);
 	         int getNetworkDisabled(const QString& sel);
-#ifndef QT_NO_SESSIONMANAGER
-	        void saveState();
-#endif
 
 public slots:
 	        void updateStatus(bool needsUpdate = true);
@@ -142,6 +135,9 @@ public slots:
 	        void showPeersWindow();
 	        void showEventHistoryWindow();
 	        void showWpsWindow();
+
+	        void saveProgState(QSessionManager& manager);
+	        void restoreProgState();
 
 	        void saveConfig();
 	        void reloadConfig();
@@ -201,6 +197,7 @@ protected slots:
 	        void trayActivated(QSystemTrayIcon::ActivationReason how);
 	        void closeEvent(QCloseEvent* event);
 	        void showEvent(QShowEvent* event);
+	        void quitApplication();
 
 private:
 
@@ -227,7 +224,10 @@ private:
 	        void setState(const WpaStateType state);
 
 	        void parseArgCV(WpaGuiApp *app);
-	        void createTrayIcon(bool);
+	        void createTrayIcon();
+	        void saveWindowGeometry();
+	        void restoreWindowGeometry();
+
 	        void newDialog(DialogType type, QDialog* window);
 	        void closeDialog(QDialog* window);
 

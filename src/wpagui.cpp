@@ -24,6 +24,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QScrollBar>
+#include <QSessionManager>
 #include <QSettings>
 #include <QStatusBar>
 
@@ -167,11 +168,7 @@ WpaGui::WpaGui(WpaGuiApp *app
 	      , this, SLOT(saveConfig()));
 	connect(reloadConfigAction, SIGNAL(triggered())
 	      , this, SLOT(reloadConfig()));
-	connect(quitAction, &QAction::triggered, this, [=](){
-		// Ensure not to show some "keep running..." message
-		tally.insert(AckTrayIcon);
-		qApp->quit();
-	});
+	connect(quitAction, &QAction::triggered, this, &WpaGui::quitApplication, Qt::QueuedConnection);
 
 	connect(scanAction, SIGNAL(triggered())
 	      , this, SLOT(showScanWindow()));
@@ -218,40 +215,26 @@ WpaGui::WpaGui(WpaGuiApp *app
 	      , this, SLOT(showWpsWindow()));
 
 	parseArgCV(app);
+	restoreProgState();
 
 	connect(disableNotifierAction, SIGNAL(toggled(bool))
 	      , this, SLOT(disableNotifier(bool)));
 	connect(enablePollingAction, SIGNAL(toggled(bool))
 	      , this, SLOT(enablePolling(bool)));
 
-#ifndef QT_NO_SESSIONMANAGER
-	if (app->isSessionRestored()) {
-		QSettings settings("wpa_supplicant", ProjAppName);
-		settings.beginGroup("state");
-		if (app->sessionId()
-		   .compare(settings.value("session_id").toString()) == 0 &&
-		              settings.value("in_tray").toBool())
-			tally.insert(StartInTray);
-
-		settings.endGroup();
-	}
-#endif
-
-	if (QSystemTrayIcon::isSystemTrayAvailable())
-		createTrayIcon(tally.contains(StartInTray));
-	else
-		show();
+	connect(qApp, &QGuiApplication::saveStateRequest, this, &WpaGui::saveProgState, Qt::DirectConnection);
 
 	letTheDogOut();
 	setState(WpaUnknown);
 	// Initial fetch and fill/setup our network list
 	ping();
 
-	// Now ensure the window don't crop its content
-	// FIXME These magic number 22. The only idea I have is, that the ui file is not properly constructed
-	// so that somehow not the correct size is reported. The Qt docu says layouts do that, or not
-	// A number of 12 do it here as long as the list is short, when there is a vertical scroll bar we need 22
-	resize(QSize(sizeHint().width() + 22, sizeHint().height()));
+	// We save/restore the window geometry depending on the ctrlInterface,
+	// but that need some time to be set
+	QTimer::singleShot(100, this,[=](){
+		restoreWindowGeometry();
+		createTrayIcon();
+	});
 }
 
 
@@ -286,6 +269,92 @@ bool WpaGui::eventFilter(QObject* o, QEvent* e) {
 void WpaGui::languageChange() {
 
 	retranslateUi(this);
+}
+
+
+void WpaGui::quitApplication() {
+
+	// Cleanup no longer needed config entries
+	QSettings settings;
+	settings.remove("Session-" + qApp->sessionId());
+
+	// Ensure not to show some "keep running..." message
+	tally.insert(AckTrayIcon);
+	qApp->quit();
+}
+
+
+void WpaGui::saveProgState(QSessionManager& manager) {
+
+	QSettings settings;
+
+	settings.beginGroup("Session-" + manager.sessionId());
+
+	settings.setValue("opt-i", ctrlInterface);
+	settings.setValue("opt-m", signalMeterTimer.interval());
+	settings.setValue("opt-N", disableNotifierAction->isChecked());
+	settings.setValue("opt-p", ctrlInterfaceDir);
+	settings.setValue("opt-q", tally.contains(QuietMode));
+	settings.setValue("opt-t", tally.contains(StartInTray));
+	settings.setValue("opt-W", disableWrongKeyNetworks->isChecked());
+	settings.setValue("InTray", tally.contains(InTray));
+	settings.setValue("AckTrayIcon", tally.contains(AckTrayIcon));
+
+	settings.endGroup();
+}
+
+
+void WpaGui::restoreProgState() {
+
+	if (!qApp->isSessionRestored()) return;
+
+	logHint(tr("Restore session %1").arg(qApp->sessionId()));
+
+	const QString sId = "Session-" + qApp->sessionId();
+	QSettings settings;
+	if (!settings.childGroups().contains(sId)) {
+		logHint(tr("Oops?! Session not found in config file"));
+		return;
+	}
+
+	settings.beginGroup(sId);
+
+	ctrlInterface = settings.value("opt-i").toString();
+	signalMeterTimer.setInterval(settings.value("opt-m").toInt());
+	disableNotifierAction->setChecked(settings.value("opt-N").toBool());
+	ctrlInterfaceDir = settings.value("opt-p").toString();
+	if (settings.value("opt-q").toBool()) tally.insert(QuietMode);
+	if (settings.value("opt-t").toBool()) tally.insert(StartInTray);
+	disableWrongKeyNetworks->setChecked(settings.value("opt-W").toBool());
+	if (settings.value("InTray").toBool()) tally.insert(InTray);
+	if (settings.value("AckTrayIcon").toBool()) tally.insert(AckTrayIcon);
+
+	settings.endGroup();
+}
+
+
+void WpaGui::saveWindowGeometry() {
+
+	if (ctrlInterface.isEmpty()) return;
+	QSettings settings;
+	settings.beginGroup("Adapter-" + ctrlInterface);
+	settings.setValue("geometry", saveGeometry());
+	settings.endGroup();
+}
+
+
+void WpaGui::restoreWindowGeometry() {
+
+	if (ctrlInterface.isEmpty()) return;
+
+	QSettings settings;
+	settings.beginGroup("Adapter-" + ctrlInterface);
+	const auto geometry = settings.value("geometry", QByteArray()).toByteArray();
+	if (!geometry.isEmpty()) {
+		restoreGeometry(geometry);
+	}
+
+	settings.endGroup();
 }
 
 
@@ -2082,7 +2151,12 @@ void WpaGui::selectAdapter(const QString& sel) {
 }
 
 
-void WpaGui::createTrayIcon(bool trayOnly) {
+void WpaGui::createTrayIcon() {
+
+	if (!QSystemTrayIcon::isSystemTrayAvailable()) {
+		show();
+		return;
+	}
 
 	QApplication::setQuitOnLastWindowClosed(false);
 
@@ -2118,7 +2192,7 @@ void WpaGui::createTrayIcon(bool trayOnly) {
 		logHint(tr("Tray balloon messages not supported, disabled"));
 	}
 
-	if (trayOnly)
+	if (tally.contains(StartInTray) or tally.contains(InTray))
 		tally.insert(InTray);
 	else
 		show();
@@ -2369,6 +2443,7 @@ QIcon WpaGui::loadThemedIcon(const QStringList& names) {
 
 void WpaGui::closeEvent(QCloseEvent* event) {
 
+	saveWindowGeometry();
 	closeDialog(scanWindow);
 	closeDialog(peersWindow);
 	closeDialog(eventHistoryWindow);
@@ -2718,14 +2793,3 @@ void WpaGui::addInterface() {
 	addIface.exec();
 }
 #endif /* CONFIG_NATIVE_WINDOWS */
-
-#ifndef QT_NO_SESSIONMANAGER
-void WpaGui::saveState() {
-
-	QSettings settings("wpa_supplicant", ProjAppName);
-	settings.beginGroup("state");
-	settings.setValue("session_id", qApp->sessionId());
-	settings.setValue("in_tray", tally.contains(InTray));
-	settings.endGroup();
-}
-#endif

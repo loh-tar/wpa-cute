@@ -29,14 +29,6 @@ WpaGuiApp::WpaGuiApp(int& argc, char** argv)
 
 }
 
-#if !defined(QT_NO_SESSIONMANAGER) && QT_VERSION < 0x050000
-void WpaGuiApp::saveState(QSessionManager& manager) {
-
-	QApplication::saveState(manager);
-	mainWindow->saveState();
-}
-#endif
-
 #ifndef CONFIG_NATIVE_WINDOWS
 #include <QTextStream>
 // Thanks to https://stackoverflow.com/a/3886128
@@ -54,6 +46,11 @@ int main(int argc, char* argv[]) {
 	QString locale;
 	QString resourceDir;
 	int ret;
+
+	// With these two lines can we use QSettings without hassle
+	// Using ProjAppName for both may look strange but what else?
+	QCoreApplication::setOrganizationName(ProjAppName);
+	QCoreApplication::setApplicationName(ProjAppName);
 
 #ifndef CONFIG_NATIVE_WINDOWS
 // It seems console output on Windows need more effort
