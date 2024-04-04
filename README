@@ -19,15 +19,16 @@ is welcome.
 I use only Arch Linux but tried my best not to broke the code for other systems.
 
 
-Last version is 0.8.4, Mar 2024
+Last version is 0.8.5, Apr 2024
 ---------------------------------
-  - Add support for WPA3-Personal and Opportunistic Wireless Encryption (OWE)
-  - WPA3-Enterprise should also work but I can't try it
-  - Change displayed data in networklist
-  - Split Edit window in two tabs Network/Properties
-  - Fix bad window size when add new network from scan results
-  - Keep the network block clean / No remaining old data after edit
-  - Always use RSN instead of WPA2 as proto
+  - Add a field to filter SSID in scan results
+  - Replace signal strength progress bar with a custom star-meter ★★★☆☆
+  - Fix/Add session support, new option -R
+  - Fix gone menu in main window and actions in tray icon context menu
+  - Add much more info to the tool-tip of the tray icon
+  - Fix: Don't show "Keep running..." message when we quit immediately after
+    a normal start
+  - Add more info to man page, switch man-page source from .sgml to .ronn
   - Some minor changes
 
 I tend to remove some functions in future versions. So if you use something
@@ -141,6 +142,18 @@ License
 
 Release History
 =================
+0.8.4, Mar 2024
+-----------------
+  - Add support for WPA3-Personal and Opportunistic Wireless Encryption (OWE)
+  - WPA3-Enterprise should also work but I can't try it
+  - Change displayed data in networklist
+  - Split Edit window in two tabs Network/Properties
+  - Fix bad window size when add new network from scan results
+  - Keep the network block clean / No remaining old data after edit
+  - Always use RSN instead of WPA2 as proto
+  - Some minor changes
+
+
 0.8.3, Jul 2022
 -----------------
   - Only show annoying "..indicating..authorized" message when a WPS run was
