@@ -1,6 +1,6 @@
 /*
  * wpaCute - A graphical wpa_supplicant front end
- * Copyright (C) 2018, 2022, 2024 loh.tar@googlemail.com
+ * Copyright (C) 2018, 2022, 2024, 2025 loh.tar@googlemail.com
  *
  * Collection of Helper Functions
  * Copyright (C) 2024 loh.tar@googlemail.com
