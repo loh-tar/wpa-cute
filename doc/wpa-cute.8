@@ -1,6 +1,6 @@
-.\" generated with Ronn-NG/v0.9.1
-.\" http://github.com/apjanke/ronn-ng/tree/0.9.1
-.TH "WPA\-CUTE" "8" "April 2024" "wpaCute v0.8.5" "wpaCute"
+.\" generated with Ronn-NG/v0.10.1
+.\" http://github.com/apjanke/ronn-ng/tree/0.10.1
+.TH "WPA\-CUTE" "8" "April 2025" "wpaCute v0.8.6" "wpaCute"
 .SH "NAME"
 \fBwpa\-cute\fR \- A graphical wpa_supplicant front end
 .SH "SYNOPSIS"
@@ -8,7 +8,7 @@
 .br
 \fBwpa\-cute\fR [ \-h ] [\-?] [ \-\-h ] [\-\-l]
 .SH "DESCRIPTION"
-wpaCute is a graphical Qt front end program for interacting with wpa_supplicant\. It\'s used to query the current status and change the con‐ figuration\. It supports a subset of the command line client, wpa_cli\. Refer to the \fBwpa_cli(8)\fR man page for a comprehensive list of the interactive mode features\.
+wpaCute is a graphical Qt front end program for interacting with wpa_supplicant\. It's used to query the current status and change the con‐ figuration\. It supports a subset of the command line client, wpa_cli\. Refer to the \fBwpa_cli(8)\fR man page for a comprehensive list of the interactive mode features\.
 .P
 Perhaps the most practical reason to use wpaCute is that it displays a status icon in the system tray\. With just one click on this, you can quickly switch networks on or off, add new ones, edit or delete them\.
 .P
@@ -18,7 +18,7 @@ wpaCute is a fork from wpa_gui, shipped with wpa_supplicant version 2\.6
 .SH "COMMAND ARGUMENTS"
 .TP
 \fB\-i\fR \fIifname\fR
-Specify the interface that is be configured\. Without \-i choose the first interface found in the socket path which start not with \'p2p\-dev\-\' otherwise the last found interface is chosen\.
+Specify the interface that is be configured\. Without \-i choose the first interface found in the socket path which start not with 'p2p\-dev\-' otherwise the last found interface is chosen\.
 .TP
 \fB\-m\fR \fIseconds\fR
 Set an independent update interval in seconds for the signal strength meter\.
@@ -26,7 +26,7 @@ Set an independent update interval in seconds for the signal strength meter\.
 This value must be a positive integer\. Without \fB\-m\fR the signal meter is only updated at each status update\. See also the notes about polling and pinging\.
 .TP
 \fB\-N\fR
-Force not to use QSocketNotifier, use only polling\. It\'s more for testing purposes\.
+Force not to use QSocketNotifier, use only polling\. It's more for testing purposes\.
 .TP
 \fB\-p\fR \fIpath\-to\-ctrl\-sockets\fR
 Change the path where control sockets should be found\.
@@ -43,7 +43,7 @@ Tell the session manager not to restart wpaCute after reboot\.
 \fB\-W\fR
 Unset setting \- Disable network after "WRONG_KEY"
 .IP
-This is a workaround to a wpa_supplicant quirk where he endless tries to connect to a wrong configured network\. There are cases where it is a good idea, but I believe it is mostly annoying due to it\'s implementation\. If I\'m wrong, use \-W to have the original behavior\. By default will now a network disabled after a "WRONG_KEY" message\.
+This is a workaround to a wpa_supplicant quirk where he endless tries to connect to a wrong configured network\. There are cases where it is a good idea, but I believe it is mostly annoying due to it's implementation\. If I'm wrong, use \-W to have the original behavior\. By default will now a network disabled after a "WRONG_KEY" message\.
 .TP
 \fB\-h, \-?\fR
 Show a short help text and program information
@@ -95,17 +95,17 @@ Until v0\.8\.4 wpaCute had no proper session support\. That means you had to add
 .P
 As long as your desktop environment support session restore in a way that Qt support, is that no longer needed\. Just start wpaCute with the \fICOMMAND ARGUMENTS\fR you need, and you are done\.
 .P
-However, there is now also the option \fB\-R\fR which should have the same effect as to add wpaCute to some ignore list of the session manager\. The session manager ask the new started application what to do in case of a system restart and the application normally says \fIrestart me of cause\fR, whereas with \fB\-R\fR the application answers \fIdon\'t autostart me\fR\.
+However, there is now also the option \fB\-R\fR which should have the same effect as to add wpaCute to some ignore list of the session manager\. The session manager ask the new started application what to do in case of a system restart and the application normally says \fIrestart me of cause\fR, whereas with \fB\-R\fR the application answers \fIdon't autostart me\fR\.
 .SS "Config File"
 The configuration file can usually found at \fB~/\.config/wpaCute/wpaCute\.conf\fR\. There is actually nothing there that you have to or should set yourself\. wpaCute saves the window position and size there as \fBgeometry\fR below the group \fB[Adapter\-<iface>]\fR\. In the group \fB[Session\-<id>]\fR are relevant data listed to restore the state of wpaCute after a reboot\. Many keys has the name \fBopt\-<X>\fR and correspond to the \fICOMMAND ARGUMENTS\fR\.
 .SS "Polling and Pinging"
 On systems where QSocketNotifier is not supported is wpa_supplicant only polled to fetch status changes\.
 .P
-One ambitious development goal was to drop the need for Polling & Pinging on systems where QSocketNotifier is supported\. But it turned out that this was a road to ruin due to the lack of some \'Status Has Changed Message\' from wpa_supplicant\. And finally would than still the problem be left that wpa_supplicant could silently die without some sigh\. So, we are doomed to poll!
+One ambitious development goal was to drop the need for Polling & Pinging on systems where QSocketNotifier is supported\. But it turned out that this was a road to ruin due to the lack of some 'Status Has Changed Message' from wpa_supplicant\. And finally would than still the problem be left that wpa_supplicant could silently die without some sigh\. So, we are doomed to poll!
 .P
 The polling is now not done in a fixed interval but depends on current status and reach from high frequent polling in 1sec, when probably changes are on the way, down to 20sec in some static status where primarily is checked if someone is still alive\.
 .P
-With the main window visible is polled in 5sec\. Only in case of an fatal error is polling halted, which e\.g\. occurs when the user not belongs to the configured \'ctrl_interface_group=foo\'\.
+With the main window visible is polled in 5sec\. Only in case of an fatal error is polling halted, which e\.g\. occurs when the user not belongs to the configured 'ctrl_interface_group=foo'\.
 .SH "COPYRIGHT"
 .nf
 This program is licensed under the BSD license (the one with advertisement clause removed)\.
