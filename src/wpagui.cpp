@@ -2600,7 +2600,7 @@ QString WpaGui::wpsGeneratePin(const QString& bssid) {
 			return QString();
 
 	logHint(tr("User started WPS PIN Method"));
-	logHint(tr("for BSSID %1 with generated PIN %2").arg(bssid).arg(buf));
+	logHint(tr("for BSSID %1 with generated PIN %2").arg(bssid).arg(QString(buf)));
 	wpsStart();
 
 	return QString(buf);

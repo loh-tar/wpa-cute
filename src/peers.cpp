@@ -451,7 +451,7 @@ void Peers::add_stations() {
 
 		add_station(info);
 
-	} while (wpagui->ctrlRequest(cmd.arg(buf), buf, len) >= 0);
+	} while (wpagui->ctrlRequest(cmd.arg(QString(buf)), buf, len) >= 0);
 }
 
 
